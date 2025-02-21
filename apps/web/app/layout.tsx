@@ -1,17 +1,29 @@
-import { Geist, Geist_Mono } from "next/font/google"
+import type { Metadata, Viewport } from 'next'
+import './globals.css'
 
-import "@workspace/ui/globals.css"
-import { Providers } from "@/components/providers"
+export const viewport: Viewport = {
+  themeColor: '#1E40AF',
+}
 
-const fontSans = Geist({
-  subsets: ["latin"],
-  variable: "--font-sans",
-})
-
-const fontMono = Geist_Mono({
-  subsets: ["latin"],
-  variable: "--font-mono",
-})
+export const metadata: Metadata = {
+  title: 'Jared Russell | Full Stack Data Engineer',
+  description: 'Full Stack Data Engineer specializing in robust data pipelines and scalable solutions',
+  icons: {
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.ico', sizes: '32x32', type: 'image/x-icon' },
+    ],
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+  },
+  manifest: '/site.webmanifest',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Jared Russell',
+  },
+}
 
 export default function RootLayout({
   children,
@@ -19,12 +31,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${fontSans.variable} ${fontMono.variable} font-sans antialiased `}
-      >
-        <Providers>{children}</Providers>
-      </body>
+    <html lang="en">
+      <body>{children}</body>
     </html>
   )
 }

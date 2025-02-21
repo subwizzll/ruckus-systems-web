@@ -1,12 +1,24 @@
-import { Button } from "@workspace/ui/components/button"
+import Contact from "./components/Contact"
+import Experience from "./components/Experience"
+import Footer from "./components/Footer"
+import Header from "./components/Header"
+import Hero from "./components/Hero"
+import Projects from "./components/Projects"
+import Skills from "./components/Skills"
 
-export default function Page() {
+export default function Home() {
   return (
-    <div className="flex items-center justify-center min-h-svh">
-      <div className="flex flex-col items-center justify-center gap-4">
-        <h1 className="text-2xl font-bold">Hello World</h1>
-        <Button size="sm">Button</Button>
-      </div>
+    <div className="min-h-screen flex flex-col">
+      <Header />
+      <main>
+        <Hero />
+        <Skills />
+        <Experience />
+        <Projects />
+        <Contact />
+      </main>
+      <Footer />
     </div>
   )
 }
+
