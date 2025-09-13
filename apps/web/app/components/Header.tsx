@@ -18,6 +18,9 @@ export default function Header() {
             <Link href="#projects" className="hover:text-gray-300">
               Projects
             </Link>
+            <Link href="/resume" className="hover:text-gray-300 bg-blue-600 px-3 py-1 rounded-md font-medium">
+              Resume
+            </Link>
             <Link href="#contact" className="hover:text-gray-300">
               Contact
             </Link>

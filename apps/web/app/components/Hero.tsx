@@ -13,7 +13,7 @@ export default function Hero() {
         </div>
         <div className="md:w-1/2">
           <Image
-            src="https://media.licdn.com/dms/image/v2/C4D03AQE7YCgRoD5mDA/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1587563840331?e=1745452800&v=beta&t=944uBvWvxHb9KQLd9JjDpzoUhHA7WEpb7y7dwODk-LQ"
+            src="/headshot.jpeg"
             alt="Jared Russell"
             width={400}
             height={400}
