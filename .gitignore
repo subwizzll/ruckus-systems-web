@@ -1,6 +1,7 @@
 **/node_modules
 **/.next
+**/.astro
+**/dist
 **/.idea/
 **/.turbo/
-**/pnpm-lock.yaml
 **/.DS_Store

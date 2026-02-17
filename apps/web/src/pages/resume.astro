@@ -1,0 +1,124 @@
+---
+import Layout from '../layouts/Layout.astro'
+
+const contactItems = [
+  { text: '828-606-2469', href: 'tel:828-606-2469' },
+  { text: 'jared@ruckussystems.dev', href: 'mailto:jared@ruckussystems.dev' },
+  { text: 'linkedin.com/in/ruckussystems', href: 'https://linkedin.com/in/ruckussystems' },
+  { text: 'github.com/subwizzll', href: 'https://github.com/subwizzll' },
+]
+
+const experiences = [
+  {
+    title: 'Full Stack Engineer -> Data Engineer',
+    company: 'Healthbook+',
+    location: 'Remote - Full-time',
+    period: 'Feb. 2024 - Present',
+    achievements: [
+      'Served as sole triage specialist using Jira, DataDog, Sentry, and AWS CloudWatch to identify and resolve production issues, achieving 99.5% uptime',
+      'Researched and implemented end-to-end testing frameworks for React Native CI/CD pipeline using TypeScript to reduce QA overhead by 60% and enable weekly releases',
+      'Developed comprehensive PDF health record reports using Python, Django, PostgreSQL, and React Native to provide patients with consolidated medical data',
+      'Implemented Sentry Replays and Crash Reports with custom TypeScript logging overrides to improve error tracking accuracy by 85%',
+      'Built mobile app integration with wearables using Java, Spring Framework, and PostgreSQL to enable real-time health data synchronization for 5,000+ active users',
+      'Developed internal health record systems with Docker, LocalStack, S3, SQS, and EKS to integrate with multiple vendor APIs, reducing data processing time by 40%',
+      'Integrated Zendesk into legacy backend systems using Java and Spring Framework to streamline support ticket management and improve customer service workflows',
+    ],
+  },
+  {
+    title: '.NET Developer',
+    company: 'R+L Carriers',
+    location: 'Remote - Full-time',
+    period: 'Apr. 2023 - Feb. 2024',
+    achievements: [
+      'Built comprehensive fuel and mileage reporting system using C#, JavaScript, ASP.NET Core, and MS SQL Server to replace legacy system, delivering data 70% faster',
+      'Overhauled tablet logging system with proper event sequence management and timestamp handling to ensure 100% FMCSA compliance for driver logs',
+      'Developed ELD-compliant features using ASP.NET and Xamarin to meet Federal Electronic Logging Device Mandate requirements',
+    ],
+  },
+  {
+    title: 'Software Engineer',
+    company: 'Bank Mobile Technologies Inc.',
+    location: 'Remote - Full-time',
+    period: 'Oct. 2021 - Feb. 2023',
+    achievements: [
+      'Delivered Peer-to-Peer and Shared Savings features for T-Mobile Money app using Xamarin.Forms and ASP.NET Core to serve 500,000+ active users',
+      'Implemented A11y features with custom Effects, MarkupExtensions, and Renderers to achieve AA+ WCAG compliance status for T-Mobile Money',
+      'Delivered solutions ahead of schedule through proactive backend collaboration to achieve zero-defect releases at dev-lock for 12 consecutive sprints',
+    ],
+  },
+  {
+    title: 'Software Engineer',
+    company: 'Harvest RFID',
+    location: 'Remote - Contract',
+    period: 'Jan. 2021 - March 2022',
+    achievements: [
+      'Developed real-time inventory management mobile app using Xamarin.Forms with Bluetooth Low Energy RFID integration to replace manual pen-and-paper processes, saving $10,000+ annually',
+      'Built and deployed ASP.NET Core RESTful backend with cost analysis across Azure and AWS platforms to optimize deployment strategy, saving $3,000+ per year through on-premises solution',
+      'Configured AppCenter Crashes and Distribution for crash analytics and deployment to improve bug resolution speed by 95%',
+    ],
+  },
+  {
+    title: 'IT Support Specialist',
+    company: 'TeleHealth Solution',
+    location: 'Remote - Contract',
+    period: 'June 2021 - Oct. 2021',
+    achievements: [
+      'Implemented PTO calendar system using SharePoint Framework with React/TypeScript to streamline employee time-off management',
+      'Developed Azure Function with CRON scheduling to automate O365 Management Activity API log collection and MongoDB caching, saving 2 hours per new employee onboarding',
+    ],
+  },
+]
+---
+
+<Layout title="Jared Russell - Resume" description="Full Stack Engineer and Data Engineer with expertise in modern web technologies">
+  <section class="bg-gray-100 py-12">
+    <div class="max-w-4xl mx-auto px-6">
+      <div class="text-center mb-12">
+        <h1 class="text-4xl font-bold mb-6">Jared Russell</h1>
+        <div class="flex flex-wrap justify-center gap-6 text-base text-gray-600 mb-8">
+          {contactItems.map((item) => (
+            <a
+              href={item.href}
+              class="hover:text-blue-600 transition-colors duration-200"
+              target={item.href.startsWith('http') ? '_blank' : undefined}
+              rel={item.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+            >
+              {item.text}
+            </a>
+          ))}
+        </div>
+      </div>
+
+      <div class="mb-10">
+        <h2 class="text-3xl font-bold mb-6 text-center">Professional Experience</h2>
+        <div class="space-y-8">
+          {experiences.map((exp) => (
+            <div class="bg-white rounded-lg p-8 shadow-sm border border-gray-200">
+              <h3 class="text-2xl font-bold text-gray-900 mb-2">{exp.title}</h3>
+              <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2 text-gray-600 mb-5">
+                <span class="font-semibold text-blue-600 text-lg">{exp.company}</span>
+                <span>{exp.location} | {exp.period}</span>
+              </div>
+              <ul class="space-y-3">
+                {exp.achievements.map((achievement) => (
+                  <li class="flex items-start gap-3 text-gray-700 leading-relaxed">
+                    <span class="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></span>
+                    <span>{achievement}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg p-8 shadow-sm border border-gray-200">
+        <h2 class="text-3xl font-bold mb-6 text-center">Education</h2>
+        <h3 class="text-xl font-bold text-gray-900 mb-2">Blue Ridge Community College</h3>
+        <p class="text-gray-700 mb-2">Hendersonville, NC</p>
+        <p class="text-gray-700 font-semibold">Associate of Applied Science in Computer Programming &amp; Development</p>
+        <p class="text-gray-600 mt-2">Class of 2022 | GPA: 3.845</p>
+      </div>
+    </div>
+  </section>
+</Layout>

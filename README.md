@@ -1,31 +1,33 @@
-# shadcn/ui monorepo template
+# ruckus-systems-web
 
-This template is for creating a monorepo with shadcn/ui.
+Portfolio monorepo powered by Astro and Bun.
 
-## Usage
+## Requirements
 
-```bash
-pnpm dlx shadcn@latest init
-```
+- Bun `1.2.21` or newer
 
-## Adding components
+## Development
 
-To add components to your app, run the following command at the root of your `web` app:
+From the repo root:
 
 ```bash
-pnpm dlx shadcn@latest add button -c apps/web
+bun install
+bun run dev
 ```
 
-This will place the ui components in the `packages/ui/src/components` directory.
+The web app runs from `apps/web` on Astro's default dev port (`4321`).
 
-## Tailwind
+## Build
 
-Your `tailwind.config.ts` and `globals.css` are already set up to use the components from the `ui` package.
+Build all workspace packages:
 
-## Using components
+```bash
+bun run build
+```
 
-To use the components in your app, import them from the `ui` package.
+Or build just the web app:
 
-```tsx
-import { Button } from "@workspace/ui/components/ui/button"
+```bash
+cd apps/web
+bun run build
 ```
