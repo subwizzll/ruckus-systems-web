@@ -1,11 +1,14 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "ui": "tui",
+  "globalDependencies": [".env"],
+  "envMode": "loose",
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": ["dist/**", ".astro/**"]
+      "outputs": ["dist/**", ".vercel/**"],
+      "env": ["VERCEL_FORCE_NO_BUILD_CACHE", "VERCEL_ENV", "VERCEL_URL"]
     },
     "lint": {
       "dependsOn": ["^lint"]
@@ -13,9 +16,39 @@
     "check-types": {
       "dependsOn": ["^check-types"]
     },
+    "clean": {
+      "cache": false
+    },
+    "rebuild": {
+      "cache": false
+    },
+    "format": {
+      "cache": false
+    },
+    "migrate": {
+      "cache": false,
+      "env": ["DATABASE_URL"]
+    },
+    "migrate:down": {
+      "cache": false
+    },
+    "migrate:create": {
+      "cache": false
+    },
+    "migrate:redo": {
+      "cache": false
+    },
+    "migrate:reset": {
+      "cache": false
+    },
+    "seed:admin": {
+      "cache": false,
+      "env": ["ADMIN_EMAIL", "ADMIN_PASSWORD", "ADMIN_NAME", "DATABASE_URL", "CLIENT_SECRET"]
+    },
     "dev": {
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      "env": ["*"]
     }
   }
 }

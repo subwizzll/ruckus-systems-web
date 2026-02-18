@@ -1,12 +1,21 @@
 {
-  "name": "shadcn-ui-monorepo",
+  "name": "ruckus-systems-web",
   "version": "0.0.1",
   "private": true,
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "turbo lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "check-types": "turbo check-types",
+    "clean": "turbo clean && rm -rf node_modules .turbo bun.lock*",
+    "rebuild": "bun clean && bun i && bun run build",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "db:migrate": "turbo run migrate --filter=@workspace/database",
+    "db:migrate:down": "turbo run migrate:down --filter=@workspace/database",
+    "db:migrate:create": "turbo run migrate:create --filter=@workspace/database",
+    "db:migrate:redo": "turbo run migrate:redo --filter=@workspace/database",
+    "db:migrate:reset": "turbo run migrate:reset --filter=@workspace/database",
+    "seed:admin": "turbo run seed:admin --filter=@workspace/backend"
   },
   "workspaces": [
     "apps/*",
@@ -15,6 +24,7 @@
   "devDependencies": {
     "@workspace/eslint-config": "workspace:*",
     "@workspace/typescript-config": "workspace:*",
+    "@types/bun": "^1.2.22",
     "prettier": "^3.2.5",
     "turbo": "^2.3.0",
     "typescript": "5.5.4"

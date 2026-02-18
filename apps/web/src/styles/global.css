@@ -2,6 +2,27 @@
 
 :root {
   --brand-blue: #2563eb;
+  --page-bg: #f8fafc;
+  --page-fg: #0f172a;
+  --accent-sage: #4F6F52;
+  --accent-sage-light: #e8f0e8;
+  --accent-sage-text: #4a6741;
+  --accent-terracotta: #A85232;
+  --accent-gold: #e6b325;
+  --accent-teal: #799999;
+  --surface-soft: #f1f5f9;
+  --surface-soft-border: #e2e8f0;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page-bg: #0f172a;
+    --page-fg: #f8fafc;
+    --accent-sage-light: #2d4030;
+    --accent-sage-text: #a3c4a6;
+    --surface-soft: #1e293b;
+    --surface-soft-border: #334155;
+  }
 }
 
 * {
@@ -10,5 +31,46 @@
 
 body {
   margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background-color: var(--page-bg);
+  color: var(--page-fg);
+  line-height: 1.5;
+}
+
+:where(a) {
+  color: inherit;
+}
+
+/* Print styles for resume export. */
+@media print {
+  nav,
+  footer,
+  .print-button,
+  a[href^='#'] {
+    display: none !important;
+  }
+
+  body,
+  main {
+    background: #fff !important;
+    color: #000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  p,
+  h1,
+  h2,
+  h3,
+  li,
+  span,
+  a {
+    color: #000 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .max-w-4xl {
+    max-width: none !important;
+  }
 }

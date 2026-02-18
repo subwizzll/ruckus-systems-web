@@ -1,0 +1,1107 @@
+---
+const stripePublicKey = import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY || "";
+const bookingEnabled = import.meta.env.PUBLIC_BOOKING_ENABLED !== "false";
+---
+
+<div id="booking-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 p-0 sm:p-4">
+  <div class="h-full w-full overflow-y-auto bg-[var(--surface-soft)] text-[var(--page-fg)] shadow-xl sm:m-4 sm:max-h-[90vh] sm:max-w-4xl sm:rounded-2xl">
+    <div class="flex items-center justify-between border-b border-[var(--surface-soft-border)] p-6">
+      <h2 class="text-2xl font-bold">Book Your Session</h2>
+      <button id="booking-close" class="rounded p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200">
+        Close
+      </button>
+    </div>
+
+    <div class="border-b border-[var(--surface-soft-border)] px-6 py-4">
+      <div class="progress-container">
+        <div class="progress-scroll">
+          <div class="step-indicator active" data-step="1">
+            <span class="step-number">1</span>
+            <span class="step-label">Service</span>
+          </div>
+          <div class="step-divider"></div>
+          <div class="step-indicator" data-step="2">
+            <span class="step-number">2</span>
+            <span class="step-label">Time</span>
+          </div>
+          <div class="step-divider"></div>
+          <div class="step-indicator" data-step="3">
+            <span class="step-number">3</span>
+            <span class="step-label">Details</span>
+          </div>
+          <div class="step-divider"></div>
+          <div class="step-indicator" data-step="4">
+            <span class="step-number">4</span>
+            <span class="step-label">Payment</span>
+          </div>
+          <div class="step-divider"></div>
+          <div class="step-indicator" data-step="5">
+            <span class="step-number">5</span>
+            <span class="step-label">Confirmation</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-6">
+      <div id="booking-error" class="mb-4 hidden rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700"></div>
+
+      <div id="step-1" class="booking-step">
+        <div class="mb-6 text-center">
+          <h3 class="mb-2 text-xl font-semibold">Review Your Service</h3>
+          <p class="text-slate-600 dark:text-slate-400">Confirm the selected engagement before choosing your time.</p>
+        </div>
+
+        <div class="service-card service-review-card">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <h4 id="selected-service-title" class="service-title text-xl font-semibold">Strategy Call</h4>
+              <p id="selected-service-description" class="mt-2 text-sm text-slate-600 dark:text-slate-400">
+                Fast, high-impact advisory to unblock your next move.
+              </p>
+            </div>
+            <div class="text-right">
+              <p id="selected-service-price" class="text-xl font-semibold text-slate-900 dark:text-slate-100">$250</p>
+              <p id="selected-service-duration" class="text-sm text-slate-600 dark:text-slate-400">60 minutes</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 flex justify-end">
+          <button id="continue-to-time" class="btn-primary">Continue to Select Time</button>
+        </div>
+      </div>
+
+      <div id="step-2" class="booking-step hidden">
+        <div class="mb-6 text-center">
+          <h3 class="mb-2 text-xl font-semibold">Select Date and Time</h3>
+          <p class="text-slate-600 dark:text-slate-400">Choose an available slot in your timezone.</p>
+        </div>
+
+        <p class="mb-4 text-sm text-slate-600 dark:text-slate-400">
+          Times shown in your timezone: <span id="user-timezone" class="font-medium"></span>
+        </p>
+
+        <div id="availability-loading" class="py-8 text-center">
+          <div class="animate-pulse">
+            <div class="mx-auto mb-3 h-8 w-8 rounded-full bg-slate-300 dark:bg-slate-600"></div>
+            <p class="text-slate-600 dark:text-slate-400">Loading available times...</p>
+          </div>
+        </div>
+
+        <div id="calendar-container" class="hidden">
+          <div class="flex flex-col lg:flex-row lg:items-start lg:gap-8">
+            <div class="lg:max-w-sm lg:flex-1">
+              <div class="mb-6 flex items-center justify-between">
+                <button id="prev-month" class="rounded-lg p-2 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800" type="button">
+                  <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                  </svg>
+                </button>
+                <h3 id="calendar-month" class="text-xl font-semibold text-slate-900 dark:text-slate-100"></h3>
+                <button id="next-month" class="rounded-lg p-2 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800" type="button">
+                  <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                  </svg>
+                </button>
+              </div>
+
+              <div class="rounded-lg border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
+                <div class="mb-4 grid grid-cols-7 gap-2">
+                  <div class="py-2 text-center text-sm font-medium text-slate-600 dark:text-slate-400">Su</div>
+                  <div class="py-2 text-center text-sm font-medium text-slate-600 dark:text-slate-400">Mo</div>
+                  <div class="py-2 text-center text-sm font-medium text-slate-600 dark:text-slate-400">Tu</div>
+                  <div class="py-2 text-center text-sm font-medium text-slate-600 dark:text-slate-400">We</div>
+                  <div class="py-2 text-center text-sm font-medium text-slate-600 dark:text-slate-400">Th</div>
+                  <div class="py-2 text-center text-sm font-medium text-slate-600 dark:text-slate-400">Fr</div>
+                  <div class="py-2 text-center text-sm font-medium text-slate-600 dark:text-slate-400">Sa</div>
+                </div>
+                <div id="calendar-days" class="grid grid-cols-7 gap-2"></div>
+              </div>
+            </div>
+
+            <div class="mt-6 lg:mt-0 lg:max-w-sm lg:flex-1">
+              <div id="selected-date-info" class="mb-4 hidden rounded-lg border border-slate-200 bg-slate-50 p-3 text-center lg:text-left dark:border-slate-700 dark:bg-slate-900">
+                <p id="selected-date-label" class="text-sm font-medium text-slate-800 dark:text-slate-200"></p>
+                <p id="selected-time-label" class="mt-1 text-sm text-blue-700 dark:text-blue-400"></p>
+              </div>
+
+              <div id="time-slots-grid" class="hidden">
+                <div id="time-slots-container" class="mb-6"></div>
+              </div>
+
+              <div id="no-times-message" class="hidden rounded-lg bg-slate-50 py-8 text-center dark:bg-slate-900">
+                <p class="text-slate-700 dark:text-slate-300">Please choose a highlighted date to see available times.</p>
+                <p class="mt-1 text-sm text-slate-500">No available times on this day.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 flex justify-between">
+          <button id="back-to-service" class="btn-secondary" type="button">Back to Service</button>
+          <button id="continue-to-details" class="btn-primary disabled:cursor-not-allowed disabled:opacity-50" type="button" disabled>
+            Continue to Details
+          </button>
+        </div>
+      </div>
+
+      <div id="step-3" class="booking-step hidden">
+        <div class="mb-6 text-center">
+          <h3 class="mb-2 text-xl font-semibold">Your Details</h3>
+          <p class="text-slate-600 dark:text-slate-400">We use this info for confirmation and prep.</p>
+        </div>
+
+        <form id="client-details-form" class="space-y-4">
+          <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div>
+              <label class="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">First Name <span class="text-red-500">*</span></label>
+              <input id="first-name" name="firstName" type="text" required class="w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-slate-900 focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:focus:border-slate-500" />
+            </div>
+            <div>
+              <label class="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Last Name <span class="text-red-500">*</span></label>
+              <input id="last-name" name="lastName" type="text" required class="w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-slate-900 focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:focus:border-slate-500" />
+            </div>
+          </div>
+          <div>
+            <label class="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Email Address <span class="text-red-500">*</span></label>
+            <input id="email" name="email" type="email" required class="w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-slate-900 focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:focus:border-slate-500" />
+          </div>
+          <div>
+            <label class="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Phone Number <span class="text-red-500">*</span></label>
+            <input id="phone" name="phone" type="tel" required class="w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-slate-900 focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:focus:border-slate-500" />
+          </div>
+          <div>
+            <label class="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Notes (Optional)</label>
+            <textarea id="notes" name="notes" rows="3" class="w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-slate-900 focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:focus:border-slate-500"></textarea>
+          </div>
+
+          <div class="surface-soft-box p-4">
+            <h4 class="mb-2 font-medium text-slate-800 dark:text-slate-200">Session Summary</h4>
+            <div class="space-y-1 text-sm">
+              <div class="flex justify-between">
+                <span>Service:</span>
+                <span id="summary-service"></span>
+              </div>
+              <div class="flex justify-between">
+                <span>Date and Time:</span>
+                <span id="summary-datetime"></span>
+              </div>
+              <div class="flex justify-between border-t border-slate-200 pt-2 font-medium dark:border-slate-700">
+                <span>Total:</span>
+                <span id="summary-price"></span>
+              </div>
+            </div>
+          </div>
+        </form>
+
+        <div class="mt-6 flex justify-between">
+          <button id="back-to-time" class="btn-secondary" type="button">Back to Time</button>
+          <button id="continue-to-payment" class="btn-primary" type="button">Continue to Payment</button>
+        </div>
+      </div>
+
+      <div id="step-4" class="booking-step hidden">
+        <div class="mb-6 text-center">
+          <h3 class="mb-2 text-xl font-semibold">Secure Payment</h3>
+          <p class="text-slate-600 dark:text-slate-400">Complete payment to confirm your booking.</p>
+        </div>
+
+        <div class="mb-6">
+          <label class="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Email for Receipt <span class="text-red-500">*</span></label>
+          <input id="payment-email" type="email" required class="w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-slate-900 focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:focus:border-slate-500" />
+        </div>
+
+        <div id="payment-element" class="mb-6 rounded border p-3 dark:border-slate-700"></div>
+
+        <div id="payment-errors" class="mb-4 hidden rounded-lg border border-red-200 bg-red-50 p-3">
+          <p id="payment-error-message" class="text-sm text-red-700"></p>
+        </div>
+
+        <div class="flex justify-between">
+          <button id="back-to-details" class="btn-secondary" type="button">Back to Details</button>
+          <button id="booking-pay" class="btn-primary disabled:cursor-not-allowed disabled:opacity-50" type="button" disabled>
+            <span id="payment-button-text">Complete booking</span>
+            <span id="payment-spinner" class="ml-2 hidden">
+              <span class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-b-transparent"></span>
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <div id="step-5" class="booking-step hidden">
+        <div class="mb-6 text-center">
+          <div class="confirmation-success-icon mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full">
+            <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+          </div>
+          <h3 class="booking-confirmed-title mb-2 text-2xl font-semibold">Booking Confirmed</h3>
+          <p class="text-slate-600 dark:text-slate-400">Your session has been successfully scheduled.</p>
+        </div>
+
+        <div id="confirmation-details" class="surface-soft-box mb-6 rounded-lg p-6"></div>
+
+        <div class="text-center">
+          <button id="close-confirmation" class="btn-primary" type="button">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .btn-primary {
+    border-radius: 0.5rem;
+    background-color: var(--accent-sage);
+    color: #ffffff;
+    font-weight: 600;
+    padding: 0.625rem 1rem;
+    transition: background-color 0.2s ease;
+  }
+
+  .btn-primary:hover {
+    background-color: #3d5a34;
+  }
+
+  .btn-secondary {
+    border-radius: 0.5rem;
+    border: 1px solid var(--accent-terracotta);
+    color: var(--accent-terracotta);
+    font-weight: 600;
+    padding: 0.625rem 1rem;
+    transition: all 0.2s ease;
+  }
+
+  .btn-secondary:hover {
+    background-color: rgba(180, 83, 9, 0.08);
+    border-color: var(--accent-terracotta);
+  }
+
+  .service-card {
+    border: 1px solid var(--surface-soft-border);
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    transition: all 0.2s ease;
+    background-color: var(--surface-soft); /* Fixed: use variable for bg */
+  }
+
+  .service-review-card {
+    border: 1px solid var(--surface-soft-border);
+    background-color: var(--surface-soft);
+    border-radius: 0.75rem;
+    box-shadow: none;
+  }
+
+  .surface-soft-box {
+    background-color: var(--surface-soft);
+    border: 1px solid var(--surface-soft-border);
+    border-radius: 0.5rem;
+  }
+
+  .confirmation-success-icon {
+    background-color: var(--accent-sage-light);
+    color: var(--accent-sage);
+  }
+
+  .booking-confirmed-title {
+    color: var(--accent-sage);
+  }
+
+  .service-review-card .service-title {
+    color: var(--accent-sage);
+  }
+
+  .progress-container {
+    display: flex;
+    justify-content: center;
+  }
+
+  .progress-scroll {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding: 0 1rem;
+  }
+
+  .progress-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  .step-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    min-width: 4rem;
+  }
+
+  .step-number {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+    transition: all 0.3s ease;
+    background-color: #e2e8f0;
+    color: #64748b;
+  }
+
+  .step-indicator.active .step-number {
+    background-color: var(--accent-sage);
+    color: #ffffff;
+  }
+
+  .step-indicator.completed .step-number {
+    background-color: var(--accent-sage);
+    color: #ffffff;
+  }
+
+  .step-label {
+    font-size: 0.75rem;
+    color: #64748b;
+    white-space: nowrap;
+    text-align: center;
+  }
+
+  .step-indicator.active .step-label {
+    color: var(--accent-sage);
+    font-weight: 600;
+  }
+
+  .step-divider {
+    width: 2rem;
+    height: 1px;
+    background-color: #e2e8f0;
+    margin-top: 1rem;
+    flex-shrink: 0;
+  }
+
+  /* Calendar and time-slot buttons are injected via innerHTML so they need :global() */
+  :global(.calendar-day) {
+    aspect-ratio: 1;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    min-height: 44px;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  :global(.calendar-day.unavailable) {
+    color: #94a3b8;
+    cursor: default;
+    background-color: transparent;
+  }
+
+  :global(.calendar-day.available) {
+    background-color: var(--accent-sage-light);
+    color: var(--accent-sage-text);
+    cursor: pointer;
+  }
+
+  :global(.calendar-day.available:hover) {
+    background-color: #bbf7d0;
+    transform: translateY(-1px);
+  }
+
+  :global(.calendar-day.selected) {
+    background-color: var(--accent-sage);
+    color: #ffffff;
+    box-shadow: 0 4px 8px rgba(74, 103, 65, 0.3);
+  }
+
+  :global(.calendar-day.today) {
+    border: 2px solid var(--accent-sage);
+  }
+
+  :global(.time-slot-button) {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid var(--surface-soft-border); /* Use var for border */
+    border-radius: 0.5rem;
+    background-color: var(--surface-soft); /* Use var for bg */
+    color: var(--page-fg); /* Use var for text */
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    font-weight: 500;
+  }
+
+  :global(.time-slot-button:hover) {
+    border-color: var(--accent-sage);
+    background-color: var(--accent-sage-light);
+    color: var(--accent-sage-text);
+  }
+
+  :global(.time-slot-button.selected) {
+    border-color: var(--accent-sage);
+    background-color: var(--accent-sage);
+    color: #ffffff;
+    box-shadow: 0 4px 8px rgba(74, 103, 65, 0.3);
+  }
+
+  #prev-month.is-disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  @media (max-width: 640px) {
+    .progress-container {
+      justify-content: flex-start;
+    }
+
+    .progress-scroll {
+      justify-content: flex-start;
+      padding: 0 0.5rem;
+    }
+
+    .step-indicator {
+      min-width: 3.5rem;
+    }
+
+    .step-label {
+      font-size: 0.6875rem;
+    }
+
+    .step-divider {
+      width: 1.5rem;
+    }
+  }
+</style>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script is:inline define:vars={{ stripePublicKey, bookingEnabled }}>
+  (() => {
+    const modal = document.getElementById("booking-modal");
+    const closeBtn = document.getElementById("booking-close");
+    const closeConfirmationBtn = document.getElementById("close-confirmation");
+    const errorBox = document.getElementById("booking-error");
+    const paymentErrors = document.getElementById("payment-errors");
+    const paymentErrorMessage = document.getElementById("payment-error-message");
+    const payBtn = document.getElementById("booking-pay");
+    const paymentButtonText = document.getElementById("payment-button-text");
+    const paymentSpinner = document.getElementById("payment-spinner");
+    const continueToDetailsBtn = document.getElementById("continue-to-details");
+
+    const SERVICE_MAP = {
+      "strategy-call": {
+        id: "strategy-call",
+        title: "Strategy Call",
+        description: "Fast, high-impact advisory to unblock your next move.",
+        duration: "60 minutes",
+        price: "$250",
+        amount: 25000,
+      },
+      "workflow-audit": {
+        id: "workflow-audit",
+        title: "Workflow Audit",
+        description: "Deep-dive ops analysis with clear implementation priorities.",
+        duration: "120 minutes",
+        price: "$900",
+        amount: 90000,
+      },
+    };
+
+    let selectedServiceKey = "strategy-call";
+    let selectedSlot = null;
+    let selectedDate = null;
+    let availableSlots = [];
+    let currentDate = new Date();
+    let paymentIntentId = null;
+    let stripe = null;
+    let elements = null;
+    let paymentElement = null;
+    const WORK_DAY_START_MINUTES = 9 * 60;
+    const WORK_DAY_END_MINUTES = 17 * 60;
+
+    function showError(message) {
+      errorBox.textContent = message;
+      errorBox.classList.remove("hidden");
+    }
+
+    function clearError() {
+      errorBox.classList.add("hidden");
+      errorBox.textContent = "";
+    }
+
+    function showPaymentError(message) {
+      paymentErrorMessage.textContent = message;
+      paymentErrors.classList.remove("hidden");
+    }
+
+    function clearPaymentError() {
+      paymentErrors.classList.add("hidden");
+      paymentErrorMessage.textContent = "";
+    }
+
+    function getSelectedService() {
+      return SERVICE_MAP[selectedServiceKey] || SERVICE_MAP["strategy-call"];
+    }
+
+    function isSlotWithinBusinessHours(slot) {
+      if (!slot?.start_time || !slot?.end_time) return false;
+      const start = new Date(slot.start_time);
+      const end = new Date(slot.end_time);
+      if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || end <= start) return false;
+
+      // Enforce local-time business hours: Monday-Friday, 9:00 AM through 5:00 PM.
+      const startDay = start.getDay();
+      const endDay = end.getDay();
+      const isWeekday = startDay >= 1 && startDay <= 5;
+      if (!isWeekday || startDay !== endDay) return false;
+
+      const startMinutes = start.getHours() * 60 + start.getMinutes();
+      const endMinutes = end.getHours() * 60 + end.getMinutes();
+      return startMinutes >= WORK_DAY_START_MINUTES && endMinutes <= WORK_DAY_END_MINUTES;
+    }
+
+    function populateSelectedServiceReview() {
+      const service = getSelectedService();
+      document.getElementById("selected-service-title").textContent = service.title;
+      document.getElementById("selected-service-description").textContent = service.description;
+      document.getElementById("selected-service-price").textContent = service.price;
+      document.getElementById("selected-service-duration").textContent = service.duration;
+    }
+
+    function updateStepIndicators(stepNumber) {
+      for (let i = 1; i <= 5; i++) {
+        const indicator = document.querySelector(`[data-step="${i}"]`);
+        if (!indicator) continue;
+        indicator.classList.remove("active", "completed");
+        if (i < stepNumber) indicator.classList.add("completed");
+        else if (i === stepNumber) indicator.classList.add("active");
+      }
+    }
+
+    function goToStep(stepNumber) {
+      for (let i = 1; i <= 5; i++) {
+        document.getElementById(`step-${i}`)?.classList.add("hidden");
+      }
+      document.getElementById(`step-${stepNumber}`)?.classList.remove("hidden");
+      updateStepIndicators(stepNumber);
+    }
+
+    async function initStripe() {
+      if (stripe) return true;
+      if (!stripePublicKey) {
+        showError("Missing Stripe publishable key configuration.");
+        return false;
+      }
+      if (!window.Stripe) {
+        showError("Stripe.js failed to load.");
+        return false;
+      }
+      stripe = window.Stripe(stripePublicKey);
+      if (!stripe) {
+        showError("Failed to initialize Stripe.");
+        return false;
+      }
+      return true;
+    }
+
+    function resetTimeSelection() {
+      selectedSlot = null;
+      selectedDate = null;
+      continueToDetailsBtn.disabled = true;
+      const selectedTimeLabel = document.getElementById("selected-time-label");
+      if (selectedTimeLabel) selectedTimeLabel.textContent = "";
+      document.getElementById("time-slots-grid")?.classList.add("hidden");
+      document.getElementById("selected-date-info")?.classList.add("hidden");
+      document.getElementById("no-times-message")?.classList.add("hidden");
+    }
+
+    function updateMonthNavigationState() {
+      const prevBtn = document.getElementById("prev-month");
+      if (!prevBtn) return;
+
+      const now = new Date();
+      const isAtCurrentMonth =
+        currentDate.getFullYear() === now.getFullYear() &&
+        currentDate.getMonth() === now.getMonth();
+
+      prevBtn.disabled = isAtCurrentMonth;
+      prevBtn.classList.toggle("is-disabled", isAtCurrentMonth);
+      prevBtn.setAttribute("aria-disabled", isAtCurrentMonth ? "true" : "false");
+    }
+
+    function setupMonthNavigation() {
+      const prevBtn = document.getElementById("prev-month");
+      const nextBtn = document.getElementById("next-month");
+
+      prevBtn.onclick = () => {
+        const now = new Date();
+        const targetDate = new Date(currentDate);
+        targetDate.setMonth(targetDate.getMonth() - 1);
+        if (
+          targetDate.getFullYear() < now.getFullYear() ||
+          (targetDate.getFullYear() === now.getFullYear() && targetDate.getMonth() < now.getMonth())
+        ) {
+          return;
+        }
+        currentDate = targetDate;
+        populateCalendar();
+      };
+
+      nextBtn.onclick = () => {
+        currentDate.setMonth(currentDate.getMonth() + 1);
+        populateCalendar();
+      };
+
+      updateMonthNavigationState();
+    }
+
+    function populateCalendar() {
+      const calendarDays = document.getElementById("calendar-days");
+      const monthHeader = document.getElementById("calendar-month");
+      if (!calendarDays || !monthHeader) return;
+
+      monthHeader.textContent = currentDate.toLocaleString("default", {
+        month: "long",
+        year: "numeric",
+      });
+
+      // Build local date string (YYYY-MM-DD) from a Date in local time to avoid UTC off-by-one
+      function toLocalDateStr(d) {
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+      }
+
+      const slotsByDate = {};
+      for (const slot of availableSlots) {
+        // Convert slot UTC time to local date so it groups under the correct local calendar day
+        const dateKey = toLocalDateStr(new Date(slot.start_time));
+        if (!slotsByDate[dateKey]) slotsByDate[dateKey] = [];
+        slotsByDate[dateKey].push(slot);
+      }
+
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
+      const firstDay = new Date(year, month, 1);
+      const startCalendar = new Date(firstDay);
+      startCalendar.setDate(startCalendar.getDate() - firstDay.getDay());
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const html = [];
+
+      for (let i = 0; i < 42; i++) {
+        const day = new Date(startCalendar);
+        day.setDate(startCalendar.getDate() + i);
+        // Use local date parts to avoid UTC midnight → previous-day conversion
+        const dateStr = toLocalDateStr(day);
+        const daySlots = slotsByDate[dateStr] || [];
+        const isCurrentMonth = day.getMonth() === month;
+        const isAvailable = daySlots.length > 0 && day >= today;
+        const isToday = day.toDateString() === today.toDateString();
+        const isSelected = selectedDate === dateStr;
+
+        let classes = "calendar-day";
+        if (!isCurrentMonth) classes += " text-slate-300 dark:text-slate-600";
+        else if (!isAvailable) classes += " unavailable";
+        else classes += " available";
+        if (isToday) classes += " today";
+        if (isSelected) classes += " selected";
+
+        html.push(`
+          <button type="button" class="${classes}" data-date="${dateStr}" ${isAvailable ? `data-slots='${JSON.stringify(daySlots)}'` : "disabled"}>
+            ${day.getDate()}
+          </button>
+        `);
+      }
+
+      calendarDays.innerHTML = html.join("");
+      calendarDays.querySelectorAll(".calendar-day.available").forEach((el) => {
+        el.addEventListener("click", () => selectDate(el));
+      });
+      updateMonthNavigationState();
+    }
+
+    function showTimeSlots(slots, dateStr) {
+      const timeSlotsGrid = document.getElementById("time-slots-grid");
+      const timeSlotsContainer = document.getElementById("time-slots-container");
+      const noTimesMessage = document.getElementById("no-times-message");
+      const selectedDateInfo = document.getElementById("selected-date-info");
+      const selectedDateLabel = document.getElementById("selected-date-label");
+      const validSlots = slots.filter((slot) => isSlotWithinBusinessHours(slot));
+
+      // Parse date parts manually to avoid UTC→local off-by-one when "YYYY-MM-DD" is treated as UTC midnight
+      const [yr, mo, dy] = dateStr.split("-").map(Number);
+      selectedDateLabel.textContent = new Date(yr, mo - 1, dy).toLocaleDateString("en-US", {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+      });
+
+      if (!validSlots.length) {
+        timeSlotsGrid.classList.add("hidden");
+        noTimesMessage.classList.remove("hidden");
+        selectedDateInfo.classList.add("hidden");
+        continueToDetailsBtn.disabled = true;
+        return;
+      }
+
+      selectedDateInfo.classList.remove("hidden");
+      timeSlotsGrid.classList.remove("hidden");
+      noTimesMessage.classList.add("hidden");
+
+      const morning = [];
+      const afternoon = [];
+      const evening = [];
+      for (const slot of validSlots) {
+        const hour = new Date(slot.start_time).getHours();
+        if (hour < 12) morning.push(slot);
+        else if (hour < 17) afternoon.push(slot);
+        else evening.push(slot);
+      }
+
+      function section(title, list) {
+        if (!list.length) return "";
+        return `
+          <h4 class="mb-2 mt-4 text-sm font-medium text-slate-700 dark:text-slate-300">${title}</h4>
+          <div class="grid grid-cols-2 gap-3">
+            ${list
+              .map((slot) => {
+                const label = new Date(slot.start_time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+                return `<button type="button" class="time-slot-button" data-slot='${JSON.stringify(slot)}'>${label}</button>`;
+              })
+              .join("")}
+          </div>
+        `;
+      }
+
+      timeSlotsContainer.innerHTML = section("Morning", morning) + section("Afternoon", afternoon) + section("Evening", evening);
+      timeSlotsContainer.querySelectorAll(".time-slot-button").forEach((button) => {
+        button.addEventListener("click", () => selectTimeSlot(button));
+      });
+    }
+
+    function selectDate(dayEl) {
+      selectedDate = dayEl.dataset.date;
+      selectedSlot = null;
+      continueToDetailsBtn.disabled = true;
+      document.querySelectorAll(".calendar-day.selected").forEach((el) => el.classList.remove("selected"));
+      dayEl.classList.add("selected");
+      const selectedTimeLabel = document.getElementById("selected-time-label");
+      if (selectedTimeLabel) selectedTimeLabel.textContent = "No time selected yet.";
+
+      const slots = JSON.parse(dayEl.dataset.slots || "[]");
+      showTimeSlots(slots, selectedDate);
+    }
+
+    function selectTimeSlot(slotButton) {
+      document.querySelectorAll(".time-slot-button.selected").forEach((el) => el.classList.remove("selected"));
+      slotButton.classList.add("selected");
+      selectedSlot = JSON.parse(slotButton.dataset.slot || "{}");
+      if (!isSlotWithinBusinessHours(selectedSlot)) {
+        selectedSlot = null;
+        slotButton.classList.remove("selected");
+        showError("Please choose a Monday-Friday time between 9:00 AM and 5:00 PM.");
+        continueToDetailsBtn.disabled = true;
+        return;
+      }
+      const selectedTimeLabel = document.getElementById("selected-time-label");
+      if (selectedTimeLabel) {
+        selectedTimeLabel.textContent = `Selected time: ${slotButton.textContent?.trim() || ""}`;
+      }
+      continueToDetailsBtn.disabled = false;
+    }
+
+    async function initializeTimeSelection() {
+      clearError();
+      resetTimeSelection();
+      document.getElementById("user-timezone").textContent = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      document.getElementById("availability-loading").classList.remove("hidden");
+      document.getElementById("calendar-container").classList.add("hidden");
+
+      try {
+        const service = getSelectedService();
+        const res = await fetch(`/api/booking/slots?eventTypeSlug=${service.id}`);
+        const data = await res.json();
+        if (!data.success) {
+          throw new Error(data.error || "Failed to load slots");
+        }
+
+        availableSlots = (data.data?.slots || []).filter((slot) => isSlotWithinBusinessHours(slot));
+        currentDate = new Date();
+        setupMonthNavigation();
+        populateCalendar();
+
+        document.getElementById("availability-loading").classList.add("hidden");
+        document.getElementById("calendar-container").classList.remove("hidden");
+
+        if (!availableSlots.length) {
+          showError("No available slots found for this service right now.");
+        }
+      } catch (error) {
+        showError(error instanceof Error ? error.message : "Unable to load available slots.");
+        document.getElementById("availability-loading").classList.add("hidden");
+      }
+    }
+
+    function populateSessionSummary() {
+      const service = getSelectedService();
+      document.getElementById("summary-service").textContent = service.title;
+      document.getElementById("summary-price").textContent = service.price;
+
+      if (selectedSlot?.start_time) {
+        const dt = new Date(selectedSlot.start_time);
+        document.getElementById("summary-datetime").textContent = dt.toLocaleString("en-US", {
+          weekday: "short",
+          month: "short",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      } else {
+        document.getElementById("summary-datetime").textContent = "Not selected";
+      }
+    }
+
+    function validateDetailsForm() {
+      const firstName = document.getElementById("first-name").value.trim();
+      const lastName = document.getElementById("last-name").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+      if (!firstName || !lastName || !email || !phone) {
+        showError("Please fill out all required details.");
+        return false;
+      }
+      return true;
+    }
+
+    async function createPaymentIntent() {
+      const service = getSelectedService();
+      const firstName = document.getElementById("first-name").value.trim();
+      const lastName = document.getElementById("last-name").value.trim();
+      const email = document.getElementById("payment-email").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+
+      const res = await fetch("/api/payment/checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          serviceId: service.id,
+          customerInfo: {
+            name: `${firstName} ${lastName}`,
+            email,
+            phone,
+          },
+          schedulingInfo: {
+            startTime: selectedSlot.start_time,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          },
+          metadata: {
+            first_name: firstName,
+            last_name: lastName,
+            customer_email: email,
+            customer_phone: phone,
+            service_duration_minutes: service.id === "workflow-audit" ? "120" : "60",
+          },
+        }),
+      });
+      const data = await res.json();
+      if (!data.success) {
+        throw new Error(data.error || "Unable to create payment intent.");
+      }
+      paymentIntentId = data.data.paymentIntentId;
+      return data.data.clientSecret;
+    }
+
+    async function initializePayment() {
+      clearError();
+      clearPaymentError();
+      const emailInput = document.getElementById("email").value.trim();
+      document.getElementById("payment-email").value = emailInput;
+      payBtn.disabled = true;
+
+      try {
+        if (!selectedSlot) throw new Error("Please select a time slot first.");
+        if (!isSlotWithinBusinessHours(selectedSlot)) {
+          throw new Error("Please select a Monday-Friday time between 9:00 AM and 5:00 PM.");
+        }
+        const ok = await initStripe();
+        if (!ok) return;
+
+        const clientSecret = await createPaymentIntent();
+        if (paymentElement) {
+          paymentElement.unmount();
+          paymentElement = null;
+        }
+
+        elements = stripe.elements({
+          clientSecret,
+          appearance: {
+            theme: "stripe",
+            variables: {
+              colorPrimary: "#1e293b",
+              borderRadius: "8px",
+            },
+          },
+        });
+        paymentElement = elements.create("payment", { layout: "tabs" });
+        paymentElement.mount("#payment-element");
+        payBtn.disabled = false;
+      } catch (error) {
+        showPaymentError(error instanceof Error ? error.message : "Failed to initialize payment.");
+      }
+    }
+
+    function setPaymentLoading(isLoading) {
+      payBtn.disabled = isLoading;
+      paymentButtonText.textContent = isLoading ? "Processing..." : "Complete booking";
+      if (isLoading) paymentSpinner.classList.remove("hidden");
+      else paymentSpinner.classList.add("hidden");
+    }
+
+    function renderConfirmation(bookingData) {
+      const service = getSelectedService();
+      const when = selectedSlot?.start_time ? new Date(selectedSlot.start_time).toLocaleString() : "N/A";
+      const zoomLink = bookingData.data?.zoom_join_url || bookingData.data?.meetingUrl || bookingData.data?.meeting_url || "";
+      const bookingId = bookingData.data?.bookingId || bookingData.data?.id || "N/A";
+
+      document.getElementById("confirmation-details").innerHTML = `
+        <div class="space-y-3 text-sm">
+          <div class="flex justify-between"><span class="font-medium text-slate-700 dark:text-slate-300">Booking ID</span><span class="text-slate-900 dark:text-white">${bookingId}</span></div>
+          <div class="flex justify-between"><span class="font-medium text-slate-700 dark:text-slate-300">Service</span><span class="text-slate-900 dark:text-white">${service.title}</span></div>
+          <div class="flex justify-between"><span class="font-medium text-slate-700 dark:text-slate-300">Date and Time</span><span class="text-slate-900 dark:text-white">${when}</span></div>
+          ${zoomLink ? `<div class="rounded-lg border border-blue-200 bg-blue-50 p-3 dark:bg-blue-900/20 dark:border-blue-800"><p class="font-medium text-blue-900 dark:text-blue-200">Meeting Link</p><p class="mt-1 break-all text-blue-800 dark:text-blue-300">${zoomLink}</p></div>` : ""}
+        </div>
+      `;
+    }
+
+    async function submitBooking() {
+      clearError();
+      clearPaymentError();
+      setPaymentLoading(true);
+
+      try {
+        if (!stripe || !elements || !paymentIntentId || !selectedSlot) {
+          throw new Error("Payment is not ready yet.");
+        }
+        if (!isSlotWithinBusinessHours(selectedSlot)) {
+          throw new Error("Please select a Monday-Friday time between 9:00 AM and 5:00 PM.");
+        }
+
+        const paymentResult = await stripe.confirmPayment({
+          elements,
+          redirect: "if_required",
+        });
+        if (paymentResult.error) {
+          throw new Error(paymentResult.error.message || "Payment confirmation failed.");
+        }
+
+        const service = getSelectedService();
+        const firstName = document.getElementById("first-name").value.trim();
+        const lastName = document.getElementById("last-name").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const phone = document.getElementById("phone").value.trim();
+        const notes = document.getElementById("notes").value.trim();
+
+        const bookingRes = await fetch("/api/booking", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            service,
+            appointment: {
+              startTime: selectedSlot.start_time,
+              endTime: selectedSlot.end_time,
+              timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+              format: "online",
+            },
+            client: { firstName, lastName, email, phone, notes },
+            payment: {
+              intentId: paymentIntentId,
+              amount: service.amount,
+              currency: "usd",
+            },
+          }),
+        });
+        const bookingData = await bookingRes.json();
+        if (!bookingData.success) {
+          throw new Error(bookingData.message || bookingData.error || "Booking failed.");
+        }
+
+        renderConfirmation(bookingData);
+        goToStep(5);
+      } catch (error) {
+        showPaymentError(error instanceof Error ? error.message : "Booking failed.");
+      } finally {
+        setPaymentLoading(false);
+      }
+    }
+
+    function openModal(serviceKey = "strategy-call") {
+      if (!bookingEnabled) {
+        alert("Booking is temporarily unavailable. Please contact us directly.");
+        return;
+      }
+      if (SERVICE_MAP[serviceKey]) {
+        selectedServiceKey = serviceKey;
+      } else {
+        selectedServiceKey = "strategy-call";
+      }
+      clearError();
+      clearPaymentError();
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+      document.body.style.overflow = "hidden";
+      goToStep(1);
+      populateSelectedServiceReview();
+      resetTimeSelection();
+    }
+
+    function closeModal() {
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+      document.body.style.overflow = "";
+      goToStep(1);
+      clearError();
+      clearPaymentError();
+    }
+
+    document.addEventListener("click", (evt) => {
+      const trigger = evt.target instanceof Element ? evt.target.closest("[data-booking-open]") : null;
+      if (!trigger) return;
+      evt.preventDefault();
+      const serviceKey = trigger instanceof HTMLElement ? trigger.dataset.service || "strategy-call" : "strategy-call";
+      openModal(serviceKey);
+    });
+
+    closeBtn?.addEventListener("click", closeModal);
+    closeConfirmationBtn?.addEventListener("click", closeModal);
+    modal?.addEventListener("click", (evt) => {
+      if (evt.target === modal) closeModal();
+    });
+
+    document.getElementById("continue-to-time")?.addEventListener("click", async () => {
+      goToStep(2);
+      await initializeTimeSelection();
+    });
+    document.getElementById("back-to-service")?.addEventListener("click", () => goToStep(1));
+    continueToDetailsBtn?.addEventListener("click", () => {
+      if (!selectedSlot) return;
+      populateSessionSummary();
+      goToStep(3);
+    });
+    document.getElementById("back-to-time")?.addEventListener("click", () => goToStep(2));
+    document.getElementById("continue-to-payment")?.addEventListener("click", async () => {
+      if (!validateDetailsForm()) return;
+      goToStep(4);
+      await initializePayment();
+    });
+    document.getElementById("back-to-details")?.addEventListener("click", () => goToStep(3));
+    payBtn?.addEventListener("click", submitBooking);
+  })();
+</script>

@@ -2,7 +2,7 @@
 import Layout from '../layouts/Layout.astro'
 
 const contactItems = [
-  { text: '828-606-2469', href: 'tel:828-606-2469' },
+  { text: '828-357-7556', href: 'tel:828-357-7556' },
   { text: 'jared@ruckussystems.dev', href: 'mailto:jared@ruckussystems.dev' },
   { text: 'linkedin.com/in/ruckussystems', href: 'https://linkedin.com/in/ruckussystems' },
   { text: 'github.com/subwizzll', href: 'https://github.com/subwizzll' },
@@ -70,55 +70,81 @@ const experiences = [
 ]
 ---
 
-<Layout title="Jared Russell - Resume" description="Full Stack Engineer and Data Engineer with expertise in modern web technologies">
-  <section class="bg-gray-100 py-12">
-    <div class="max-w-4xl mx-auto px-6">
-      <div class="text-center mb-12">
-        <h1 class="text-4xl font-bold mb-6">Jared Russell</h1>
-        <div class="flex flex-wrap justify-center gap-6 text-base text-gray-600 mb-8">
+<Layout title="Resume | Ruckus Systems" description="Jared Russell - Full Stack Engineer and Data Engineer">
+  <div class="mx-auto max-w-4xl px-6 py-12 print:max-w-none print:py-0">
+    <div class="mb-12 flex items-center justify-between print:hidden">
+      <a href="/" class="flex items-center gap-2 text-slate-500 transition-colors hover:text-slate-900 dark:hover:text-slate-100">
+        Back to Home
+      </a>
+      <button
+        type="button"
+        onclick="window.print()"
+        class="print-button inline-flex items-center gap-2 rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-900"
+      >
+        Download / Print PDF
+      </button>
+    </div>
+
+    <main class="rounded-2xl border border-slate-100 bg-white p-8 shadow-sm md:p-12 print:border-none print:p-0 print:shadow-none dark:border-slate-800 dark:bg-slate-950">
+      <header class="mb-8 border-b border-slate-200 pb-8 dark:border-slate-800">
+        <h1 class="mb-2 text-4xl font-bold text-slate-900 dark:text-white">Jared Russell</h1>
+        <p class="text-xl text-slate-600 dark:text-slate-400">Full Stack Engineer and Data Engineer</p>
+        <div class="mt-4 flex flex-wrap gap-4 text-sm text-slate-500 dark:text-slate-400">
+          <span>Asheville, NC</span>
           {contactItems.map((item) => (
             <a
               href={item.href}
-              class="hover:text-blue-600 transition-colors duration-200"
               target={item.href.startsWith('http') ? '_blank' : undefined}
               rel={item.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+              class="transition-colors hover:text-slate-900 dark:hover:text-slate-100"
             >
               {item.text}
             </a>
           ))}
         </div>
-      </div>
+      </header>
 
-      <div class="mb-10">
-        <h2 class="text-3xl font-bold mb-6 text-center">Professional Experience</h2>
+      <section class="mb-10">
+        <h2 class="mb-4 border-b border-slate-100 pb-2 text-xl font-bold uppercase tracking-wider text-slate-900 dark:border-slate-800 dark:text-white">
+          Professional Experience
+        </h2>
         <div class="space-y-8">
           {experiences.map((exp) => (
-            <div class="bg-white rounded-lg p-8 shadow-sm border border-gray-200">
-              <h3 class="text-2xl font-bold text-gray-900 mb-2">{exp.title}</h3>
-              <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2 text-gray-600 mb-5">
-                <span class="font-semibold text-blue-600 text-lg">{exp.company}</span>
-                <span>{exp.location} | {exp.period}</span>
+            <article class="break-inside-avoid">
+              <div class="mb-2 flex items-baseline justify-between">
+                <h3 class="text-lg font-bold text-slate-900 dark:text-white">{exp.title}</h3>
+                <span class="rounded bg-slate-50 px-2 py-1 text-sm font-medium text-slate-500 dark:bg-slate-900">
+                  {exp.period}
+                </span>
               </div>
-              <ul class="space-y-3">
+              <div class="mb-2 text-sm font-medium text-slate-700 dark:text-slate-300">
+                {exp.company} | {exp.location}
+              </div>
+              <ul class="space-y-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
                 {exp.achievements.map((achievement) => (
-                  <li class="flex items-start gap-3 text-gray-700 leading-relaxed">
-                    <span class="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></span>
-                    <span>{achievement}</span>
-                  </li>
+                  <li>{achievement}</li>
                 ))}
               </ul>
-            </div>
+            </article>
           ))}
         </div>
-      </div>
+      </section>
 
-      <div class="bg-white rounded-lg p-8 shadow-sm border border-gray-200">
-        <h2 class="text-3xl font-bold mb-6 text-center">Education</h2>
-        <h3 class="text-xl font-bold text-gray-900 mb-2">Blue Ridge Community College</h3>
-        <p class="text-gray-700 mb-2">Hendersonville, NC</p>
-        <p class="text-gray-700 font-semibold">Associate of Applied Science in Computer Programming &amp; Development</p>
-        <p class="text-gray-600 mt-2">Class of 2022 | GPA: 3.845</p>
-      </div>
+      <section class="break-inside-avoid border-t border-slate-100 pt-8 dark:border-slate-800">
+        <h2 class="mb-4 text-xl font-bold uppercase tracking-wider text-slate-900 dark:text-white">
+          Education
+        </h2>
+        <h3 class="text-lg font-bold text-slate-900 dark:text-white">Blue Ridge Community College</h3>
+        <p class="text-slate-600 dark:text-slate-400">Hendersonville, NC</p>
+        <p class="font-medium text-slate-700 dark:text-slate-300">
+          Associate of Applied Science in Computer Programming and Development
+        </p>
+        <p class="mt-2 text-slate-600 dark:text-slate-400">Class of 2022 | GPA: 3.845</p>
+      </section>
+    </main>
+
+    <div class="mt-12 text-center text-sm text-slate-400 print:hidden">
+      <p>References available upon request.</p>
     </div>
-  </section>
+  </div>
 </Layout>

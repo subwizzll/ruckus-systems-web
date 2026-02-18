@@ -1,16 +1,98 @@
-<header class="bg-gray-800 text-white">
-  <nav class="container mx-auto px-6 py-3">
-    <div class="flex items-center justify-between">
-      <div class="text-xl font-bold">
-        <a href="/">Jared Russell</a>
-      </div>
-      <div class="hidden md:flex items-center space-x-4">
-        <a href="/#skills" class="hover:text-gray-300">Skills</a>
-        <a href="/#experience" class="hover:text-gray-300">Experience</a>
-        <a href="/#projects" class="hover:text-gray-300">Projects</a>
-        <a href="/resume" class="inline-flex items-center hover:text-gray-300 bg-blue-600 px-3 py-1 rounded-md font-medium">Resume</a>
-        <a href="/#contact" class="hover:text-gray-300">Contact</a>
-      </div>
+---
+const navItems = [
+  { label: 'Services', href: '/#services' },
+  { label: 'About', href: '/#about' },
+  { label: 'Resume', href: '/resume' },
+]
+---
+
+<header class="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/80 backdrop-blur supports-backdrop-filter:bg-white/60 dark:border-slate-800 dark:bg-slate-950/80">
+  <nav class="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
+    <a href="/" class="flex items-center gap-2 text-xl font-bold tracking-tight">
+      <img src="/logo.png" alt="Ruckus Systems" class="h-8 w-8 rounded-lg" />
+      <span>Ruckus Systems</span>
+    </a>
+
+    <!-- Desktop nav -->
+    <div class="hidden items-center gap-6 md:flex">
+      {navItems.map((item) => (
+        <a
+          href={item.href}
+          class="text-sm font-medium text-slate-600 transition-colors hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+        >
+          {item.label}
+        </a>
+      ))}
+      <a
+        href="/#book-now"
+        class="ml-2 inline-flex items-center rounded-full bg-[var(--brand-blue)] px-4 py-2 text-sm font-semibold text-white! transition-colors hover:opacity-90"
+      >
+        Book Call
+      </a>
     </div>
+
+    <!-- Hamburger -->
+    <button id="mobile-menu-btn" class="p-2 md:hidden" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">
+      <span class="hamburger-bar mb-1 block h-0.5 w-6 bg-slate-900 transition-transform dark:bg-white"></span>
+      <span class="hamburger-bar mb-1 block h-0.5 w-6 bg-slate-900 transition-opacity dark:bg-white"></span>
+      <span class="hamburger-bar block h-0.5 w-6 bg-slate-900 transition-transform dark:bg-white"></span>
+    </button>
   </nav>
+
+  <!-- Mobile menu panel -->
+  <div
+    id="mobile-menu"
+    class="hidden border-t border-slate-200 bg-white px-4 pb-4 dark:border-slate-800 dark:bg-slate-950 md:hidden"
+  >
+    <div class="flex flex-col gap-1 pt-2">
+      {navItems.map((item) => (
+        <a
+          href={item.href}
+          class="mobile-nav-link rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white"
+        >
+          {item.label}
+        </a>
+      ))}
+      <a
+        href="/#book-now"
+        class="mobile-nav-link mt-2 inline-flex items-center justify-center rounded-full bg-[var(--brand-blue)] px-4 py-2 text-sm font-semibold text-white! transition-colors hover:opacity-90"
+      >
+        Book Call
+      </a>
+    </div>
+  </div>
 </header>
+
+<script>
+  const btn = document.getElementById('mobile-menu-btn') as HTMLButtonElement;
+  const menu = document.getElementById('mobile-menu') as HTMLDivElement;
+  const bars = btn?.querySelectorAll<HTMLSpanElement>('.hamburger-bar');
+
+  function openMenu() {
+    menu.classList.remove('hidden');
+    btn.setAttribute('aria-expanded', 'true');
+    btn.setAttribute('aria-label', 'Close menu');
+    // Animate to X
+    bars?.[0]?.style.setProperty('transform', 'translateY(7px) rotate(45deg)');
+    bars?.[1]?.style.setProperty('opacity', '0');
+    bars?.[2]?.style.setProperty('transform', 'translateY(-7px) rotate(-45deg)');
+  }
+
+  function closeMenu() {
+    menu.classList.add('hidden');
+    btn.setAttribute('aria-expanded', 'false');
+    btn.setAttribute('aria-label', 'Open menu');
+    bars?.[0]?.style.removeProperty('transform');
+    bars?.[1]?.style.removeProperty('opacity');
+    bars?.[2]?.style.removeProperty('transform');
+  }
+
+  btn?.addEventListener('click', () => {
+    btn.getAttribute('aria-expanded') === 'true' ? closeMenu() : openMenu();
+  });
+
+  // Close when a nav link is clicked
+  menu?.querySelectorAll('.mobile-nav-link').forEach(link => {
+    link.addEventListener('click', closeMenu);
+  });
+</script>

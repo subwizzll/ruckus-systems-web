@@ -1,0 +1,70 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+const token = Astro.url.searchParams.get("token");
+if (!token) {
+  return Astro.redirect("/");
+}
+---
+
+<Layout title="Cancel Appointment | Ruckus Systems">
+  <div class="mx-auto max-w-2xl px-6 py-12">
+    <h1 class="mb-6 text-3xl font-bold">Cancel Appointment</h1>
+
+    <div id="cancel-loading" class="rounded border p-4">Loading booking details...</div>
+    <div id="cancel-error" class="hidden rounded border border-red-200 bg-red-50 p-4 text-red-700"></div>
+
+    <div id="cancel-body" class="hidden space-y-4">
+      <div class="rounded border p-4">
+        <h2 class="mb-2 text-xl font-semibold">Booking details</h2>
+        <p><strong>Service:</strong> <span id="service-title"></span></p>
+        <p><strong>Time:</strong> <span id="start-time"></span></p>
+        <p><strong>Refund policy:</strong> <span id="refund-policy"></span></p>
+      </div>
+      <button id="confirm-cancel" class="rounded bg-red-600 px-4 py-3 font-semibold text-white">
+        Confirm cancellation
+      </button>
+    </div>
+  </div>
+</Layout>
+
+<script is:inline define:vars={{ token }}>
+  async function init() {
+    const loading = document.getElementById("cancel-loading");
+    const error = document.getElementById("cancel-error");
+    const body = document.getElementById("cancel-body");
+    try {
+      const res = await fetch(`/api/booking/cancel?token=${token}`);
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error || "Invalid link");
+      document.getElementById("service-title").textContent = data.data.serviceTitle;
+      document.getElementById("start-time").textContent = new Date(data.data.startTime).toLocaleString();
+      document.getElementById("refund-policy").textContent = data.data.eligibleForRefund
+        ? "Eligible for full refund (>24h)"
+        : "No refund (<24h)";
+      loading.classList.add("hidden");
+      body.classList.remove("hidden");
+    } catch (err) {
+      loading.classList.add("hidden");
+      error.textContent = err instanceof Error ? err.message : "Unable to load booking";
+      error.classList.remove("hidden");
+    }
+  }
+
+  document.getElementById("confirm-cancel")?.addEventListener("click", async () => {
+    const res = await fetch("/api/booking/cancel", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token, confirmed: true }),
+    });
+    const data = await res.json();
+    if (!data.success) {
+      alert(data.error || "Failed to cancel booking");
+      return;
+    }
+    alert("Booking cancelled.");
+    window.location.href = "/";
+  });
+
+  init();
+</script>

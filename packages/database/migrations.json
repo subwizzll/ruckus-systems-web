@@ -1,0 +1,9 @@
+{
+  "database-url-var": "DATABASE_URL",
+  "migrations-dir": "migrations",
+  "migrations-table": "pgmigrations",
+  "migration-filename-format": "timestamp",
+  "migration-file-language": "sql",
+  "create-schema": true,
+  "check-order": true
+}

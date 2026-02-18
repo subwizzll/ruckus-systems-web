@@ -1,0 +1,90 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+const token = Astro.url.searchParams.get("token");
+if (!token) {
+  return Astro.redirect("/");
+}
+---
+
+<Layout title="Reschedule Appointment | Ruckus Systems">
+  <div class="mx-auto max-w-2xl px-6 py-12">
+    <h1 class="mb-6 text-3xl font-bold">Reschedule Appointment</h1>
+
+    <div id="reschedule-loading" class="rounded border p-4">Loading booking details...</div>
+    <div id="reschedule-error" class="hidden rounded border border-red-200 bg-red-50 p-4 text-red-700"></div>
+
+    <div id="reschedule-body" class="hidden space-y-4">
+      <div class="rounded border p-4">
+        <h2 class="mb-2 text-xl font-semibold">Current Booking</h2>
+        <p><strong>Service:</strong> <span id="service-title"></span></p>
+        <p><strong>Current time:</strong> <span id="current-time"></span></p>
+      </div>
+
+      <div class="rounded border p-4">
+        <label class="mb-2 block text-sm font-semibold">New time</label>
+        <select id="new-time" class="w-full rounded border p-2 text-sm" size="10"></select>
+      </div>
+
+      <button id="confirm-reschedule" class="rounded bg-blue-600 px-4 py-3 font-semibold text-white">
+        Confirm reschedule
+      </button>
+    </div>
+  </div>
+</Layout>
+
+<script is:inline define:vars={{ token }}>
+  async function init() {
+    const loading = document.getElementById("reschedule-loading");
+    const error = document.getElementById("reschedule-error");
+    const body = document.getElementById("reschedule-body");
+
+    try {
+      const detailsRes = await fetch(`/api/booking/reschedule?token=${token}`);
+      const details = await detailsRes.json();
+      if (!details.success) throw new Error(details.error || "Invalid link");
+
+      document.getElementById("service-title").textContent = details.data.serviceTitle;
+      document.getElementById("current-time").textContent = new Date(
+        details.data.currentStartTime,
+      ).toLocaleString();
+
+      const slotsRes = await fetch(`/api/booking/slots?eventTypeSlug=${details.data.serviceId}`);
+      const slots = await slotsRes.json();
+      if (!slots.success) throw new Error(slots.error || "Failed to load slots");
+
+      const select = document.getElementById("new-time");
+      for (const slot of (slots.data?.slots || []).slice(0, 80)) {
+        const option = document.createElement("option");
+        option.value = slot.start_time;
+        option.textContent = new Date(slot.start_time).toLocaleString();
+        select.appendChild(option);
+      }
+
+      loading.classList.add("hidden");
+      body.classList.remove("hidden");
+    } catch (err) {
+      loading.classList.add("hidden");
+      error.textContent = err instanceof Error ? err.message : "Unable to load booking";
+      error.classList.remove("hidden");
+    }
+  }
+
+  document.getElementById("confirm-reschedule")?.addEventListener("click", async () => {
+    const value = document.getElementById("new-time").value;
+    const res = await fetch("/api/booking/reschedule", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token, newStartTime: value }),
+    });
+    const data = await res.json();
+    if (!data.success) {
+      alert(data.error || "Failed to reschedule");
+      return;
+    }
+    alert("Booking rescheduled successfully.");
+    window.location.href = "/";
+  });
+
+  init();
+</script>

@@ -1,0 +1,34 @@
+{
+  "name": "@workspace/database",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./index.ts",
+  "types": "./index.ts",
+  "exports": {
+    ".": {
+      "types": "./index.ts",
+      "import": "./index.ts"
+    },
+    "./migrations": "./migrations.json"
+  },
+  "scripts": {
+    "migrate": "node-pg-migrate up",
+    "migrate:down": "node-pg-migrate down",
+    "migrate:create": "node-pg-migrate create",
+    "migrate:redo": "node-pg-migrate redo",
+    "migrate:reset": "node-pg-migrate down --count 999 && node-pg-migrate up",
+    "check-types": "tsc --noEmit",
+    "clean": "rm -rf node_modules"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.0.0",
+    "bcryptjs": "^2.4.3",
+    "node-pg-migrate": "^8.0.0"
+  },
+  "devDependencies": {
+    "@workspace/typescript-config": "workspace:*",
+    "@types/bcryptjs": "^2.4.6",
+    "typescript": "^5.9.2"
+  }
+}
