@@ -14,10 +14,6 @@ const serviceButtonToneClasses = [
   'service-cta-accent-gold',
   'service-cta-accent-teal',
 ] as const
-
-const randomizedServiceButtonToneClasses = [...serviceButtonToneClasses].sort(
-  () => Math.random() - 0.5,
-)
 ---
 
 <Layout title="Ruckus Systems | AI & Automation Consulting">
@@ -28,8 +24,7 @@ const randomizedServiceButtonToneClasses = [...serviceButtonToneClasses].sort(
         <span class="text-blue-600 dark:text-blue-400">Analyze the Important.</span>
       </h1>
       <p class="mx-auto max-w-2xl text-lg leading-relaxed text-slate-600 md:text-xl dark:text-slate-300">
-        I help Asheville businesses build data pipelines, deploy practical AI, and automate manual workflows.
-        Stop wrestling with spreadsheets and start scaling.
+        I help Asheville businesses with data, practical AI, and automation—so you spend less time on spreadsheets and manual work.
       </p>
       <div class="flex flex-col gap-4 pt-4 sm:flex-row">
         <a
@@ -47,7 +42,7 @@ const randomizedServiceButtonToneClasses = [...serviceButtonToneClasses].sort(
       <div class="mx-auto max-w-6xl">
         <h2 class="mb-3 text-center text-3xl font-bold">Services</h2>
         <p class="mx-auto mb-12 max-w-3xl text-center text-slate-600 dark:text-slate-400">
-          Choose the engagement that matches your current priorities. Select a service below to prefill your booking flow.
+          Pick what fits your need and click to book. Strategy Call, Workflow Audit, and Data Pipeline include a written follow-up and a quote for more work.
         </p>
         <div class="grid gap-8 md:grid-cols-2">
           {services.map((entry: CollectionEntry<'services'>, i: number) => (
@@ -67,7 +62,7 @@ const randomizedServiceButtonToneClasses = [...serviceButtonToneClasses].sort(
                   data-booking-open
                   data-service={entry.id}
                   class={`inline-flex h-11 items-center justify-center rounded-full border-none px-6 font-semibold transition-colors ${
-                    randomizedServiceButtonToneClasses[i % randomizedServiceButtonToneClasses.length]
+                    serviceButtonToneClasses[i % serviceButtonToneClasses.length]
                   }`}
                 >
                   Book {entry.data.title}
@@ -83,19 +78,19 @@ const randomizedServiceButtonToneClasses = [...serviceButtonToneClasses].sort(
         <article class="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-700 dark:bg-slate-950">
           <h3 class="mb-2 text-lg font-semibold">Clear ROI Focus</h3>
           <p class="text-slate-600 dark:text-slate-400">
-            Every recommendation ties to time saved, risk reduced, or revenue impact.
+            Every suggestion is about saving time, reducing risk, or making more money.
           </p>
         </article>
         <article class="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-700 dark:bg-slate-950">
           <h3 class="mb-2 text-lg font-semibold">Hands-On Delivery</h3>
           <p class="text-slate-600 dark:text-slate-400">
-            From architecture to implementation, I build the systems instead of handing over vague advice.
+            I build and set things up for you—not just advice, but real systems you can use.
           </p>
         </article>
         <article class="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-700 dark:bg-slate-950">
           <h3 class="mb-2 text-lg font-semibold">Local Context</h3>
           <p class="text-slate-600 dark:text-slate-400">
-            Solutions are tailored to Asheville business realities, not generic enterprise playbooks.
+            Built for Asheville businesses—not one-size-fits-all templates.
           </p>
         </article>
       </div>
@@ -103,9 +98,12 @@ const randomizedServiceButtonToneClasses = [...serviceButtonToneClasses].sort(
 
     <section id="book-now" class="bg-slate-900 px-6 py-24 text-center text-white">
       <div class="mx-auto max-w-3xl space-y-6">
-        <h2 class="text-3xl font-bold md:text-4xl">Ready to modernize your operations?</h2>
+        <h2 class="text-3xl font-bold md:text-4xl">Ready to simplify how you work?</h2>
         <p class="text-xl text-slate-300">
-          Book a one-hour strategy session to identify your highest-leverage automation opportunities.
+          Book a call to find the best next step for your business—AI, data, or automation.
+        </p>
+        <p class="text-slate-400">
+          Your first strategy, workflow, or data call is free when you hire for additional services. Follow-up notes and a quote are included.
         </p>
         <div class="pt-8">
           <a
@@ -116,7 +114,7 @@ const randomizedServiceButtonToneClasses = [...serviceButtonToneClasses].sort(
           >
             Book Strategy Call
           </a>
-          <p class="mt-4 text-sm text-slate-500">Secure payment and automated scheduling enabled.</p>
+          <p class="mt-4 text-sm text-slate-500">Secure booking and payment.</p>
         </div>
       </div>
     </section>
@@ -182,4 +180,8 @@ const randomizedServiceButtonToneClasses = [...serviceButtonToneClasses].sort(
       background-color: #6a8a8a;
     }
   </style>
+  <script>
+    import { initServiceCtaTones } from '../lib/random-service-cta-tones'
+    initServiceCtaTones()
+  </script>
 </Layout>

@@ -92,7 +92,7 @@ if (!token) {
 
 <script>
   // @ts-nocheck - inline-style script with DOM refs; types from lib are used at runtime
-  import type { Slot } from "../lib/time-selection";
+  import type { Slot } from "../lib/time-slot-selection";
   import {
     isSlotWithinBusinessHours,
     isAtCurrentMonth,
@@ -100,7 +100,7 @@ if (!token) {
     buildTimeSlotsHTML,
     buildCalendarDayModels,
     formatSelectedDateLabel,
-  } from "../lib/time-selection";
+  } from "../lib/time-slot-selection";
 
   const root = document.getElementById("reschedule-root");
   const token = root?.getAttribute("data-token") ?? "";

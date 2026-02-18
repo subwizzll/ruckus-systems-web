@@ -410,7 +410,7 @@ const serviceMapJson = JSON.stringify(serviceMap);
     flex-shrink: 0;
   }
 
-  /* Step 2 calendar + time slots use shared time-selection.css; override to sage theme inside modal */
+  /* Step 2 calendar + time slots use shared time-slot-selection.css; override to sage theme inside modal */
   #booking-modal {
     --ts-accent: var(--accent-sage);
     --ts-accent-light: var(--accent-sage-light);
@@ -456,7 +456,7 @@ const serviceMapJson = JSON.stringify(serviceMap);
     buildTimeSlotsHTML,
     buildCalendarDayModels,
     formatSelectedDateLabel,
-  } from "../lib/time-selection";
+  } from "../lib/time-slot-selection";
 
   (() => {
     const modalEl = document.getElementById("booking-modal");
