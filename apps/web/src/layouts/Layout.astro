@@ -9,9 +9,11 @@ interface Props {
 }
 
 const {
-  title = 'Jared Russell | Full Stack Data Engineer',
-  description = 'Full Stack Data Engineer specializing in robust data pipelines and scalable solutions',
+  title = 'Asheville AI & Data Engineering | Ruckus Systems',
+  description = 'Expert Data Engineering and AI Concierge services in Asheville, NC. Automate workflows, build robust data pipelines, and leverage practical AI for your business.',
 } = Astro.props
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 ---
 
 <html lang="en">
@@ -21,10 +23,54 @@ const {
     <meta name="description" content={description} />
     <meta name="theme-color" content="#1E40AF" />
     <title>{title}</title>
+    <link rel="canonical" href={canonicalURL} />
+    <!-- 48x48 for Google search results (must be multiple of 48px) -->
+    <link rel="icon" href="/favicon-48x48.png" type="image/png" sizes="48x48" />
+    <link rel="icon" href="/favicon-16x16.png" type="image/png" sizes="16x16" />
+    <link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32" />
+    <link rel="icon" href="/favicon-192x192.png" type="image/png" sizes="192x192" />
+    <link rel="icon" href="/favicon-512x512.png" type="image/png" sizes="512x512" />
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
-    <!-- <link rel="icon" href="/favicon.svg" type="image/svg+xml" /> -->
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
+
+    <!-- Schema.org JSON-LD -->
+    <script type="application/ld+json" is:inline>
+      {
+        "@context": "https://schema.org",
+        "@type": "ProfessionalService",
+        "name": "Ruckus Systems",
+        "image": "https://ruckussystems.dev/logo.png",
+        "url": "https://ruckussystems.dev",
+        "telephone": "828-357-7556",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "",
+          "addressLocality": "Asheville",
+          "addressRegion": "NC",
+          "postalCode": "28801",
+          "addressCountry": "US"
+        },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": 35.5951,
+          "longitude": -82.5515
+        },
+        "openingHoursSpecification": {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": [
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday"
+          ],
+          "opens": "09:00",
+          "closes": "17:00"
+        },
+        "priceRange": "$$"
+      }
+    </script>
   </head>
   <body class="min-h-screen flex flex-col bg-white text-gray-900">
     <Header />

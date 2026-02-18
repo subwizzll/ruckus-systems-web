@@ -14,6 +14,7 @@ const env = loadEnv('', monorepoRoot, '')
 Object.assign(process.env, env)
 
 export default defineConfig({
+  site: 'https://ruckussystems.dev',
   output: 'server',
   adapter: vercel(),
   vite: {
