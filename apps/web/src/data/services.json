@@ -1,8 +1,8 @@
 [
   {
     "id": "strategy-call",
-    "title": "Strategy Call",
-    "description": "Get clear, practical advice on AI and automation for your business so you know the best next step. Includes a written follow-up and a quote for any extra work you might want.",
+    "title": "Strategy Blueprint",
+    "description": "Don't guess at value. We map your highest-ROI opportunities for automation and data engineering, delivering a concrete roadmap for implementation and projected impact.",
     "duration": 45,
     "price": "$189",
     "amount": 18900,
@@ -11,8 +11,8 @@
   },
   {
     "id": "workflow-audit",
-    "title": "Workflow Audit",
-    "description": "We walk through how you run things, then you get a written plan and clear next steps. Includes follow-up documentation and a quote for additional services.",
+    "title": "Full-Stack Automation Audit",
+    "description": "We analyze your operations to identify bottlenecks and data silos, then deliver a technical architecture plan to eliminate manual work and unify your data systems.",
     "duration": 75,
     "price": "$377",
     "amount": 37700,
@@ -21,8 +21,8 @@
   },
   {
     "id": "ai-jumpstart",
-    "title": "AI Dev Jumpstart",
-    "description": "New to coding? We set up Cursor and modern tools, then you build your first automation with AI—from zero to something you can actually use.",
+    "title": "Custom AI Implementation Pilot",
+    "description": "Move beyond chat interfaces. We build a functional, custom AI agent or automation pilot integrated with your actual data, proving technical feasibility and business value.",
     "duration": 75,
     "price": "$377",
     "amount": 37700,
@@ -31,8 +31,8 @@
   },
   {
     "id": "data-pipeline",
-    "title": "Data Pipeline",
-    "description": "Like a workflow audit plus data: we look at how you work and what data you need, then give you a strategy and plan to get your data flowing. Includes follow-up documentation and a quote for additional services.",
+    "title": "Enterprise Data Infrastructure Plan",
+    "description": "Automation fails without good data. We design a robust, scalable data pipeline architecture to ensure your AI and analytics are built on a solid, reliable foundation.",
     "duration": 120,
     "price": "$559",
     "amount": 55900,
