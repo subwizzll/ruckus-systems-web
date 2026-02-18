@@ -1,5 +1,8 @@
 import type { APIRoute } from "astro";
 import { validateBookingToken, getBookingById, rescheduleBooking } from "@workspace/backend";
+import servicesJson from "../../../data/services.json";
+
+const servicesConfig = servicesJson as Array<{ id: string; minDaysInAdvance: number; maxDaysInAdvance: number }>;
 
 export const GET: APIRoute = async ({ url }) => {
   try {
@@ -40,6 +43,17 @@ export const GET: APIRoute = async ({ url }) => {
         headers: { "Content-Type": "application/json" },
       });
     }
+    const startTime = new Date(booking.start_time);
+    if (startTime.getTime() <= Date.now()) {
+      return new Response(
+        JSON.stringify({ success: false, error: "Appointment has already started" }),
+        { status: 400, headers: { "Content-Type": "application/json" } },
+      );
+    }
+
+    const serviceConfig = servicesConfig.find((s) => s.id === booking.service_id);
+    const minDaysInAdvance = serviceConfig?.minDaysInAdvance ?? 1;
+    const maxDaysInAdvance = serviceConfig?.maxDaysInAdvance ?? 30;
 
     return new Response(
       JSON.stringify({
@@ -54,6 +68,8 @@ export const GET: APIRoute = async ({ url }) => {
           format: booking.format,
           clientName: `${booking.client_first_name} ${booking.client_last_name}`,
           clientEmail: booking.client_email,
+          minDaysInAdvance,
+          maxDaysInAdvance,
         },
       }),
       { status: 200, headers: { "Content-Type": "application/json" } },
@@ -108,6 +124,34 @@ export const POST: APIRoute = async ({ request }) => {
         status: 403,
         headers: { "Content-Type": "application/json" },
       });
+    }
+    const bookingStartTime = new Date(booking.start_time);
+    if (bookingStartTime.getTime() <= Date.now()) {
+      return new Response(
+        JSON.stringify({ success: false, error: "Appointment has already started" }),
+        { status: 400, headers: { "Content-Type": "application/json" } },
+      );
+    }
+
+    const serviceConfig = servicesConfig.find((s) => s.id === booking.service_id);
+    const minDays = serviceConfig?.minDaysInAdvance ?? 1;
+    const maxDays = serviceConfig?.maxDaysInAdvance ?? 30;
+    const now = new Date();
+    const todayUtc = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+    const minStart = new Date(todayUtc);
+    minStart.setUTCDate(minStart.getUTCDate() + minDays);
+    const maxEnd = new Date(todayUtc);
+    maxEnd.setUTCDate(maxEnd.getUTCDate() + Math.max(maxDays, minDays));
+    maxEnd.setUTCHours(23, 59, 59, 999);
+    const start = new Date(newStartTime);
+    if (start < minStart || start > maxEnd) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: `New time must be between ${minDays} and ${maxDays} days from today.`,
+        }),
+        { status: 400, headers: { "Content-Type": "application/json" } },
+      );
     }
 
     const result = await rescheduleBooking(validation.payload.bookingId, new Date(newStartTime));

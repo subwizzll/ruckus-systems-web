@@ -7,8 +7,40 @@ import {
   generateCancelToken,
 } from "@workspace/backend";
 
+import servicesJson from "../../../data/services.json";
+
+const servicesConfig = servicesJson as Array<{
+  id: string;
+  minDaysInAdvance: number;
+  maxDaysInAdvance: number;
+}>;
+
 function isBookingEnabled() {
   return process.env.BOOKING_ENABLED !== "false";
+}
+
+function getServiceBookingWindow(serviceId: string): { minDaysInAdvance: number; maxDaysInAdvance: number } {
+  const service = servicesConfig.find((s) => s.id === serviceId);
+  return {
+    minDaysInAdvance: service?.minDaysInAdvance ?? 1,
+    maxDaysInAdvance: service?.maxDaysInAdvance ?? 30,
+  };
+}
+
+function isStartTimeWithinBookingWindow(
+  startTime: string,
+  minDaysInAdvance: number,
+  maxDaysInAdvance: number,
+): boolean {
+  const now = new Date();
+  const todayUtc = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  const minStart = new Date(todayUtc);
+  minStart.setUTCDate(minStart.getUTCDate() + minDaysInAdvance);
+  const maxEnd = new Date(todayUtc);
+  maxEnd.setUTCDate(maxEnd.getUTCDate() + Math.max(maxDaysInAdvance, minDaysInAdvance));
+  maxEnd.setUTCHours(23, 59, 59, 999);
+  const start = new Date(startTime);
+  return start >= minStart && start <= maxEnd;
 }
 
 function parseDurationToMinutes(duration?: string): number {
@@ -33,7 +65,7 @@ export const POST: APIRoute = async ({ url, request }) => {
       service: {
         id: bookingData.service?.id || "strategy-call",
         title: bookingData.service?.title || "Strategy Call",
-        duration: bookingData.service?.duration || "60 minutes",
+        duration: bookingData.service?.duration ?? 60,
         price: bookingData.service?.price || "$250",
       },
       appointment: {
@@ -62,12 +94,32 @@ export const POST: APIRoute = async ({ url, request }) => {
       throw new Error("Client name is required");
     }
 
+    const { minDaysInAdvance, maxDaysInAdvance } = getServiceBookingWindow(createBookingData.service.id);
+    if (
+      !isStartTimeWithinBookingWindow(
+        createBookingData.appointment.startTime,
+        minDaysInAdvance,
+        maxDaysInAdvance,
+      )
+    ) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: `Appointment must be between ${minDaysInAdvance} and ${maxDaysInAdvance} days from today.`,
+        }),
+        { status: 400, headers: { "Content-Type": "application/json" } },
+      );
+    }
+
     const result = await createBooking(url.origin, createBookingData);
     if (!result.success || !result.data) {
       throw new Error(result.error || "Failed to create booking");
     }
 
-    const durationMinutes = parseDurationToMinutes(createBookingData.service.duration);
+    const durationMinutes =
+      typeof createBookingData.service.duration === "number"
+        ? createBookingData.service.duration
+        : parseDurationToMinutes(createBookingData.service.duration);
     const savedBooking = await saveBooking({
       id: result.data.bookingId,
       zoomMeetingId: result.data.zoomMeetingId,

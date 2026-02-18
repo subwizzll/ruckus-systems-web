@@ -12,6 +12,16 @@
   --accent-teal: #799999;
   --surface-soft: #f1f5f9;
   --surface-soft-border: #e2e8f0;
+
+  /* Time selection (calendar + slots): default blue theme for reschedule page */
+  --ts-accent: #3b82f6;
+  --ts-accent-light: #dbeafe;
+  --ts-accent-text: #1d4ed8;
+  --ts-accent-hover: #bfdbfe;
+  --ts-accent-shadow: rgba(59, 130, 246, 0.3);
+  --ts-surface: #f8fafc;
+  --ts-border: #d1d5db;
+  --ts-fg: #0f172a;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -24,6 +34,8 @@
     --surface-soft-border: #334155;
   }
 }
+
+@import './time-selection.css';
 
 * {
   box-sizing: border-box;

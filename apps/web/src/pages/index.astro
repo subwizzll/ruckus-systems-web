@@ -1,6 +1,23 @@
 ---
 import Layout from '../layouts/Layout.astro'
 import BookingModal from '../components/BookingModal.astro'
+import { getCollection } from 'astro:content'
+import type { CollectionEntry } from 'astro:content'
+
+const services = await getCollection('services')
+
+const serviceButtonToneClasses = [
+  'service-cta-primary',
+  'service-cta-secondary',
+  'service-cta-accent-sage',
+  'service-cta-accent-terracotta',
+  'service-cta-accent-gold',
+  'service-cta-accent-teal',
+] as const
+
+const randomizedServiceButtonToneClasses = [...serviceButtonToneClasses].sort(
+  () => Math.random() - 0.5,
+)
 ---
 
 <Layout title="Ruckus Systems | AI & Automation Consulting">
@@ -23,12 +40,6 @@ import BookingModal from '../components/BookingModal.astro'
         >
           Book a Strategy Call
         </a>
-        <a
-          href="/resume"
-          class="btn-secondary-hero inline-flex h-12 items-center justify-center rounded-full border px-8 text-lg font-semibold transition-colors dark:text-slate-100"
-        >
-          View My Experience
-        </a>
       </div>
     </section>
 
@@ -39,46 +50,30 @@ import BookingModal from '../components/BookingModal.astro'
           Choose the engagement that matches your current priorities. Select a service below to prefill your booking flow.
         </p>
         <div class="grid gap-8 md:grid-cols-2">
-          <article class="service-card-home rounded-2xl border border-[var(--surface-soft-border)] bg-[var(--surface-soft)] p-8 transition-all hover:border-[var(--accent-sage)] hover:shadow-xl dark:border-slate-800 dark:bg-slate-900">
-            <div class="mb-4 flex items-start justify-between gap-4">
-              <h3 class="text-2xl font-bold">Strategy Call</h3>
-              <div class="text-right">
-                <p class="text-2xl font-bold text-slate-900 dark:text-white">$250</p>
-                <p class="text-sm text-slate-600 dark:text-slate-400">60 minutes</p>
-              </div>
-            </div>
-            <p class="mb-6 leading-relaxed text-slate-600 dark:text-slate-400">
-              Fast, high-impact advisory to unblock your next move, validate priorities, and define a practical implementation plan.
-            </p>
-            <a
-              href="#book-now"
-              data-booking-open
-              data-service="strategy-call"
-              class="inline-flex h-11 items-center justify-center rounded-full border-none bg-blue-600 px-6 font-semibold text-white! transition-colors hover:bg-blue-700 dark:text-white"
-            >
-              Book Strategy Call
-            </a>
-          </article>
-          <article class="service-card-home rounded-2xl border border-[var(--surface-soft-border)] bg-[var(--surface-soft)] p-8 transition-all hover:border-[var(--accent-sage)] hover:shadow-xl dark:border-slate-800 dark:bg-slate-900">
-            <div class="mb-4 flex items-start justify-between gap-4">
-              <h3 class="text-2xl font-bold">Workflow Audit</h3>
-              <div class="text-right">
-                <p class="text-2xl font-bold text-slate-900 dark:text-white">$900</p>
-                <p class="text-sm text-slate-600 dark:text-slate-400">120 minutes</p>
-              </div>
-            </div>
-            <p class="mb-6 leading-relaxed text-slate-600 dark:text-slate-400">
-              Deep-dive operational analysis with clear implementation priorities across systems, automations, and data handoffs.
-            </p>
-            <a
-              href="#book-now"
-              data-booking-open
-              data-service="workflow-audit"
-              class="inline-flex h-11 items-center justify-center rounded-full border-none bg-slate-900 px-6 font-semibold text-white! transition-colors hover:bg-slate-700 dark:bg-slate-200 dark:text-black! dark:hover:bg-slate-100"
-            >
-              Book Workflow Audit
-            </a>
-          </article>
+          {services.map((entry: CollectionEntry<'services'>, i: number) => (
+              <article class="service-card-home rounded-2xl border border-[var(--surface-soft-border)] bg-[var(--surface-soft)] p-8 transition-all hover:border-[var(--accent-sage)] hover:shadow-xl dark:border-slate-800 dark:bg-slate-900">
+                <div class="mb-4 flex items-start justify-between gap-4">
+                  <h3 class="text-2xl font-bold">{entry.data.title}</h3>
+                  <div class="text-right">
+                    <p class="text-2xl font-bold text-slate-900 dark:text-white">{entry.data.price}</p>
+                    <p class="text-sm text-slate-600 dark:text-slate-400">{entry.data.duration} minutes</p>
+                  </div>
+                </div>
+                <p class="mb-6 leading-relaxed text-slate-600 dark:text-slate-400">
+                  {entry.data.description}
+                </p>
+                <a
+                  href="#book-now"
+                  data-booking-open
+                  data-service={entry.id}
+                  class={`inline-flex h-11 items-center justify-center rounded-full border-none px-6 font-semibold transition-colors ${
+                    randomizedServiceButtonToneClasses[i % randomizedServiceButtonToneClasses.length]
+                  }`}
+                >
+                  Book {entry.data.title}
+                </a>
+              </article>
+            ))}
         </div>
       </div>
     </section>
@@ -125,176 +120,66 @@ import BookingModal from '../components/BookingModal.astro'
         </div>
       </div>
     </section>
-    <!-- Buy Me a Coffee -->
-    <section id="tip" class="border-t border-slate-200 bg-white px-6 py-20 text-center dark:border-slate-800 dark:bg-slate-950">
-      <div class="mx-auto max-w-xl space-y-6">
-        <div class="flex flex-col items-center gap-2">
-          <span class="text-4xl" aria-hidden="true">☕</span>
-          <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Buy Me a Coffee (or a few)</h2>
-          <p class="text-slate-500 dark:text-slate-400">
-            Enjoying this site? Power up my code with a jolt of liquid inspiration!
-          </p>
-        </div>
-
-        <!-- Preset amounts -->
-        <div id="tip-presets" class="flex flex-wrap justify-center gap-3">
-          <button type="button" data-tip-amount="5"
-            class="tip-preset-btn rounded-full border-2 border-slate-200 bg-white px-5 py-2 font-semibold text-slate-700 transition-all hover:border-amber-500 hover:text-amber-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-amber-400 dark:hover:text-amber-400">
-            $5
-          </button>
-          <button type="button" data-tip-amount="10"
-            class="tip-preset-btn rounded-full border-2 border-slate-200 bg-white px-5 py-2 font-semibold text-slate-700 transition-all hover:border-amber-500 hover:text-amber-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-amber-400 dark:hover:text-amber-400">
-            $10
-          </button>
-          <button type="button" data-tip-amount="25"
-            class="tip-preset-btn rounded-full border-2 border-slate-200 bg-white px-5 py-2 font-semibold text-slate-700 transition-all hover:border-amber-500 hover:text-amber-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-amber-400 dark:hover:text-amber-400">
-            $25
-          </button>
-          <button type="button" data-tip-amount="50"
-            class="tip-preset-btn rounded-full border-2 border-slate-200 bg-white px-5 py-2 font-semibold text-slate-700 transition-all hover:border-amber-500 hover:text-amber-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-amber-400 dark:hover:text-amber-400">
-            $50
-          </button>
-        </div>
-
-        <!-- Custom amount -->
-        <div class="flex items-center justify-center gap-2">
-          <span class="text-slate-500 dark:text-slate-400">or</span>
-          <div class="relative">
-            <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-slate-400">$</span>
-            <input
-              id="tip-custom-amount"
-              type="number"
-              min="1"
-              max="500"
-              step="1"
-              placeholder="Custom"
-              class="w-32 rounded-full border-2 border-slate-200 bg-white py-2 pl-7 pr-4 text-center font-semibold text-slate-700 outline-none transition-colors focus:border-amber-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:focus:border-amber-400"
-            />
-          </div>
-        </div>
-
-        <button
-          id="tip-submit-btn"
-          type="button"
-          class="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-amber-500 px-8 font-semibold text-white shadow-md transition-all hover:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          <span id="tip-btn-label">Send a Coffee ☕</span>
-        </button>
-
-        <p id="tip-error" class="hidden text-sm text-red-500"></p>
-      </div>
-    </section>
 
     <BookingModal />
   </main>
   <style>
-    .btn-secondary-hero {
-      border-color: var(--accent-terracotta);
-      color: var(--accent-terracotta);
+    .service-cta-primary {
+      background-color: var(--brand-blue);
+      color: #fff;
     }
-    .btn-secondary-hero:hover {
-      background-color: rgba(180, 83, 9, 0.08);
+    .service-cta-primary:hover {
+      background-color: #1d4ed8;
+    }
+    :is(.dark) .service-cta-primary {
+      color: #fff;
     }
 
-    .tip-preset-btn.active {
-      border-color: #f59e0b;
-      color: #d97706;
-      background-color: #fffbeb;
+    .service-cta-secondary {
+      background-color: #0f172a;
+      color: #fff;
     }
-    :is(.dark) .tip-preset-btn.active {
-      border-color: #fbbf24;
-      color: #fbbf24;
-      background-color: rgba(251, 191, 36, 0.1);
+    .service-cta-secondary:hover {
+      background-color: #334155;
+    }
+    :is(.dark) .service-cta-secondary {
+      background-color: #e2e8f0;
+      color: #0f172a;
+    }
+    :is(.dark) .service-cta-secondary:hover {
+      background-color: #f1f5f9;
+    }
+
+    .service-cta-accent-sage {
+      background-color: var(--accent-sage);
+      color: #fff;
+    }
+    .service-cta-accent-sage:hover {
+      background-color: #3f5b43;
+    }
+
+    .service-cta-accent-terracotta {
+      background-color: var(--accent-terracotta);
+      color: #fff;
+    }
+    .service-cta-accent-terracotta:hover {
+      background-color: #8f452b;
+    }
+
+    .service-cta-accent-gold {
+      background-color: var(--accent-gold);
+      color: #0f172a;
+    }
+    .service-cta-accent-gold:hover {
+      background-color: #d4a61f;
+    }
+
+    .service-cta-accent-teal {
+      background-color: var(--accent-teal);
+      color: #fff;
+    }
+    .service-cta-accent-teal:hover {
+      background-color: #6a8a8a;
     }
   </style>
-
-  <script>
-    // ── Tip / Buy Me a Coffee ──────────────────────────────────────────────
-    const presetBtns = document.querySelectorAll<HTMLButtonElement>('.tip-preset-btn');
-    const customInput = document.getElementById('tip-custom-amount') as HTMLInputElement | null;
-    const submitBtn  = document.getElementById('tip-submit-btn') as HTMLButtonElement | null;
-    const btnLabel   = document.getElementById('tip-btn-label');
-    const errorEl    = document.getElementById('tip-error');
-
-    let selectedAmount: number | null = null;
-
-    function setActive(amount: number) {
-      selectedAmount = amount;
-      presetBtns.forEach(b => b.classList.remove('active'));
-      const match = [...presetBtns].find(b => Number(b.dataset.tipAmount) === amount);
-      if (match) match.classList.add('active');
-    }
-
-    presetBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const amt = Number(btn.dataset.tipAmount);
-        setActive(amt);
-        if (customInput) customInput.value = '';
-      });
-    });
-
-    customInput?.addEventListener('input', () => {
-      presetBtns.forEach(b => b.classList.remove('active'));
-      selectedAmount = customInput.value ? Number(customInput.value) : null;
-    });
-
-    submitBtn?.addEventListener('click', async () => {
-      const amount = selectedAmount ?? (customInput?.value ? Number(customInput.value) : null);
-
-      if (errorEl) { errorEl.textContent = ''; errorEl.classList.add('hidden'); }
-
-      if (!amount || amount < 1) {
-        if (errorEl) { errorEl.textContent = 'Please choose or enter an amount first.'; errorEl.classList.remove('hidden'); }
-        return;
-      }
-      if (amount > 500) {
-        if (errorEl) { errorEl.textContent = 'Maximum tip is $500.'; errorEl.classList.remove('hidden'); }
-        return;
-      }
-
-      submitBtn.disabled = true;
-      if (btnLabel) btnLabel.textContent = 'Loading…';
-
-      try {
-        const res = await fetch('/api/payment/tip', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ amount }),
-        });
-        const data = await res.json();
-
-        if (data.success && data.url) {
-          window.location.href = data.url;
-        } else {
-          throw new Error(data.error || 'Something went wrong');
-        }
-      } catch (err) {
-        if (errorEl) {
-          errorEl.textContent = err instanceof Error ? err.message : 'Something went wrong. Please try again.';
-          errorEl.classList.remove('hidden');
-        }
-        submitBtn.disabled = false;
-        if (btnLabel) btnLabel.textContent = 'Send a Coffee ☕';
-      }
-    });
-
-    // ── Show thank-you toast if returning from Stripe tip success ──────────
-    if (new URLSearchParams(window.location.search).get('tip') === 'thanks') {
-      const toast = document.createElement('div');
-      toast.textContent = '☕ Thanks so much — you\'re awesome!';
-      toast.style.cssText = `
-        position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
-        background:#d97706; color:#fff; padding:12px 24px; border-radius:9999px;
-        font-weight:600; font-size:1rem; box-shadow:0 4px 24px rgba(0,0,0,.18);
-        z-index:9999; opacity:0; transition:opacity .4s;
-      `;
-      document.body.appendChild(toast);
-      requestAnimationFrame(() => { toast.style.opacity = '1'; });
-      setTimeout(() => {
-        toast.style.opacity = '0';
-        setTimeout(() => toast.remove(), 400);
-        history.replaceState({}, '', '/');
-      }, 4000);
-    }
-  </script>
 </Layout>

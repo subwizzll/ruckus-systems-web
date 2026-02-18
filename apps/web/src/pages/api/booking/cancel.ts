@@ -42,6 +42,12 @@ export const GET: APIRoute = async ({ url }) => {
 
     const now = new Date();
     const startTime = new Date(booking.start_time);
+    if (startTime.getTime() <= now.getTime()) {
+      return new Response(
+        JSON.stringify({ success: false, error: "Appointment has already started" }),
+        { status: 400, headers: { "Content-Type": "application/json" } },
+      );
+    }
     const hoursUntilAppointment = (startTime.getTime() - now.getTime()) / (1000 * 60 * 60);
     const eligibleForRefund = hoursUntilAppointment > 24;
 
@@ -124,6 +130,13 @@ export const POST: APIRoute = async ({ request }) => {
         status: 400,
         headers: { "Content-Type": "application/json" },
       });
+    }
+    const startTime = new Date(booking.start_time);
+    if (startTime.getTime() <= Date.now()) {
+      return new Response(
+        JSON.stringify({ success: false, error: "Appointment has already started" }),
+        { status: 400, headers: { "Content-Type": "application/json" } },
+      );
     }
 
     const result = await cancelBooking(validation.payload.bookingId);

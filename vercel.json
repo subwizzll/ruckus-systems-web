@@ -3,5 +3,14 @@
   "framework": "astro",
   "installCommand": "bun install",
   "buildCommand": "bunx turbo build --filter=web",
-  "outputDirectory": "apps/web/.vercel/output"
+  "outputDirectory": "apps/web/.vercel/output",
+  "regions": ["iad1"],
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "redirects": [
+    { "source": "/old-slug", "destination": "/new-slug", "permanent": true }
+  ],
+  "env": {
+    "VERCEL_FORCE_NO_BUILD_CACHE": "1"
+  }
 }

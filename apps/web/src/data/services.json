@@ -1,0 +1,42 @@
+[
+  {
+    "id": "strategy-call",
+    "title": "Strategy Call",
+    "description": "Fast, high-impact advisory to unblock your next move.",
+    "duration": 60,
+    "price": "$250",
+    "amount": 25000,
+    "minDaysInAdvance": 1,
+    "maxDaysInAdvance": 30
+  },
+  {
+    "id": "workflow-audit",
+    "title": "Workflow Audit",
+    "description": "Deep-dive ops analysis with clear implementation priorities.",
+    "duration": 120,
+    "price": "$900",
+    "amount": 90000,
+    "minDaysInAdvance": 1,
+    "maxDaysInAdvance": 30
+  },
+  {
+    "id": "ai-jumpstart",
+    "title": "AI Dev Jumpstart",
+    "description": "Setup Cursor, LLMs, and build your first automation. Zero to shipping.",
+    "duration": 90,
+    "price": "$350",
+    "amount": 35000,
+    "minDaysInAdvance": 1,
+    "maxDaysInAdvance": 30
+  },
+  {
+    "id": "data-heist",
+    "title": "The Data Heist",
+    "description": "Pair programming: We scrape, clean, and visualize a data source of your choice.",
+    "duration": 120,
+    "price": "$450",
+    "amount": 45000,
+    "minDaysInAdvance": 1,
+    "maxDaysInAdvance": 30
+  }
+]

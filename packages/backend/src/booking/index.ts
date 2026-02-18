@@ -14,7 +14,7 @@ import { sendEmail } from "../lib/resend";
 const ServiceDataSchema = z.object({
   id: z.string().min(1),
   title: z.string().min(1),
-  duration: z.string().optional(),
+  duration: z.union([z.number().int().min(1), z.string()]).optional(),
   price: z.string().optional(),
 });
 
@@ -48,9 +48,10 @@ const CreateBookingSchema = z.object({
 
 export type CreateBookingInput = z.infer<typeof CreateBookingSchema>;
 
-function parseDurationToMinutes(durationStr?: string): number {
-  if (!durationStr) return 60;
-  const match = durationStr.match(/(\d+)\s*(min|minute|hour|hr)/i);
+function parseDurationToMinutes(duration?: string | number): number {
+  if (typeof duration === "number") return duration;
+  if (!duration) return 60;
+  const match = duration.match(/(\d+)\s*(min|minute|hour|hr)/i);
   if (!match) return 60;
   const value = parseInt(match[1] || "60", 10);
   return (match[2] || "").toLowerCase().startsWith("h") ? value * 60 : value;

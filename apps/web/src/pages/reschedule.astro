@@ -8,32 +8,240 @@ if (!token) {
 ---
 
 <Layout title="Reschedule Appointment | Ruckus Systems">
-  <div class="mx-auto max-w-2xl px-6 py-12">
+  <div id="reschedule-root" class="mx-auto max-w-4xl px-6 py-12" data-token={token}>
     <h1 class="mb-6 text-3xl font-bold">Reschedule Appointment</h1>
 
     <div id="reschedule-loading" class="rounded border p-4">Loading booking details...</div>
     <div id="reschedule-error" class="hidden rounded border border-red-200 bg-red-50 p-4 text-red-700"></div>
 
-    <div id="reschedule-body" class="hidden space-y-4">
+    <div id="reschedule-body" class="hidden space-y-6">
       <div class="rounded border p-4">
         <h2 class="mb-2 text-xl font-semibold">Current Booking</h2>
         <p><strong>Service:</strong> <span id="service-title"></span></p>
         <p><strong>Current time:</strong> <span id="current-time"></span></p>
+        <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">
+          Times shown in your timezone: <span id="user-timezone" class="font-medium"></span>
+        </p>
       </div>
 
-      <div class="rounded border p-4">
-        <label class="mb-2 block text-sm font-semibold">New time</label>
-        <select id="new-time" class="w-full rounded border p-2 text-sm" size="10"></select>
+      <div>
+        <h3 class="mb-3 text-lg font-semibold">Select New Date and Time</h3>
+        <div id="availability-loading" class="py-8 text-center">
+          <div class="animate-pulse">
+            <div class="mx-auto mb-3 h-8 w-8 rounded-full bg-slate-300 dark:bg-slate-600"></div>
+            <p class="text-slate-600 dark:text-slate-400">Loading available times...</p>
+          </div>
+        </div>
+
+        <div id="calendar-container" class="hidden">
+          <div class="flex flex-col lg:flex-row lg:items-start lg:gap-8">
+            <div class="lg:max-w-sm lg:flex-1">
+              <div class="mb-6 flex items-center justify-between">
+                <button id="prev-month" class="rounded-lg p-2 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800" type="button">
+                  <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                  </svg>
+                </button>
+                <h3 id="calendar-month" class="text-xl font-semibold text-slate-900 dark:text-slate-100"></h3>
+                <button id="next-month" class="rounded-lg p-2 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800" type="button">
+                  <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                  </svg>
+                </button>
+              </div>
+
+              <div class="rounded-lg border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
+                <div class="mb-4 grid grid-cols-7 gap-2">
+                  <div class="py-2 text-center text-sm font-medium text-slate-600 dark:text-slate-400">Su</div>
+                  <div class="py-2 text-center text-sm font-medium text-slate-600 dark:text-slate-400">Mo</div>
+                  <div class="py-2 text-center text-sm font-medium text-slate-600 dark:text-slate-400">Tu</div>
+                  <div class="py-2 text-center text-sm font-medium text-slate-600 dark:text-slate-400">We</div>
+                  <div class="py-2 text-center text-sm font-medium text-slate-600 dark:text-slate-400">Th</div>
+                  <div class="py-2 text-center text-sm font-medium text-slate-600 dark:text-slate-400">Fr</div>
+                  <div class="py-2 text-center text-sm font-medium text-slate-600 dark:text-slate-400">Sa</div>
+                </div>
+                <div id="calendar-days" class="grid grid-cols-7 gap-2"></div>
+              </div>
+            </div>
+
+            <div class="mt-6 lg:mt-0 lg:max-w-sm lg:flex-1">
+              <div id="selected-date-info" class="mb-4 hidden rounded-lg border border-slate-200 bg-slate-50 p-3 text-center lg:text-left dark:border-slate-700 dark:bg-slate-900">
+                <p id="selected-date-label" class="text-sm font-medium text-slate-800 dark:text-slate-200"></p>
+                <p id="selected-time-label" class="mt-1 text-sm text-blue-700 dark:text-blue-400">No time selected yet.</p>
+              </div>
+
+              <div id="time-slots-grid" class="hidden">
+                <div id="time-slots-container" class="mb-6"></div>
+              </div>
+
+              <div id="no-times-message" class="hidden rounded-lg bg-slate-50 py-8 text-center dark:bg-slate-900">
+                <p class="text-slate-700 dark:text-slate-300">Please choose a highlighted date to see available times.</p>
+                <p class="mt-1 text-sm text-slate-500">No available times on this day.</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <button id="confirm-reschedule" class="rounded bg-blue-600 px-4 py-3 font-semibold text-white">
+      <button id="confirm-reschedule" class="rounded bg-blue-600 px-4 py-3 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50" disabled>
         Confirm reschedule
       </button>
     </div>
   </div>
 </Layout>
 
-<script is:inline define:vars={{ token }}>
+<script>
+  // @ts-nocheck - inline-style script with DOM refs; types from lib are used at runtime
+  import type { Slot } from "../lib/time-selection";
+  import {
+    isSlotWithinBusinessHours,
+    isAtCurrentMonth,
+    groupSlotsByTimeOfDay,
+    buildTimeSlotsHTML,
+    buildCalendarDayModels,
+    formatSelectedDateLabel,
+  } from "../lib/time-selection";
+
+  const root = document.getElementById("reschedule-root");
+  const token = root?.getAttribute("data-token") ?? "";
+
+  let bookingData: Record<string, unknown> | null = null;
+  let availableSlots: Slot[] = [];
+  let selectedSlot: Slot | null = null;
+  let selectedDate: string | null = null;
+  let currentDate = new Date();
+
+  function updateMonthNavigationState() {
+    const prevBtn = document.getElementById("prev-month") as HTMLButtonElement | null;
+    if (!prevBtn) return;
+    const atCurrent = isAtCurrentMonth(currentDate);
+    prevBtn.disabled = atCurrent;
+    prevBtn.classList.toggle("is-disabled", atCurrent);
+    prevBtn.setAttribute("aria-disabled", atCurrent ? "true" : "false");
+  }
+
+  function setupMonthNavigation() {
+    const prevBtn = document.getElementById("prev-month");
+    const nextBtn = document.getElementById("next-month");
+    if (!prevBtn || !nextBtn) return;
+
+    (prevBtn as HTMLButtonElement).onclick = () => {
+      const now = new Date();
+      const targetDate = new Date(currentDate);
+      targetDate.setMonth(targetDate.getMonth() - 1);
+      if (
+        targetDate.getFullYear() < now.getFullYear() ||
+        (targetDate.getFullYear() === now.getFullYear() && targetDate.getMonth() < now.getMonth())
+      ) {
+        return;
+      }
+      currentDate = targetDate;
+      populateCalendar();
+    };
+
+    (nextBtn as HTMLButtonElement).onclick = () => {
+      currentDate.setMonth(currentDate.getMonth() + 1);
+      populateCalendar();
+    };
+
+    updateMonthNavigationState();
+  }
+
+  function showTimeSlots(slots: Slot[], dateStr: string) {
+    const timeSlotsGrid = document.getElementById("time-slots-grid");
+    const timeSlotsContainer = document.getElementById("time-slots-container");
+    const noTimesMessage = document.getElementById("no-times-message");
+    const selectedDateInfo = document.getElementById("selected-date-info");
+    const selectedDateLabel = document.getElementById("selected-date-label");
+    const selectedTimeLabel = document.getElementById("selected-time-label");
+    const validSlots = slots.filter((slot: Slot) => isSlotWithinBusinessHours(slot));
+
+    if (selectedDateLabel) selectedDateLabel.textContent = formatSelectedDateLabel(dateStr);
+
+    if (!validSlots.length) {
+      timeSlotsGrid?.classList.add("hidden");
+      noTimesMessage?.classList.remove("hidden");
+      selectedDateInfo?.classList.add("hidden");
+      if (selectedTimeLabel) selectedTimeLabel.textContent = "No time selected yet.";
+      return;
+    }
+
+    selectedDateInfo?.classList.remove("hidden");
+    timeSlotsGrid?.classList.remove("hidden");
+    noTimesMessage?.classList.add("hidden");
+
+    const { morning, afternoon, evening } = groupSlotsByTimeOfDay(validSlots);
+    if (timeSlotsContainer) {
+      timeSlotsContainer.innerHTML = buildTimeSlotsHTML(morning, afternoon, evening);
+      timeSlotsContainer.querySelectorAll(".time-slot-button").forEach((button) => {
+        button.addEventListener("click", () => selectTimeSlot(button as HTMLButtonElement));
+      });
+    }
+  }
+
+  function selectDate(dayEl: HTMLElement) {
+    selectedDate = dayEl.dataset.date ?? null;
+    selectedSlot = null;
+    const confirmBtn = document.getElementById("confirm-reschedule") as HTMLButtonElement | null;
+    if (confirmBtn) confirmBtn.disabled = true;
+    document.querySelectorAll(".calendar-day.selected").forEach((el) => el.classList.remove("selected"));
+    dayEl.classList.add("selected");
+    const selectedTimeLabel = document.getElementById("selected-time-label");
+    if (selectedTimeLabel) selectedTimeLabel.textContent = "No time selected yet.";
+
+    const slots = JSON.parse(dayEl.dataset.slots || "[]") as Slot[];
+    if (selectedDate) showTimeSlots(slots, selectedDate);
+  }
+
+  function selectTimeSlot(slotButton: HTMLButtonElement) {
+    document.querySelectorAll(".time-slot-button.selected").forEach((el) => el.classList.remove("selected"));
+    slotButton.classList.add("selected");
+    selectedSlot = JSON.parse(slotButton.dataset.slot || "{}") as Slot;
+    if (!isSlotWithinBusinessHours(selectedSlot)) {
+      selectedSlot = null;
+      slotButton.classList.remove("selected");
+      const confirmBtn = document.getElementById("confirm-reschedule") as HTMLButtonElement | null;
+      if (confirmBtn) confirmBtn.disabled = true;
+      alert("Please choose a Monday-Friday time between 9:00 AM and 5:00 PM.");
+      return;
+    }
+
+    const selectedTimeLabel = document.getElementById("selected-time-label");
+    if (selectedTimeLabel) {
+      selectedTimeLabel.textContent = `Selected time: ${slotButton.textContent?.trim() || ""}`;
+    }
+    const confirmBtn = document.getElementById("confirm-reschedule") as HTMLButtonElement | null;
+    if (confirmBtn) confirmBtn.disabled = false;
+  }
+
+  function populateCalendar() {
+    const calendarDays = document.getElementById("calendar-days");
+    const monthHeader = document.getElementById("calendar-month");
+    if (!calendarDays || !monthHeader) return;
+
+    monthHeader.textContent = currentDate.toLocaleString("default", {
+      month: "long",
+      year: "numeric",
+    });
+
+    const models = buildCalendarDayModels({
+      currentDate,
+      selectedDate,
+      availableSlots,
+    });
+    const html = models
+      .map(
+        (m) =>
+          `<button type="button" class="${m.classes}" data-date="${m.dateStr}" ${m.isAvailable ? `data-slots='${JSON.stringify(m.daySlots)}'` : "disabled"}>${m.dayNumber}</button>`
+      )
+      .join("");
+    calendarDays.innerHTML = html;
+    calendarDays.querySelectorAll(".calendar-day.available").forEach((el) => {
+      el.addEventListener("click", () => selectDate(el));
+    });
+    updateMonthNavigationState();
+  }
+
   async function init() {
     const loading = document.getElementById("reschedule-loading");
     const error = document.getElementById("reschedule-error");
@@ -48,21 +256,26 @@ if (!token) {
       document.getElementById("current-time").textContent = new Date(
         details.data.currentStartTime,
       ).toLocaleString();
+      document.getElementById("user-timezone").textContent = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      bookingData = details.data;
 
-      const slotsRes = await fetch(`/api/booking/slots?eventTypeSlug=${details.data.serviceId}`);
+      const minDays = details.data.minDaysInAdvance ?? 1;
+      const maxDays = details.data.maxDaysInAdvance ?? 30;
+      const slotsRes = await fetch(
+        `/api/booking/slots?eventTypeSlug=${encodeURIComponent(details.data.serviceId)}&minDaysInAdvance=${minDays}&maxDaysInAdvance=${maxDays}`,
+      );
       const slots = await slotsRes.json();
       if (!slots.success) throw new Error(slots.error || "Failed to load slots");
 
-      const select = document.getElementById("new-time");
-      for (const slot of (slots.data?.slots || []).slice(0, 80)) {
-        const option = document.createElement("option");
-        option.value = slot.start_time;
-        option.textContent = new Date(slot.start_time).toLocaleString();
-        select.appendChild(option);
-      }
+      availableSlots = (slots.data?.slots || []).filter((slot) => isSlotWithinBusinessHours(slot));
+      currentDate = new Date();
+      setupMonthNavigation();
+      populateCalendar();
 
       loading.classList.add("hidden");
       body.classList.remove("hidden");
+      document.getElementById("availability-loading").classList.add("hidden");
+      document.getElementById("calendar-container").classList.remove("hidden");
     } catch (err) {
       loading.classList.add("hidden");
       error.textContent = err instanceof Error ? err.message : "Unable to load booking";
@@ -71,15 +284,31 @@ if (!token) {
   }
 
   document.getElementById("confirm-reschedule")?.addEventListener("click", async () => {
-    const value = document.getElementById("new-time").value;
+    if (!bookingData || !selectedSlot?.start_time) {
+      alert("Please select a new time first.");
+      return;
+    }
+
+    if (!isSlotWithinBusinessHours(selectedSlot)) {
+      alert("Please choose a Monday-Friday time between 9:00 AM and 5:00 PM.");
+      return;
+    }
+
+    const button = document.getElementById("confirm-reschedule");
+    button.disabled = true;
+    const originalText = button.textContent;
+    button.textContent = "Rescheduling...";
+
     const res = await fetch("/api/booking/reschedule", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token, newStartTime: value }),
+      body: JSON.stringify({ token, newStartTime: selectedSlot.start_time }),
     });
     const data = await res.json();
     if (!data.success) {
       alert(data.error || "Failed to reschedule");
+      button.disabled = false;
+      button.textContent = originalText;
       return;
     }
     alert("Booking rescheduled successfully.");

@@ -33,14 +33,37 @@ export function verifyToken(token: string): TokenPayload | null {
   }
 }
 
+/** Fallback TTL when startTime is invalid or in the past so API can return policy errors instead of "Token expired". */
+const BOOKING_TOKEN_FALLBACK_TTL_SECONDS = 7 * 24 * 60 * 60; // 7 days
+/** Minimum TTL so token is valid at least 1 hour from now. */
+const BOOKING_TOKEN_MIN_TTL_SECONDS = 60 * 60;
+/** Maximum TTL so token does not live forever. */
+const BOOKING_TOKEN_MAX_TTL_SECONDS = 30 * 24 * 60 * 60; // 30 days
+
+function computeBookingTokenTTL(startTime: Date): number {
+  const date = startTime instanceof Date ? startTime : new Date(startTime);
+  const now = new Date();
+  const nowMs = now.getTime();
+  const startMs = date.getTime();
+  if (Number.isNaN(startMs)) {
+    return BOOKING_TOKEN_FALLBACK_TTL_SECONDS;
+  }
+  if (startMs <= nowMs) {
+    return BOOKING_TOKEN_FALLBACK_TTL_SECONDS;
+  }
+  const secondsUntilStart = Math.floor((startMs - nowMs) / 1000);
+  return Math.min(
+    Math.max(secondsUntilStart, BOOKING_TOKEN_MIN_TTL_SECONDS),
+    BOOKING_TOKEN_MAX_TTL_SECONDS,
+  );
+}
+
 export function generateRescheduleToken(
   bookingId: string,
   email: string,
   startTime: Date,
 ): string {
-  const now = new Date();
-  const expiresInSeconds = Math.floor((startTime.getTime() - now.getTime()) / 1000);
-  const expiry = Math.max(expiresInSeconds, 60 * 60);
+  const expiry = computeBookingTokenTTL(startTime);
   return jwt.sign({ bookingId, action: "reschedule" as const, email }, CLIENT_SECRET, {
     expiresIn: expiry,
   });
@@ -51,9 +74,7 @@ export function generateCancelToken(
   email: string,
   startTime: Date,
 ): string {
-  const now = new Date();
-  const expiresInSeconds = Math.floor((startTime.getTime() - now.getTime()) / 1000);
-  const expiry = Math.max(expiresInSeconds, 60 * 60);
+  const expiry = computeBookingTokenTTL(startTime);
   return jwt.sign({ bookingId, action: "cancel" as const, email }, CLIENT_SECRET, {
     expiresIn: expiry,
   });

@@ -1,0 +1,191 @@
+---
+// Compact trigger opens a modal with tip options. Used in footer.
+---
+
+<button
+  type="button"
+  id="coffee-tip-trigger"
+  class="coffee-tip-trigger rounded p-1 text-white transition-colors hover:text-gray-300"
+  aria-label="Buy me a coffee"
+  title="Buy me a coffee"
+>
+  ☕
+</button>
+
+<dialog id="coffee-tip-dialog" class="coffee-tip-dialog rounded-2xl border border-slate-200 bg-white p-6 shadow-xl backdrop:bg-black/40 dark:border-slate-700 dark:bg-slate-900">
+  <div class="space-y-4">
+    <div class="flex items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <span class="text-2xl" aria-hidden="true">☕</span>
+        <h2 class="text-lg font-bold text-slate-900 dark:text-white">Buy Me a Coffee</h2>
+      </div>
+      <form method="dialog">
+        <button type="submit" class="rounded p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200" aria-label="Close">✕</button>
+      </form>
+    </div>
+    <p class="text-sm text-slate-600 dark:text-slate-400">
+      Enjoying this site? Power up my code with a jolt of liquid inspiration!
+    </p>
+
+    <div id="coffee-tip-presets" class="flex flex-wrap gap-2">
+      <button type="button" data-tip-amount="5" class="coffee-tip-preset-btn rounded-full border-2 border-slate-200 bg-white px-4 py-1.5 text-sm font-semibold text-slate-700 transition-all hover:border-amber-500 hover:text-amber-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-amber-400 dark:hover:text-amber-400">$5</button>
+      <button type="button" data-tip-amount="10" class="coffee-tip-preset-btn rounded-full border-2 border-slate-200 bg-white px-4 py-1.5 text-sm font-semibold text-slate-700 transition-all hover:border-amber-500 hover:text-amber-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-amber-400 dark:hover:text-amber-400">$10</button>
+      <button type="button" data-tip-amount="25" class="coffee-tip-preset-btn rounded-full border-2 border-slate-200 bg-white px-4 py-1.5 text-sm font-semibold text-slate-700 transition-all hover:border-amber-500 hover:text-amber-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-amber-400 dark:hover:text-amber-400">$25</button>
+      <button type="button" data-tip-amount="50" class="coffee-tip-preset-btn rounded-full border-2 border-slate-200 bg-white px-4 py-1.5 text-sm font-semibold text-slate-700 transition-all hover:border-amber-500 hover:text-amber-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-amber-400 dark:hover:text-amber-400">$50</button>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <span class="text-sm text-slate-500 dark:text-slate-400">or</span>
+      <div class="relative">
+        <span class="pointer-events-none absolute inset-y-0 left-2.5 flex items-center text-slate-400">$</span>
+        <input
+          id="coffee-tip-custom-amount"
+          type="number"
+          min="1"
+          max="500"
+          step="1"
+          placeholder="Custom"
+          class="w-24 rounded-full border-2 border-slate-200 bg-white py-1.5 pl-6 pr-2 text-center text-sm font-semibold text-slate-700 outline-none transition-colors focus:border-amber-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:focus:border-amber-400"
+        />
+      </div>
+    </div>
+
+    <button
+      id="coffee-tip-submit-btn"
+      type="button"
+      class="w-full rounded-full bg-amber-500 py-2.5 text-sm font-semibold text-white shadow transition-all hover:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-50"
+    >
+      <span id="coffee-tip-btn-label">Send a Coffee ☕</span>
+    </button>
+
+    <p id="coffee-tip-error" class="hidden text-sm text-red-500"></p>
+  </div>
+</dialog>
+
+<style>
+  .coffee-tip-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.4);
+  }
+  .coffee-tip-preset-btn.active {
+    border-color: #f59e0b;
+    color: #d97706;
+    background-color: #fffbeb;
+  }
+  :is(.dark) .coffee-tip-preset-btn.active {
+    border-color: #fbbf24;
+    color: #fbbf24;
+    background-color: rgba(251, 191, 36, 0.1);
+  }
+</style>
+
+<script>
+  (function () {
+    const trigger = document.getElementById('coffee-tip-trigger');
+    const dialog = document.getElementById('coffee-tip-dialog') as HTMLDialogElement | null;
+    const presetBtns = document.querySelectorAll<HTMLButtonElement>('.coffee-tip-preset-btn');
+    const customInput = document.getElementById('coffee-tip-custom-amount') as HTMLInputElement | null;
+    const submitBtn = document.getElementById('coffee-tip-submit-btn') as HTMLButtonElement | null;
+    const btnLabel = document.getElementById('coffee-tip-btn-label');
+    const errorEl = document.getElementById('coffee-tip-error');
+
+    let selectedAmount: number | null = null;
+
+    function setActive(amount: number) {
+      selectedAmount = amount;
+      presetBtns.forEach((b) => b.classList.remove('active'));
+      const match = [...presetBtns].find((b) => Number((b as HTMLButtonElement).dataset.tipAmount) === amount);
+      if (match) match.classList.add('active');
+    }
+
+    trigger?.addEventListener('click', () => {
+      dialog?.showModal();
+    });
+
+    dialog?.addEventListener('click', (e) => {
+      if (e.target === dialog) dialog.close();
+    });
+
+    presetBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const amt = Number(btn.dataset.tipAmount);
+        setActive(amt);
+        if (customInput) customInput.value = '';
+      });
+    });
+
+    customInput?.addEventListener('input', () => {
+      presetBtns.forEach((b) => b.classList.remove('active'));
+      selectedAmount = customInput.value ? Number(customInput.value) : null;
+    });
+
+    submitBtn?.addEventListener('click', async () => {
+      const amount = selectedAmount ?? (customInput?.value ? Number(customInput.value) : null);
+
+      if (errorEl) {
+        errorEl.textContent = '';
+        errorEl.classList.add('hidden');
+      }
+
+      if (!amount || amount < 1) {
+        if (errorEl) {
+          errorEl.textContent = 'Please choose or enter an amount first.';
+          errorEl.classList.remove('hidden');
+        }
+        return;
+      }
+      if (amount > 500) {
+        if (errorEl) {
+          errorEl.textContent = 'Maximum tip is $500.';
+          errorEl.classList.remove('hidden');
+        }
+        return;
+      }
+
+      submitBtn.disabled = true;
+      if (btnLabel) btnLabel.textContent = 'Loading…';
+
+      try {
+        const res = await fetch('/api/payment/tip', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount }),
+        });
+        const data = await res.json();
+
+        if (data.success && data.url) {
+          window.location.href = data.url;
+        } else {
+          throw new Error(data.error || 'Something went wrong');
+        }
+      } catch (err) {
+        if (errorEl) {
+          errorEl.textContent = err instanceof Error ? err.message : 'Something went wrong. Please try again.';
+          errorEl.classList.remove('hidden');
+        }
+        submitBtn.disabled = false;
+        if (btnLabel) btnLabel.textContent = 'Send a Coffee ☕';
+      }
+    });
+
+    // Thank-you toast when returning from Stripe tip success
+    if (new URLSearchParams(window.location.search).get('tip') === 'thanks') {
+      const toast = document.createElement('div');
+      toast.textContent = "☕ Thanks so much — you're awesome!";
+      toast.style.cssText = `
+        position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+        background:#d97706; color:#fff; padding:12px 24px; border-radius:9999px;
+        font-weight:600; font-size:1rem; box-shadow:0 4px 24px rgba(0,0,0,.18);
+        z-index:9999; opacity:0; transition:opacity .4s;
+      `;
+      document.body.appendChild(toast);
+      requestAnimationFrame(() => {
+        toast.style.opacity = '1';
+      });
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 400);
+        history.replaceState({}, '', window.location.pathname + window.location.hash || '');
+      }, 4000);
+    }
+  })();
+</script>

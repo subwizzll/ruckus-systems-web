@@ -1,9 +1,35 @@
 ---
+import { getCollection } from "astro:content";
+
 const stripePublicKey = import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY || "";
 const bookingEnabled = import.meta.env.PUBLIC_BOOKING_ENABLED !== "false";
+
+const servicesEntries = await getCollection("services");
+const serviceMap = Object.fromEntries(
+  servicesEntries.map((entry: import("astro:content").CollectionEntry<"services">) => [
+    entry.id,
+    {
+      id: entry.data.id,
+      title: entry.data.title,
+      description: entry.data.description,
+      duration: entry.data.duration,
+      price: entry.data.price,
+      amount: entry.data.amount,
+      minDaysInAdvance: entry.data.minDaysInAdvance,
+      maxDaysInAdvance: entry.data.maxDaysInAdvance,
+    },
+  ])
+);
+const serviceMapJson = JSON.stringify(serviceMap);
 ---
 
-<div id="booking-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 p-0 sm:p-4">
+<div
+  id="booking-modal"
+  class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 p-0 sm:p-4"
+  data-stripe-public-key={stripePublicKey}
+  data-booking-enabled={String(bookingEnabled)}
+  data-service-map={serviceMapJson}
+>
   <div class="h-full w-full overflow-y-auto bg-[var(--surface-soft)] text-[var(--page-fg)] shadow-xl sm:m-4 sm:max-h-[90vh] sm:max-w-4xl sm:rounded-2xl">
     <div class="flex items-center justify-between border-b border-[var(--surface-soft-border)] p-6">
       <h2 class="text-2xl font-bold">Book Your Session</h2>
@@ -384,78 +410,16 @@ const bookingEnabled = import.meta.env.PUBLIC_BOOKING_ENABLED !== "false";
     flex-shrink: 0;
   }
 
-  /* Calendar and time-slot buttons are injected via innerHTML so they need :global() */
-  :global(.calendar-day) {
-    aspect-ratio: 1;
-    padding: 0.75rem;
-    border-radius: 0.5rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-    min-height: 44px;
-    font-size: 0.875rem;
-    font-weight: 500;
-  }
-
-  :global(.calendar-day.unavailable) {
-    color: #94a3b8;
-    cursor: default;
-    background-color: transparent;
-  }
-
-  :global(.calendar-day.available) {
-    background-color: var(--accent-sage-light);
-    color: var(--accent-sage-text);
-    cursor: pointer;
-  }
-
-  :global(.calendar-day.available:hover) {
-    background-color: #bbf7d0;
-    transform: translateY(-1px);
-  }
-
-  :global(.calendar-day.selected) {
-    background-color: var(--accent-sage);
-    color: #ffffff;
-    box-shadow: 0 4px 8px rgba(74, 103, 65, 0.3);
-  }
-
-  :global(.calendar-day.today) {
-    border: 2px solid var(--accent-sage);
-  }
-
-  :global(.time-slot-button) {
-    width: 100%;
-    padding: 0.75rem;
-    border: 2px solid var(--surface-soft-border); /* Use var for border */
-    border-radius: 0.5rem;
-    background-color: var(--surface-soft); /* Use var for bg */
-    color: var(--page-fg); /* Use var for text */
-    cursor: pointer;
-    transition: all 0.2s ease;
-    text-align: center;
-    font-weight: 500;
-  }
-
-  :global(.time-slot-button:hover) {
-    border-color: var(--accent-sage);
-    background-color: var(--accent-sage-light);
-    color: var(--accent-sage-text);
-  }
-
-  :global(.time-slot-button.selected) {
-    border-color: var(--accent-sage);
-    background-color: var(--accent-sage);
-    color: #ffffff;
-    box-shadow: 0 4px 8px rgba(74, 103, 65, 0.3);
-  }
-
-  #prev-month.is-disabled {
-    opacity: 0.35;
-    cursor: not-allowed;
-    pointer-events: none;
+  /* Step 2 calendar + time slots use shared time-selection.css; override to sage theme inside modal */
+  #booking-modal {
+    --ts-accent: var(--accent-sage);
+    --ts-accent-light: var(--accent-sage-light);
+    --ts-accent-text: var(--accent-sage-text);
+    --ts-accent-hover: #bbf7d0;
+    --ts-accent-shadow: rgba(74, 103, 65, 0.3);
+    --ts-surface: var(--surface-soft);
+    --ts-border: var(--surface-soft-border);
+    --ts-fg: var(--page-fg);
   }
 
   @media (max-width: 640px) {
@@ -483,8 +447,23 @@ const bookingEnabled = import.meta.env.PUBLIC_BOOKING_ENABLED !== "false";
 </style>
 
 <script src="https://js.stripe.com/v3/"></script>
-<script is:inline define:vars={{ stripePublicKey, bookingEnabled }}>
+<script>
+  // @ts-nocheck - modal script with DOM refs and Stripe; types from lib are used at runtime
+  import {
+    isSlotWithinBusinessHours,
+    isAtCurrentMonth,
+    groupSlotsByTimeOfDay,
+    buildTimeSlotsHTML,
+    buildCalendarDayModels,
+    formatSelectedDateLabel,
+  } from "../lib/time-selection";
+
   (() => {
+    const modalEl = document.getElementById("booking-modal");
+    const serviceMapRaw = modalEl?.getAttribute("data-service-map") ?? "{}";
+    const SERVICE_MAP = JSON.parse(serviceMapRaw);
+    const stripePublicKey = modalEl?.getAttribute("data-stripe-public-key") ?? "";
+    const bookingEnabled = modalEl?.getAttribute("data-booking-enabled") === "true";
     const modal = document.getElementById("booking-modal");
     const closeBtn = document.getElementById("booking-close");
     const closeConfirmationBtn = document.getElementById("close-confirmation");
@@ -496,25 +475,6 @@ const bookingEnabled = import.meta.env.PUBLIC_BOOKING_ENABLED !== "false";
     const paymentSpinner = document.getElementById("payment-spinner");
     const continueToDetailsBtn = document.getElementById("continue-to-details");
 
-    const SERVICE_MAP = {
-      "strategy-call": {
-        id: "strategy-call",
-        title: "Strategy Call",
-        description: "Fast, high-impact advisory to unblock your next move.",
-        duration: "60 minutes",
-        price: "$250",
-        amount: 25000,
-      },
-      "workflow-audit": {
-        id: "workflow-audit",
-        title: "Workflow Audit",
-        description: "Deep-dive ops analysis with clear implementation priorities.",
-        duration: "120 minutes",
-        price: "$900",
-        amount: 90000,
-      },
-    };
-
     let selectedServiceKey = "strategy-call";
     let selectedSlot = null;
     let selectedDate = null;
@@ -524,8 +484,6 @@ const bookingEnabled = import.meta.env.PUBLIC_BOOKING_ENABLED !== "false";
     let stripe = null;
     let elements = null;
     let paymentElement = null;
-    const WORK_DAY_START_MINUTES = 9 * 60;
-    const WORK_DAY_END_MINUTES = 17 * 60;
 
     function showError(message) {
       errorBox.textContent = message;
@@ -551,29 +509,13 @@ const bookingEnabled = import.meta.env.PUBLIC_BOOKING_ENABLED !== "false";
       return SERVICE_MAP[selectedServiceKey] || SERVICE_MAP["strategy-call"];
     }
 
-    function isSlotWithinBusinessHours(slot) {
-      if (!slot?.start_time || !slot?.end_time) return false;
-      const start = new Date(slot.start_time);
-      const end = new Date(slot.end_time);
-      if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || end <= start) return false;
-
-      // Enforce local-time business hours: Monday-Friday, 9:00 AM through 5:00 PM.
-      const startDay = start.getDay();
-      const endDay = end.getDay();
-      const isWeekday = startDay >= 1 && startDay <= 5;
-      if (!isWeekday || startDay !== endDay) return false;
-
-      const startMinutes = start.getHours() * 60 + start.getMinutes();
-      const endMinutes = end.getHours() * 60 + end.getMinutes();
-      return startMinutes >= WORK_DAY_START_MINUTES && endMinutes <= WORK_DAY_END_MINUTES;
-    }
-
     function populateSelectedServiceReview() {
       const service = getSelectedService();
       document.getElementById("selected-service-title").textContent = service.title;
       document.getElementById("selected-service-description").textContent = service.description;
       document.getElementById("selected-service-price").textContent = service.price;
-      document.getElementById("selected-service-duration").textContent = service.duration;
+      document.getElementById("selected-service-duration").textContent =
+        typeof service.duration === "number" ? `${service.duration} minutes` : String(service.duration);
     }
 
     function updateStepIndicators(stepNumber) {
@@ -626,15 +568,10 @@ const bookingEnabled = import.meta.env.PUBLIC_BOOKING_ENABLED !== "false";
     function updateMonthNavigationState() {
       const prevBtn = document.getElementById("prev-month");
       if (!prevBtn) return;
-
-      const now = new Date();
-      const isAtCurrentMonth =
-        currentDate.getFullYear() === now.getFullYear() &&
-        currentDate.getMonth() === now.getMonth();
-
-      prevBtn.disabled = isAtCurrentMonth;
-      prevBtn.classList.toggle("is-disabled", isAtCurrentMonth);
-      prevBtn.setAttribute("aria-disabled", isAtCurrentMonth ? "true" : "false");
+      const atCurrent = isAtCurrentMonth(currentDate);
+      prevBtn.disabled = atCurrent;
+      prevBtn.classList.toggle("is-disabled", atCurrent);
+      prevBtn.setAttribute("aria-disabled", atCurrent ? "true" : "false");
     }
 
     function setupMonthNavigation() {
@@ -673,55 +610,18 @@ const bookingEnabled = import.meta.env.PUBLIC_BOOKING_ENABLED !== "false";
         year: "numeric",
       });
 
-      // Build local date string (YYYY-MM-DD) from a Date in local time to avoid UTC off-by-one
-      function toLocalDateStr(d) {
-        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-      }
-
-      const slotsByDate = {};
-      for (const slot of availableSlots) {
-        // Convert slot UTC time to local date so it groups under the correct local calendar day
-        const dateKey = toLocalDateStr(new Date(slot.start_time));
-        if (!slotsByDate[dateKey]) slotsByDate[dateKey] = [];
-        slotsByDate[dateKey].push(slot);
-      }
-
-      const year = currentDate.getFullYear();
-      const month = currentDate.getMonth();
-      const firstDay = new Date(year, month, 1);
-      const startCalendar = new Date(firstDay);
-      startCalendar.setDate(startCalendar.getDate() - firstDay.getDay());
-
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const html = [];
-
-      for (let i = 0; i < 42; i++) {
-        const day = new Date(startCalendar);
-        day.setDate(startCalendar.getDate() + i);
-        // Use local date parts to avoid UTC midnight → previous-day conversion
-        const dateStr = toLocalDateStr(day);
-        const daySlots = slotsByDate[dateStr] || [];
-        const isCurrentMonth = day.getMonth() === month;
-        const isAvailable = daySlots.length > 0 && day >= today;
-        const isToday = day.toDateString() === today.toDateString();
-        const isSelected = selectedDate === dateStr;
-
-        let classes = "calendar-day";
-        if (!isCurrentMonth) classes += " text-slate-300 dark:text-slate-600";
-        else if (!isAvailable) classes += " unavailable";
-        else classes += " available";
-        if (isToday) classes += " today";
-        if (isSelected) classes += " selected";
-
-        html.push(`
-          <button type="button" class="${classes}" data-date="${dateStr}" ${isAvailable ? `data-slots='${JSON.stringify(daySlots)}'` : "disabled"}>
-            ${day.getDate()}
-          </button>
-        `);
-      }
-
-      calendarDays.innerHTML = html.join("");
+      const models = buildCalendarDayModels({
+        currentDate,
+        selectedDate,
+        availableSlots,
+      });
+      const html = models
+        .map(
+          (m) =>
+            `<button type="button" class="${m.classes}" data-date="${m.dateStr}" ${m.isAvailable ? `data-slots='${JSON.stringify(m.daySlots)}'` : "disabled"}>${m.dayNumber}</button>`
+        )
+        .join("");
+      calendarDays.innerHTML = html;
       calendarDays.querySelectorAll(".calendar-day.available").forEach((el) => {
         el.addEventListener("click", () => selectDate(el));
       });
@@ -736,13 +636,7 @@ const bookingEnabled = import.meta.env.PUBLIC_BOOKING_ENABLED !== "false";
       const selectedDateLabel = document.getElementById("selected-date-label");
       const validSlots = slots.filter((slot) => isSlotWithinBusinessHours(slot));
 
-      // Parse date parts manually to avoid UTC→local off-by-one when "YYYY-MM-DD" is treated as UTC midnight
-      const [yr, mo, dy] = dateStr.split("-").map(Number);
-      selectedDateLabel.textContent = new Date(yr, mo - 1, dy).toLocaleDateString("en-US", {
-        weekday: "long",
-        month: "long",
-        day: "numeric",
-      });
+      selectedDateLabel.textContent = formatSelectedDateLabel(dateStr);
 
       if (!validSlots.length) {
         timeSlotsGrid.classList.add("hidden");
@@ -756,32 +650,8 @@ const bookingEnabled = import.meta.env.PUBLIC_BOOKING_ENABLED !== "false";
       timeSlotsGrid.classList.remove("hidden");
       noTimesMessage.classList.add("hidden");
 
-      const morning = [];
-      const afternoon = [];
-      const evening = [];
-      for (const slot of validSlots) {
-        const hour = new Date(slot.start_time).getHours();
-        if (hour < 12) morning.push(slot);
-        else if (hour < 17) afternoon.push(slot);
-        else evening.push(slot);
-      }
-
-      function section(title, list) {
-        if (!list.length) return "";
-        return `
-          <h4 class="mb-2 mt-4 text-sm font-medium text-slate-700 dark:text-slate-300">${title}</h4>
-          <div class="grid grid-cols-2 gap-3">
-            ${list
-              .map((slot) => {
-                const label = new Date(slot.start_time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-                return `<button type="button" class="time-slot-button" data-slot='${JSON.stringify(slot)}'>${label}</button>`;
-              })
-              .join("")}
-          </div>
-        `;
-      }
-
-      timeSlotsContainer.innerHTML = section("Morning", morning) + section("Afternoon", afternoon) + section("Evening", evening);
+      const { morning, afternoon, evening } = groupSlotsByTimeOfDay(validSlots);
+      timeSlotsContainer.innerHTML = buildTimeSlotsHTML(morning, afternoon, evening);
       timeSlotsContainer.querySelectorAll(".time-slot-button").forEach((button) => {
         button.addEventListener("click", () => selectTimeSlot(button));
       });
@@ -827,7 +697,11 @@ const bookingEnabled = import.meta.env.PUBLIC_BOOKING_ENABLED !== "false";
 
       try {
         const service = getSelectedService();
-        const res = await fetch(`/api/booking/slots?eventTypeSlug=${service.id}`);
+        const minDays = service.minDaysInAdvance ?? 1;
+        const maxDays = service.maxDaysInAdvance ?? 30;
+        const res = await fetch(
+          `/api/booking/slots?eventTypeSlug=${encodeURIComponent(service.id)}&minDaysInAdvance=${minDays}&maxDaysInAdvance=${maxDays}`
+        );
         const data = await res.json();
         if (!data.success) {
           throw new Error(data.error || "Failed to load slots");
@@ -907,7 +781,7 @@ const bookingEnabled = import.meta.env.PUBLIC_BOOKING_ENABLED !== "false";
             last_name: lastName,
             customer_email: email,
             customer_phone: phone,
-            service_duration_minutes: service.id === "workflow-audit" ? "120" : "60",
+            service_duration_minutes: String(typeof service.duration === "number" ? service.duration : 60),
           },
         }),
       });
