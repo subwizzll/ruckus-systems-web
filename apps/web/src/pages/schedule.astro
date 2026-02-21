@@ -7,15 +7,15 @@ import BookingModal from "../components/BookingModal.astro";
   title="Schedule a Session | Ruckus Systems"
   description="Book a strategy session, automation audit, or AI implementation pilot with Ruckus Systems in Asheville, NC. Secure online booking with Stripe."
 >
-  <section class="bg-slate-50 px-6 py-20 dark:bg-slate-900">
-    <div class="mx-auto max-w-4xl text-center">
-      <h1 class="mb-4 text-4xl font-bold">Schedule a Session</h1>
-      <p class="mx-auto max-w-2xl text-lg text-slate-600 dark:text-slate-300">
+  <section class="schedule-section">
+    <div class="schedule-inner">
+      <h1>Schedule a Session</h1>
+      <p class="schedule-sub">
         Book your strategy call or workflow audit. Payments are secured with Stripe.
       </p>
       <button
         data-booking-open
-        class="mt-8 inline-flex h-12 items-center justify-center rounded-full bg-blue-600 px-8 text-lg font-semibold text-white hover:bg-blue-700"
+        class="schedule-cta"
       >
         Open Booking
       </button>
@@ -23,3 +23,45 @@ import BookingModal from "../components/BookingModal.astro";
   </section>
   <BookingModal />
 </Layout>
+
+<style>
+  .schedule-section {
+    padding: 5rem 1.5rem;
+    background-color: var(--color-bg-alt);
+  }
+  .schedule-inner {
+    max-width: 48rem;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .schedule-inner h1 {
+    font-size: 2.25rem;
+    font-family: var(--font-mono);
+    color: var(--color-heading);
+    margin-bottom: 1rem;
+  }
+  .schedule-sub {
+    font-size: 1.125rem;
+    color: var(--color-text);
+    max-width: 32rem;
+    margin: 0 auto 2rem;
+    line-height: 1.7;
+  }
+  .schedule-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 3rem;
+    padding: 0 2rem;
+    background-color: var(--solar-blue);
+    color: var(--solar-base3);
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    border-radius: 9999px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(38, 139, 210, 0.25);
+    transition: opacity 0.2s ease;
+  }
+  .schedule-cta:hover { opacity: 0.85; }
+</style>

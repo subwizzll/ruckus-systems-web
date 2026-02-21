@@ -1,22 +1,71 @@
 ---
 ---
 
-<footer class="bg-gray-800 text-white py-8">
-  <div class="container mx-auto px-6 text-center">
-    <p>&copy; {new Date().getFullYear()} Jared Russell. All rights reserved.</p>
-    <div class="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
-      <a href="https://linkedin.com/in/ruckussystems" target="_blank" rel="noopener noreferrer" class="hover:text-gray-300">
-        LinkedIn
-      </a>
-      <a href="https://github.com/subwizzll" target="_blank" rel="noopener noreferrer" class="hover:text-gray-300">
-        GitHub
-      </a>
-      <a href="/resume" class="hover:text-gray-300">
-        Professional Resume
-      </a>
-      <a href="mailto:jared@ruckussystems.dev" class="hover:text-gray-300">
-        jared@ruckussystems.dev
-      </a>
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-links">
+      <a href="https://linkedin.com/in/ruckussystems" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      <a href="https://github.com/subwizzll" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <a href="/resume">Resume</a>
+      <a href="mailto:jared@ruckussystems.dev">jared@ruckussystems.dev</a>
+    </div>
+    <div class="footer-copyright">
+      <p>System.copyright (c) {new Date().getFullYear()} Jared Russell</p>
+      <div class="footer-signature">RS_OS_V1.0</div>
     </div>
   </div>
 </footer>
+
+<style>
+  .site-footer {
+    border-top: 1px solid var(--color-border);
+    background-color: var(--color-bg-alt);
+    padding: 2rem 1rem;
+  }
+
+  .footer-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    text-align: center;
+  }
+
+  .footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem 1.5rem;
+  }
+
+  .footer-links a {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--color-secondary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+  .footer-links a:hover { color: var(--solar-blue); }
+
+  .footer-copyright {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .footer-copyright p {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--color-secondary);
+  }
+
+  .footer-signature {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--color-border-highlight);
+    letter-spacing: 0.05em;
+  }
+</style>

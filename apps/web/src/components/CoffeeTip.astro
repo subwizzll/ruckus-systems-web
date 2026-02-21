@@ -2,32 +2,32 @@
 // Dialog-only component. Trigger buttons live in Header.astro (desktop + mobile).
 ---
 
-<dialog id="coffee-tip-dialog" class="coffee-tip-dialog rounded-2xl border border-slate-200 bg-white p-6 shadow-xl backdrop:bg-black/40 dark:border-slate-700 dark:bg-slate-900">
-  <div class="space-y-4">
-    <div class="flex items-center justify-between gap-4">
-      <div class="flex items-center gap-2">
+<dialog id="coffee-tip-dialog" class="coffee-tip-dialog">
+  <div class="dialog-content">
+    <div class="dialog-header">
+      <div class="dialog-title-row">
         <span class="text-2xl" aria-hidden="true">☕</span>
-        <h2 class="text-lg font-bold text-slate-900 dark:text-white">Buy Me a Coffee</h2>
+        <h2 class="dialog-title">Buy Me a Coffee</h2>
       </div>
       <form method="dialog">
-        <button type="submit" class="rounded p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200" aria-label="Close">✕</button>
+        <button type="submit" class="dialog-close-btn" aria-label="Close">✕</button>
       </form>
     </div>
-    <p class="text-sm text-slate-600 dark:text-slate-400">
+    <p class="dialog-sub">
       Enjoying this site? Power up my code with a jolt of liquid inspiration!
     </p>
 
-    <div id="coffee-tip-presets" class="flex flex-wrap gap-2">
-      <button type="button" data-tip-amount="5" class="coffee-tip-preset-btn rounded-full border-2 border-slate-200 bg-white px-4 py-1.5 text-sm font-semibold text-slate-700 transition-all hover:border-amber-500 hover:text-amber-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-amber-400 dark:hover:text-amber-400">$5</button>
-      <button type="button" data-tip-amount="10" class="coffee-tip-preset-btn rounded-full border-2 border-slate-200 bg-white px-4 py-1.5 text-sm font-semibold text-slate-700 transition-all hover:border-amber-500 hover:text-amber-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-amber-400 dark:hover:text-amber-400">$10</button>
-      <button type="button" data-tip-amount="25" class="coffee-tip-preset-btn rounded-full border-2 border-slate-200 bg-white px-4 py-1.5 text-sm font-semibold text-slate-700 transition-all hover:border-amber-500 hover:text-amber-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-amber-400 dark:hover:text-amber-400">$25</button>
-      <button type="button" data-tip-amount="50" class="coffee-tip-preset-btn rounded-full border-2 border-slate-200 bg-white px-4 py-1.5 text-sm font-semibold text-slate-700 transition-all hover:border-amber-500 hover:text-amber-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-amber-400 dark:hover:text-amber-400">$50</button>
+    <div id="coffee-tip-presets" class="tip-presets">
+      <button type="button" data-tip-amount="5" class="coffee-tip-preset-btn">$5</button>
+      <button type="button" data-tip-amount="10" class="coffee-tip-preset-btn">$10</button>
+      <button type="button" data-tip-amount="25" class="coffee-tip-preset-btn">$25</button>
+      <button type="button" data-tip-amount="50" class="coffee-tip-preset-btn">$50</button>
     </div>
 
-    <div class="flex items-center gap-2">
-      <span class="text-sm text-slate-500 dark:text-slate-400">or</span>
-      <div class="relative">
-        <span class="pointer-events-none absolute inset-y-0 left-2.5 flex items-center text-slate-400">$</span>
+    <div class="tip-custom-row">
+      <span class="tip-or">or</span>
+      <div class="tip-custom-wrap">
+        <span class="tip-dollar">$</span>
         <input
           id="coffee-tip-custom-amount"
           type="number"
@@ -35,20 +35,16 @@
           max="500"
           step="1"
           placeholder="Custom"
-          class="w-24 rounded-full border-2 border-slate-200 bg-white py-1.5 pl-6 pr-2 text-center text-sm font-semibold text-slate-700 outline-none transition-colors focus:border-amber-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:focus:border-amber-400"
+          class="tip-custom-input"
         />
       </div>
     </div>
 
-    <button
-      id="coffee-tip-submit-btn"
-      type="button"
-      class="w-full rounded-full bg-amber-500 py-2.5 text-sm font-semibold text-white shadow transition-all hover:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-50"
-    >
+    <button id="coffee-tip-submit-btn" type="button" class="tip-submit-btn">
       <span id="coffee-tip-btn-label">Send a Coffee ☕</span>
     </button>
 
-    <p id="coffee-tip-error" class="hidden text-sm text-red-500"></p>
+    <p id="coffee-tip-error" class="tip-error hidden"></p>
   </div>
 </dialog>
 
@@ -57,19 +53,147 @@
     margin: auto;
     width: 100%;
     max-width: min(90vw, 24rem);
+    border-radius: 1rem;
+    border: 1px solid var(--color-border);
+    background-color: var(--color-bg);
+    padding: 1.5rem;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.15);
   }
   .coffee-tip-dialog::backdrop {
     background: rgba(0, 0, 0, 0.4);
   }
-  .coffee-tip-preset-btn.active {
-    border-color: #f59e0b;
-    color: #d97706;
-    background-color: #fffbeb;
+
+  .dialog-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
   }
-  :is(.dark) .coffee-tip-preset-btn.active {
-    border-color: #fbbf24;
-    color: #fbbf24;
-    background-color: rgba(251, 191, 36, 0.1);
+
+  .dialog-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .dialog-title-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .dialog-title {
+    font-family: var(--font-mono);
+    font-size: 1.125rem;
+    font-weight: 400;
+    color: var(--color-heading);
+    margin: 0;
+  }
+
+  .dialog-close-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.4rem 0.6rem;
+    border-radius: 0.375rem;
+    color: var(--color-secondary);
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+  .dialog-close-btn:hover {
+    background-color: var(--color-border);
+    color: var(--color-heading);
+  }
+
+  .dialog-sub {
+    font-size: 0.875rem;
+    color: var(--color-text);
+    margin: 0;
+  }
+
+  .tip-presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .coffee-tip-preset-btn {
+    background-color: var(--color-bg);
+    border: 2px solid var(--color-border);
+    border-radius: 9999px;
+    padding: 0.375rem 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: var(--color-text);
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease;
+  }
+  .coffee-tip-preset-btn:hover {
+    border-color: var(--solar-yellow);
+    color: var(--solar-yellow);
+  }
+  .coffee-tip-preset-btn.active {
+    border-color: var(--solar-yellow);
+    color: var(--solar-yellow);
+    background-color: color-mix(in srgb, var(--solar-yellow) 10%, transparent);
+  }
+
+  .tip-custom-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .tip-or {
+    font-size: 0.8rem;
+    color: var(--color-secondary);
+  }
+
+  .tip-custom-wrap {
+    position: relative;
+  }
+  .tip-dollar {
+    position: absolute;
+    inset: 0 auto 0 0.625rem;
+    display: flex;
+    align-items: center;
+    color: var(--color-secondary);
+    pointer-events: none;
+  }
+
+  .tip-custom-input {
+    width: 6rem;
+    border-radius: 9999px;
+    border: 2px solid var(--color-border);
+    background-color: var(--color-bg);
+    padding: 0.375rem 0.5rem 0.375rem 1.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: var(--color-text);
+    outline: none;
+    text-align: center;
+    transition: border-color 0.2s ease;
+  }
+  .tip-custom-input:focus { border-color: var(--solar-yellow); }
+
+  .tip-submit-btn {
+    width: 100%;
+    border-radius: 9999px;
+    background-color: var(--solar-yellow);
+    color: var(--solar-base03);
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    padding: 0.625rem 0;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+  }
+  .tip-submit-btn:hover { opacity: 0.88; }
+  .tip-submit-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  .tip-error {
+    font-size: 0.8rem;
+    color: var(--solar-red);
+    margin: 0;
   }
 </style>
 
@@ -170,8 +294,8 @@
       toast.textContent = "☕ Thanks so much — you're awesome!";
       toast.style.cssText = `
         position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
-        background:#d97706; color:#fff; padding:12px 24px; border-radius:9999px;
-        font-weight:600; font-size:1rem; box-shadow:0 4px 24px rgba(0,0,0,.18);
+        background:var(--solar-yellow); color:var(--solar-base03); padding:12px 24px; border-radius:9999px;
+        font-family:var(--font-mono); font-weight:400; font-size:1rem; box-shadow:0 4px 24px rgba(0,0,0,.18);
         z-index:9999; opacity:0; transition:opacity .4s;
       `;
       document.body.appendChild(toast);

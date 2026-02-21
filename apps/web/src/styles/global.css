@@ -1,37 +1,94 @@
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 @import 'tailwindcss';
 
 :root {
-  --brand-blue: #2563eb;
-  --page-bg: #f8fafc;
-  --page-fg: #0f172a;
-  --accent-sage: #4F6F52;
-  --accent-sage-light: #e8f0e8;
-  --accent-sage-text: #4a6741;
-  --accent-terracotta: #A85232;
-  --accent-gold: #e6b325;
-  --accent-teal: #799999;
-  --surface-soft: #f1f5f9;
-  --surface-soft-border: #e2e8f0;
+  /* Solarized palette */
+  --solar-base03: #002b36;
+  --solar-base02: #073642;
+  --solar-base01: #586e75;
+  --solar-base00: #657b83;
+  --solar-base0: #839496;
+  --solar-base1: #93a1a1;
+  --solar-base2: #eee8d5;
+  --solar-base3: #fdf6e3;
+  --solar-yellow: #b58900;
+  --solar-orange: #cb4b16;
+  --solar-red: #dc322f;
+  --solar-magenta: #d33682;
+  --solar-violet: #6c71c4;
+  --solar-blue: #268bd2;
+  --solar-cyan: #2aa198;
+  --solar-green: #859900;
 
-  /* Time selection (calendar + slots): default blue theme for reschedule page */
-  --ts-accent: #3b82f6;
-  --ts-accent-light: #dbeafe;
-  --ts-accent-text: #1d4ed8;
-  --ts-accent-hover: #bfdbfe;
-  --ts-accent-shadow: rgba(59, 130, 246, 0.3);
-  --ts-surface: #f8fafc;
-  --ts-border: #d1d5db;
-  --ts-fg: #0f172a;
+  /* Semantic tokens (light / Solarized light) — contrast ratios vs #fdf6e3:
+     base02 (#073642) ≈ 13:1   heading/strong
+     base01 (#586e75) ≈ 5.1:1  body text — WCAG AA ✓
+     base00 (#657b83) ≈ 4.0:1  secondary / large text only
+  */
+  --color-bg: var(--solar-base3);
+  --color-bg-alt: var(--solar-base2);
+  --color-text: var(--solar-base01);      /* was base00 (~3.9:1) → now base01 (~5.1:1) ✓ */
+  --color-heading: var(--solar-base02);   /* was base01 (~5.1:1) → now base02 (~13:1)  ✓ */
+  --color-secondary: var(--solar-base00); /* was base1 (~2.5:1)  → now base00 (~4.0:1) ✓ */
+  --color-border: var(--solar-base2);
+  --color-border-highlight: var(--solar-base00);
+
+  /* Font stacks */
+  --font-body: 'Space Grotesk', Menlo, Monaco, Consolas, 'Andale Mono', sans-serif;
+  --font-mono: 'Share Tech Mono', Menlo, Monaco, Consolas, 'Andale Mono', monospace;
+
+  /* Spacing scale */
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 1rem;
+  --spacing-md: 2rem;
+  --spacing-lg: 4rem;
+  --spacing-xl: 8rem;
+
+  /* Legacy alias tokens (kept so Booking/CoffeeTip JS refs still resolve) */
+  --brand-blue: var(--solar-blue);
+  --page-bg: var(--color-bg);
+  --page-fg: var(--color-text);
+  --accent-sage: var(--solar-cyan);
+  --accent-sage-light: #d2eeec;
+  --accent-sage-text: var(--solar-cyan);
+  --accent-terracotta: var(--solar-orange);
+  --accent-gold: var(--solar-yellow);
+  --accent-teal: var(--solar-cyan);
+  --surface-soft: var(--color-bg-alt);
+  --surface-soft-border: var(--color-border);
+
+  /* Time selection calendar (blue = solar-blue) */
+  --ts-accent: var(--solar-blue);
+  --ts-accent-light: #d1eaf8;
+  --ts-accent-text: #1a6fa8;
+  --ts-accent-hover: #a8d4f0;
+  --ts-accent-shadow: rgba(38, 139, 210, 0.3);
+  --ts-surface: var(--color-bg);
+  --ts-border: var(--color-border);
+  --ts-fg: var(--color-text);
 }
 
-@media (prefers-color-scheme: dark) {
+  @media (prefers-color-scheme: dark) {
   :root {
-    --page-bg: #0f172a;
-    --page-fg: #f8fafc;
-    --accent-sage-light: #2d4030;
-    --accent-sage-text: #a3c4a6;
-    --surface-soft: #1e293b;
-    --surface-soft-border: #334155;
+    /* Dark-mode contrast vs #002b36:
+       base2  (#eee8d5) ≈ 12.8:1  heading  ✓✓
+       base1  (#93a1a1) ≈  5.7:1  body text ✓  (was base0 ~4.8:1 — below 5.1:1 target)
+       base1  (#93a1a1) ≈  5.7:1  secondary ✓  (was base0 ~4.8:1)
+    */
+    --color-bg: var(--solar-base03);
+    --color-bg-alt: var(--solar-base02);
+    --color-text: var(--solar-base1);        /* ~5.7:1 ✓ */
+    --color-heading: var(--solar-base2);     /* ~12.8:1 ✓ */
+    --color-secondary: var(--solar-base1);   /* ~5.7:1 ✓ */
+    --color-border: var(--solar-base02);
+    --color-border-highlight: var(--solar-base01);
+    --accent-sage-light: #0d3b38;
+    --accent-sage-text: var(--solar-cyan);
+    --surface-soft: var(--color-bg-alt);
+    --surface-soft-border: var(--color-border);
+    --ts-accent-light: #0d2d3d;
+    --ts-accent-text: #6dbfef;
+    --ts-accent-hover: #1a4a63;
   }
 }
 
@@ -43,17 +100,56 @@
 
 body {
   margin: 0;
-  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background-color: var(--page-bg);
-  color: var(--page-fg);
-  line-height: 1.5;
+  font-family: var(--font-body);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin-bottom: var(--spacing-sm);
+  color: var(--color-heading);
 }
 
 :where(a) {
   color: inherit;
+  text-decoration: none;
+  transition: color 0.2s ease;
 }
 
-/* Print styles for resume export. */
+:where(a):hover {
+  color: var(--solar-blue);
+}
+
+/* Highlight utility: yellow underline accent */
+.highlight {
+  position: relative;
+  display: inline-block;
+  color: var(--solar-yellow);
+}
+.highlight::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background-color: var(--solar-yellow);
+  opacity: 0.5;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--color-bg); }
+::-webkit-scrollbar-thumb { background: var(--color-border); border: 1px solid var(--color-border-highlight); }
+::-webkit-scrollbar-thumb:hover { background: var(--color-border-highlight); }
+
+/* Print styles for resume export */
 @media print {
   nav,
   footer,
@@ -70,13 +166,7 @@ body {
     padding: 0 !important;
   }
 
-  p,
-  h1,
-  h2,
-  h3,
-  li,
-  span,
-  a {
+  p, h1, h2, h3, li, span, a {
     color: #000 !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;

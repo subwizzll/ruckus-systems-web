@@ -37,12 +37,12 @@ const serviceJsonLd = JSON.stringify({
 })
 
 const serviceButtonToneClasses = [
-  'service-cta-primary',
-  'service-cta-secondary',
-  'service-cta-accent-sage',
-  'service-cta-accent-terracotta',
-  'service-cta-accent-gold',
-  'service-cta-accent-teal',
+  'service-cta-blue',
+  'service-cta-cyan',
+  'service-cta-green',
+  'service-cta-yellow',
+  'service-cta-orange',
+  'service-cta-violet',
 ] as const
 ---
 
@@ -50,58 +50,55 @@ const serviceButtonToneClasses = [
   title="Data Engineer & AI Concierge in Asheville | Ruckus Systems"
   description="Expert Data Engineering and AI Concierge services in Asheville, NC. Automate workflows, build robust data pipelines, and leverage practical AI for your business."
 >
-  <main class="flex min-h-screen flex-col text-slate-900 dark:text-slate-100">
-    <section class="relative flex flex-col items-center space-y-8 bg-linear-to-b from-slate-50 to-slate-100 px-6 py-20 text-center md:px-12 lg:px-24 dark:from-slate-900 dark:to-slate-800">
-      <h1 class="text-4xl font-extrabold tracking-tight text-slate-900 md:text-6xl dark:text-white">
+  <main class="flex min-h-screen flex-col">
+
+    <!-- Hero -->
+    <section class="hero-section">
+      <h1 class="hero-heading">
         Engineering-Grade<br />
-        <span class="text-blue-600 dark:text-blue-400">AI & Automation for Asheville</span>
+        <span class="hero-accent">AI &amp; Automation for Asheville</span>
       </h1>
-      <p class="mx-auto max-w-2xl text-lg leading-relaxed text-slate-600 md:text-xl dark:text-slate-300">
+      <p class="hero-sub">
         Don't just automate tasks. Build intelligent data systems that drive profit. We deliver measurable ROI through robust data pipelines and custom AI solutions.
       </p>
-      <div class="flex flex-col gap-4 pt-4 sm:flex-row">
+      <div class="hero-cta-row">
         <a
           href="#book-now"
           data-booking-open
           data-service="strategy-call"
-          class="inline-flex h-12 items-center justify-center rounded-full border-none bg-blue-600 px-8 text-lg font-semibold text-white! shadow-lg transition-colors hover:bg-blue-700"
+          class="cta-btn-primary"
         >
           Book Your Strategy Session
         </a>
       </div>
     </section>
 
-    <section id="services" class="bg-white px-6 py-20 md:px-12 lg:px-24 dark:bg-slate-950">
-      <div class="mx-auto max-w-6xl">
-        <h2 class="mb-3 text-center text-3xl font-bold">Services</h2>
-        <p class="mx-auto mb-12 max-w-3xl text-center text-slate-600 dark:text-slate-400">
+    <!-- Services -->
+    <section id="services" class="content-section content-section--alt">
+      <div class="section-inner">
+        <h2 class="section-title">Services</h2>
+        <p class="section-sub">
           Pick what fits your need and click to book. Strategy Call, Workflow Audit, and Data Pipeline include a written follow-up and a quote for more work.
         </p>
-        <div class="grid gap-8 md:grid-cols-2">
+        <div class="services-grid">
           {services.map((entry: CollectionEntry<'services'>, i: number) => (
-              <article class="service-card-home flex flex-col rounded-2xl border border-[var(--surface-soft-border)] bg-[var(--surface-soft)] p-8 transition-all hover:border-[var(--accent-sage)] hover:shadow-xl dark:border-slate-800 dark:bg-slate-900">
-                <div class="mb-4 flex items-start justify-between gap-4">
-                  <h3 class="text-2xl font-bold">{entry.data.title}</h3>
-                  <div class="text-right">
-                    <p class="text-2xl font-bold text-slate-900 dark:text-white">
-                      {formatPrice(entry.data.amount)}
-                    </p>
+              <article class="service-card">
+                <div class="service-card-header">
+                  <h3 class="service-card-title">{entry.data.title}</h3>
+                  <div class="service-card-price">
+                    <p class="price-amount">{formatPrice(entry.data.amount)}</p>
                     {entry.data.priceInfo && (
-                      <p class="text-xs text-slate-500 dark:text-slate-400">{entry.data.priceInfo}</p>
+                      <p class="price-info">{entry.data.priceInfo}</p>
                     )}
-                    <p class="text-sm text-slate-600 dark:text-slate-400">{entry.data.duration} minutes</p>
+                    <p class="price-duration">{entry.data.duration} min</p>
                   </div>
                 </div>
-                <p class="mb-6 flex-1 leading-relaxed text-slate-600 dark:text-slate-400">
-                  {entry.data.description}
-                </p>
+                <p class="service-card-desc">{entry.data.description}</p>
                 <a
                   href="#book-now"
                   data-booking-open
                   data-service={entry.id}
-                  class={`mt-auto inline-flex h-11 shrink-0 items-center justify-center rounded-full border-none px-6 font-semibold transition-colors ${
-                    serviceButtonToneClasses[i % serviceButtonToneClasses.length]
-                  }`}
+                  class={`service-cta ${serviceButtonToneClasses[i % serviceButtonToneClasses.length]}`}
                 >
                   Book {entry.data.title}
                 </a>
@@ -111,34 +108,35 @@ const serviceButtonToneClasses = [
       </div>
     </section>
 
-    <section id="results" class="bg-slate-50 px-6 py-20 md:px-12 lg:px-24 dark:bg-slate-900">
-      <div class="mx-auto max-w-6xl">
-        <h2 class="mb-3 text-center text-3xl font-bold">Proven Results</h2>
-        <p class="mx-auto mb-12 max-w-3xl text-center text-slate-600 dark:text-slate-400">
+    <!-- Results -->
+    <section id="results" class="content-section">
+      <div class="section-inner">
+        <h2 class="section-title">Proven Results</h2>
+        <p class="section-sub">
           We don't just advise; we build systems that work. From this site's booking and payments to enterprise integrations, here are examples of the impact we deliver.
         </p>
-        <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-          <article class="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm transition-all hover:shadow-md dark:border-slate-800 dark:bg-slate-950">
-            <h3 class="mb-4 text-xl font-bold text-slate-900 dark:text-white">Custom Booking & Payments</h3>
-            <p class="leading-relaxed text-slate-600 dark:text-slate-400">
+        <div class="results-grid">
+          <article class="result-card">
+            <h3 class="result-card-title">Custom Booking &amp; Payments</h3>
+            <p class="result-card-desc">
               This site runs on a custom booking platform we built, with Stripe payment integration so clients can schedule sessions and pay securely. We deliver the same kind of tailored scheduling and payment flows for your business.
             </p>
           </article>
-          <article class="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm transition-all hover:shadow-md dark:border-slate-800 dark:bg-slate-950">
-            <h3 class="mb-4 text-xl font-bold text-slate-900 dark:text-white">Intelligent Support Automation</h3>
-            <p class="leading-relaxed text-slate-600 dark:text-slate-400">
+          <article class="result-card">
+            <h3 class="result-card-title">Intelligent Support Automation</h3>
+            <p class="result-card-desc">
               We integrate platforms like Zendesk into complex legacy systems to streamline ticket management and improve customer service workflows, reducing resolution times and manual overhead.
             </p>
           </article>
-          <article class="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm transition-all hover:shadow-md dark:border-slate-800 dark:bg-slate-950">
-            <h3 class="mb-4 text-xl font-bold text-slate-900 dark:text-white">High-Performance Data Pipelines</h3>
-            <p class="leading-relaxed text-slate-600 dark:text-slate-400">
+          <article class="result-card">
+            <h3 class="result-card-title">High-Performance Data Pipelines</h3>
+            <p class="result-card-desc">
               We engineer robust data pipelines that aggregate disparate sources and deliver critical business insights. Our optimized architectures have delivered reporting data up to 70% faster than legacy systems.
             </p>
           </article>
-          <article class="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm transition-all hover:shadow-md dark:border-slate-800 dark:bg-slate-950">
-            <h3 class="mb-4 text-xl font-bold text-slate-900 dark:text-white">Automated Client Outreach</h3>
-            <p class="leading-relaxed text-slate-600 dark:text-slate-400">
+          <article class="result-card">
+            <h3 class="result-card-title">Automated Client Outreach</h3>
+            <p class="result-card-desc">
               We build automated outreach workflows using tools like SendGrid to drive engagement and retention. Our systems ensure timely client follow-ups are triggered automatically, removing manual effort from your team.
             </p>
           </article>
@@ -146,54 +144,73 @@ const serviceButtonToneClasses = [
       </div>
     </section>
 
-    <section id="about" class="border-t border-slate-200 bg-white px-6 py-20 md:px-12 lg:px-24 dark:border-slate-800 dark:bg-slate-950">
-      <div class="mx-auto max-w-6xl">
-        <h2 class="mb-3 text-center text-3xl font-bold text-slate-900 dark:text-white">Why Us</h2>
-        <p class="mx-auto mb-12 max-w-3xl text-center text-slate-600 dark:text-slate-400">
-          Our approach is what sets us apart from generic automation shops.
-        </p>
-        <div class="grid gap-8 md:grid-cols-3">
-          <article class="about-card rounded-r-2xl border border-slate-200 border-l-4 border-l-blue-600 bg-slate-50/50 p-6 dark:border-slate-700 dark:border-l-blue-500 dark:bg-slate-900/50">
-            <h3 class="mb-2 text-lg font-semibold text-slate-900 dark:text-white">Engineered for ROI</h3>
-            <p class="text-slate-600 dark:text-slate-400">
+    <!-- About / Why Us -->
+    <section id="about" class="content-section content-section--alt">
+      <div class="section-inner about-layout">
+        <div class="about-intro">
+          <div class="about-headshot-wrap">
+            <img
+              src="/headshot.jpeg"
+              alt="Jared Russell"
+              width="320"
+              height="320"
+              class="about-headshot"
+              loading="lazy"
+            />
+          </div>
+          <p class="about-intro-text">
+            Put a face to the name—you work with a real person who's accountable for your project and your results.
+          </p>
+        </div>
+        <div class="about-content">
+          <h2 class="section-title">Why Us</h2>
+          <p class="section-sub">
+            Our approach is what sets us apart from generic automation shops.
+          </p>
+          <div class="about-grid">
+          <article class="about-card">
+            <h3 class="about-card-title">Engineered for ROI</h3>
+            <p class="about-card-desc">
               Every project starts with a data-driven model of impact. We don't just "speed things up"—we deploy systems that measurably reduce cost-to-serve and increase capacity.
             </p>
           </article>
-          <article class="about-card rounded-r-2xl border border-slate-200 border-l-4 border-l-blue-600 bg-slate-50/50 p-6 dark:border-slate-700 dark:border-l-blue-500 dark:bg-slate-900/50">
-            <h3 class="mb-2 text-lg font-semibold text-slate-900 dark:text-white">Data-First Architecture</h3>
-            <p class="text-slate-600 dark:text-slate-400">
+          <article class="about-card">
+            <h3 class="about-card-title">Data-First Architecture</h3>
+            <p class="about-card-desc">
               Automation without good data is just faster chaos. We build the data pipelines first, ensuring your AI and workflows are reliable, accurate, and scalable.
             </p>
           </article>
-          <article class="about-card rounded-r-2xl border border-slate-200 border-l-4 border-l-blue-600 bg-slate-50/50 p-6 dark:border-slate-700 dark:border-l-blue-500 dark:bg-slate-900/50">
-            <h3 class="mb-2 text-lg font-semibold text-slate-900 dark:text-white">Asheville's Technical Partner</h3>
-            <p class="text-slate-600 dark:text-slate-400">
+          <article class="about-card">
+            <h3 class="about-card-title">Asheville's Technical Partner</h3>
+            <p class="about-card-desc">
               Enterprise-grade engineering for Asheville businesses. We bring the rigor of big tech to your local operations, providing a level of reliability that freelance scripts can't match.
             </p>
           </article>
+          </div>
         </div>
       </div>
     </section>
 
-    <section id="book-now" class="bg-slate-900 px-6 py-24 text-center text-white">
-      <div class="mx-auto max-w-3xl space-y-6">
-        <h2 class="text-3xl font-bold md:text-4xl">Ready to engineer your growth?</h2>
-        <p class="text-xl text-slate-300">
+    <!-- Book Now CTA -->
+    <section id="book-now" class="cta-section">
+      <div class="cta-inner">
+        <h2 class="cta-heading">Ready to engineer your growth?</h2>
+        <p class="cta-sub">
           Book a strategy session to map your highest-value opportunities for automation and data intelligence.
         </p>
-        <p class="text-slate-400">
+        <p class="cta-note">
           Your initial strategy roadmap is credited towards any implementation project. Follow-up notes and a detailed quote are included.
         </p>
-        <div class="pt-8">
+        <div class="cta-btn-wrap">
           <a
             href="#book-now"
             data-booking-open
             data-service="strategy-call"
-            class="inline-flex h-14 items-center justify-center rounded-full border-none bg-blue-600 px-10 text-xl font-semibold text-white shadow-lg transition-colors hover:bg-blue-700"
+            class="cta-btn-primary cta-btn-large"
           >
             Book Your Strategy Session
           </a>
-          <p class="mt-4 text-sm text-slate-500">Secure booking and payment.</p>
+          <p class="cta-secure-note">Secure booking and payment.</p>
         </div>
       </div>
     </section>
@@ -201,65 +218,335 @@ const serviceButtonToneClasses = [
     <BookingModal />
     <script is:inline type="application/ld+json" set:html={serviceJsonLd} />
   </main>
+
   <style>
-    .service-cta-primary {
-      background-color: var(--brand-blue);
-      color: #fff;
+    /* Hero */
+    .hero-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+      padding: 5rem 1.5rem;
+      text-align: center;
+      background: linear-gradient(to bottom, var(--color-bg), var(--color-bg-alt));
     }
-    .service-cta-primary:hover {
-      background-color: #1d4ed8;
+    @media (min-width: 768px) { .hero-section { padding: 5rem 3rem; } }
+    @media (min-width: 1024px) { .hero-section { padding: 5rem 6rem; } }
+
+    .hero-heading {
+      font-size: 2.5rem;
+      font-family: var(--font-mono);
+      font-weight: 400;
+      color: var(--color-heading);
+      margin-bottom: 0;
     }
-    :is(.dark) .service-cta-primary {
-      color: #fff;
+    @media (min-width: 768px) { .hero-heading { font-size: 3.75rem; } }
+
+    .hero-accent { color: var(--solar-blue); }
+
+    .hero-sub {
+      max-width: 42rem;
+      font-size: 1.125rem;
+      line-height: 1.75;
+      color: var(--color-text);
+      margin: 0;
+    }
+    @media (min-width: 768px) { .hero-sub { font-size: 1.25rem; } }
+
+    .hero-cta-row {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      padding-top: 1rem;
+    }
+    @media (min-width: 640px) { .hero-cta-row { flex-direction: row; } }
+
+    /* Shared CTA button */
+    .cta-btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 3rem;
+      padding: 0 2rem;
+      background-color: var(--solar-blue);
+      color: var(--solar-base3) !important;
+      font-family: var(--font-mono);
+      font-size: 1rem;
+      font-weight: 400;
+      border-radius: 9999px;
+      border: none;
+      box-shadow: 0 4px 16px rgba(38, 139, 210, 0.25);
+      transition: opacity 0.2s ease;
+      text-decoration: none;
+    }
+    .cta-btn-primary:hover { opacity: 0.85; color: var(--solar-base3) !important; }
+
+    .cta-btn-large { height: 3.5rem; font-size: 1.125rem; padding: 0 2.5rem; }
+
+    /* Section layout */
+    .content-section {
+      padding: 5rem 1.5rem;
+      background-color: var(--color-bg);
+    }
+    .content-section--alt { background-color: var(--color-bg-alt); }
+
+    @media (min-width: 768px) { .content-section { padding: 5rem 3rem; } }
+    @media (min-width: 1024px) { .content-section { padding: 5rem 6rem; } }
+
+    .section-inner { max-width: 72rem; margin: 0 auto; }
+
+    .section-title {
+      text-align: center;
+      font-size: 1.875rem;
+      font-family: var(--font-mono);
+      color: var(--color-heading);
+      margin-bottom: 0.75rem;
     }
 
-    .service-cta-secondary {
-      background-color: #0f172a;
-      color: #fff;
-    }
-    .service-cta-secondary:hover {
-      background-color: #334155;
-    }
-    :is(.dark) .service-cta-secondary {
-      background-color: #e2e8f0;
-      color: #0f172a;
-    }
-    :is(.dark) .service-cta-secondary:hover {
-      background-color: #f1f5f9;
+    .section-sub {
+      max-width: 48rem;
+      margin: 0 auto 3rem;
+      text-align: center;
+      color: var(--color-text);
+      line-height: 1.7;
     }
 
-    .service-cta-accent-sage {
-      background-color: var(--accent-sage);
-      color: #fff;
+    /* Services */
+    .services-grid {
+      display: grid;
+      gap: 2rem;
     }
-    .service-cta-accent-sage:hover {
-      background-color: #3f5b43;
+    @media (min-width: 768px) { .services-grid { grid-template-columns: repeat(2, 1fr); } }
+
+    .service-card {
+      display: flex;
+      flex-direction: column;
+      padding: 2rem;
+      border-radius: 1rem;
+      border: 1px solid var(--color-border);
+      background-color: var(--color-bg);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .service-card:hover {
+      border-color: var(--solar-cyan);
+      box-shadow: 0 8px 32px rgba(42, 161, 152, 0.12);
     }
 
-    .service-cta-accent-terracotta {
-      background-color: var(--accent-terracotta);
-      color: #fff;
-    }
-    .service-cta-accent-terracotta:hover {
-      background-color: #8f452b;
-    }
-
-    .service-cta-accent-gold {
-      background-color: var(--accent-gold);
-      color: #0f172a;
-    }
-    .service-cta-accent-gold:hover {
-      background-color: #d4a61f;
+    .service-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1rem;
     }
 
-    .service-cta-accent-teal {
-      background-color: var(--accent-teal);
-      color: #fff;
+    .service-card-title {
+      font-size: 1.25rem;
+      font-family: var(--font-mono);
+      color: var(--color-heading);
+      margin-bottom: 0;
     }
-    .service-cta-accent-teal:hover {
-      background-color: #6a8a8a;
+
+    .service-card-price { text-align: right; }
+    .price-amount {
+      font-size: 1.5rem;
+      font-family: var(--font-mono);
+      color: var(--color-heading);
+      margin-bottom: 0;
+    }
+    .price-info, .price-duration {
+      font-size: 0.75rem;
+      color: var(--color-secondary);
+      margin-bottom: 0;
+    }
+
+    .service-card-desc {
+      flex: 1;
+      color: var(--color-text);
+      line-height: 1.7;
+      margin-bottom: 1.5rem;
+    }
+
+    .service-cta {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 2.75rem;
+      padding: 0 1.5rem;
+      border-radius: 9999px;
+      border: none;
+      font-family: var(--font-mono);
+      font-size: 0.875rem;
+      transition: opacity 0.2s ease;
+      text-decoration: none;
+    }
+    .service-cta:hover { opacity: 0.85; }
+
+    .service-cta-blue   { background-color: var(--solar-blue);    color: var(--solar-base3) !important; }
+    .service-cta-cyan   { background-color: var(--solar-cyan);    color: var(--solar-base3) !important; }
+    .service-cta-green  { background-color: var(--solar-green);   color: var(--solar-base3) !important; }
+    .service-cta-yellow { background-color: var(--solar-yellow);  color: var(--solar-base03) !important; }
+    .service-cta-orange { background-color: var(--solar-orange);  color: var(--solar-base3) !important; }
+    .service-cta-violet { background-color: var(--solar-violet);  color: var(--solar-base3) !important; }
+
+    /* Results */
+    .results-grid {
+      display: grid;
+      gap: 2rem;
+    }
+    @media (min-width: 768px) { .results-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1024px) { .results-grid { grid-template-columns: repeat(4, 1fr); } }
+
+    .result-card {
+      padding: 2rem;
+      border-radius: 1rem;
+      border: 1px solid var(--color-border);
+      background-color: var(--color-bg-alt);
+      transition: box-shadow 0.2s ease;
+    }
+    .result-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
+
+    .result-card-title {
+      font-size: 1.1rem;
+      font-family: var(--font-mono);
+      color: var(--color-heading);
+      margin-bottom: 1rem;
+    }
+    .result-card-desc {
+      color: var(--color-text);
+      line-height: 1.7;
+      font-size: 0.9rem;
+      margin-bottom: 0;
+    }
+
+    /* About / Why Us */
+    .about-layout {
+      display: flex;
+      flex-direction: column;
+      gap: 2.5rem;
+    }
+    @media (min-width: 768px) {
+      .about-layout {
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 3rem;
+      }
+    }
+
+    .about-intro {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      text-align: center;
+    }
+    @media (min-width: 768px) {
+      .about-intro {
+        align-items: flex-start;
+        text-align: left;
+        flex-shrink: 0;
+      }
+    }
+
+    .about-intro-text {
+      font-size: 0.95rem;
+      text-align: left !important;
+      line-height: 1.6;
+      color: var(--color-text);
+      max-width: 26ch;
+      margin: 0;
+    }
+    @media (min-width: 768px) {
+      .about-intro-text { max-width: 24ch; }
+    }
+
+    .about-headshot-wrap {
+      flex-shrink: 0;
+    }
+    .about-headshot {
+      width: 100%;
+      max-width: 200px;
+      height: auto;
+      aspect-ratio: 1;
+      object-fit: cover;
+      border-radius: 0.5rem;
+      border: 1px solid var(--color-border);
+    }
+    @media (min-width: 768px) {
+      .about-headshot { max-width: 280px; }
+    }
+
+    .about-content { min-width: 0; }
+
+    .about-grid {
+      display: grid;
+      gap: 2rem;
+    }
+    @media (min-width: 768px) { .about-grid { grid-template-columns: repeat(3, 1fr); } }
+
+    .about-card {
+      padding: 1.5rem;
+      border-radius: 0 1rem 1rem 0;
+      border: 1px solid var(--color-border);
+      border-left: 4px solid var(--solar-blue);
+      background-color: var(--color-bg);
+      transition: border-left-color 0.2s ease;
+    }
+    .about-card:hover { border-left-color: var(--solar-cyan); }
+
+    .about-card-title {
+      font-size: 1rem;
+      font-family: var(--font-mono);
+      color: var(--color-heading);
+      margin-bottom: 0.5rem;
+    }
+    .about-card-desc {
+      color: var(--color-text);
+      line-height: 1.7;
+      font-size: 0.9rem;
+      margin-bottom: 0;
+    }
+
+    /* CTA section */
+    .cta-section {
+      background-color: var(--solar-base02);
+      padding: 6rem 1.5rem;
+      text-align: center;
+    }
+    @media (min-width: 768px) { .cta-section { padding: 6rem 3rem; } }
+
+    .cta-inner { max-width: 48rem; margin: 0 auto; }
+
+    .cta-heading {
+      font-size: 1.875rem;
+      font-family: var(--font-mono);
+      color: var(--solar-base2);
+      margin-bottom: 1rem;
+    }
+    @media (min-width: 768px) { .cta-heading { font-size: 2.25rem; } }
+
+    .cta-sub {
+      font-size: 1.125rem;
+      color: var(--solar-base1);
+      margin-bottom: 0.75rem;
+    }
+
+    .cta-note {
+      color: var(--solar-base0);
+      font-size: 0.875rem;
+    }
+
+    .cta-btn-wrap {
+      padding-top: 2rem;
+    }
+
+    .cta-secure-note {
+      margin-top: 1rem;
+      font-size: 0.8rem;
+      color: var(--solar-base01);
     }
   </style>
+
   <script>
     import { initServiceCtaTones } from '../lib/random-service-cta-tones'
     initServiceCtaTones()

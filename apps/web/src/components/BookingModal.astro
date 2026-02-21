@@ -32,15 +32,15 @@ const serviceMapJson = JSON.stringify(serviceMap);
   data-booking-enabled={String(bookingEnabled)}
   data-service-map={serviceMapJson}
 >
-  <div class="h-full w-full overflow-y-auto bg-[var(--surface-soft)] text-[var(--page-fg)] shadow-xl sm:m-4 sm:max-h-[90vh] sm:max-w-4xl sm:rounded-2xl">
-    <div class="flex items-center justify-between border-b border-[var(--surface-soft-border)] p-6">
-      <h2 class="text-2xl font-bold">Book Your Session</h2>
-      <button id="booking-close" class="rounded p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200">
+  <div class="h-full w-full overflow-y-auto shadow-xl sm:m-4 sm:max-h-[90vh] sm:max-w-4xl sm:rounded-2xl" style="background-color:var(--color-bg);color:var(--color-text)">
+    <div class="flex items-center justify-between p-6" style="border-bottom:1px solid var(--color-border)">
+      <h2 class="text-2xl font-semibold" style="font-family:var(--font-mono);color:var(--color-heading)">Book Your Session</h2>
+      <button id="booking-close" class="rounded p-2" style="color:var(--color-secondary)" onmouseover="this.style.background='var(--color-border)'" onmouseout="this.style.background='transparent'">
         Close
       </button>
     </div>
 
-    <div class="border-b border-[var(--surface-soft-border)] px-6 py-4">
+    <div class="px-6 py-4" style="border-bottom:1px solid var(--color-border)">
       <div class="progress-container">
         <div class="progress-scroll">
           <div class="step-indicator active" data-step="1">
@@ -296,7 +296,7 @@ const serviceMapJson = JSON.stringify(serviceMap);
   }
 
   .btn-primary:hover {
-    background-color: #3d5a34;
+    background-color: #218a82;
   }
 
   .btn-secondary {
@@ -385,8 +385,8 @@ const serviceMapJson = JSON.stringify(serviceMap);
     font-weight: 500;
     margin-bottom: 0.25rem;
     transition: all 0.3s ease;
-    background-color: #e2e8f0;
-    color: #64748b;
+    background-color: var(--color-border);
+    color: var(--color-secondary);
   }
 
   .step-indicator.active .step-number {
@@ -401,7 +401,7 @@ const serviceMapJson = JSON.stringify(serviceMap);
 
   .step-label {
     font-size: 0.75rem;
-    color: #64748b;
+    color: var(--color-secondary);
     white-space: nowrap;
     text-align: center;
   }
@@ -414,7 +414,7 @@ const serviceMapJson = JSON.stringify(serviceMap);
   .step-divider {
     width: 2rem;
     height: 1px;
-    background-color: #e2e8f0;
+    background-color: var(--color-border);
     margin-top: 1rem;
     flex-shrink: 0;
   }
@@ -424,8 +424,8 @@ const serviceMapJson = JSON.stringify(serviceMap);
     --ts-accent: var(--accent-sage);
     --ts-accent-light: var(--accent-sage-light);
     --ts-accent-text: var(--accent-sage-text);
-    --ts-accent-hover: #bbf7d0;
-    --ts-accent-shadow: rgba(74, 103, 65, 0.3);
+    --ts-accent-hover: #a8e8e5;
+    --ts-accent-shadow: rgba(42, 161, 152, 0.3);
     --ts-surface: var(--surface-soft);
     --ts-border: var(--surface-soft-border);
     --ts-fg: var(--page-fg);

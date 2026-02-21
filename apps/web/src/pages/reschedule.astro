@@ -8,87 +8,228 @@ if (!token) {
 ---
 
 <Layout title="Reschedule Appointment | Ruckus Systems" noindex>
-  <div id="reschedule-root" class="mx-auto max-w-4xl px-6 py-12" data-token={token}>
-    <h1 class="mb-6 text-3xl font-bold">Reschedule Appointment</h1>
+  <div id="reschedule-root" class="reschedule-root" data-token={token}>
+    <h1>Reschedule Appointment</h1>
 
-    <div id="reschedule-loading" class="rounded border p-4">Loading booking details...</div>
-    <div id="reschedule-error" class="hidden rounded border border-red-200 bg-red-50 p-4 text-red-700"></div>
+    <div id="reschedule-loading" class="info-card">Loading booking details...</div>
+    <div id="reschedule-error" class="error-card hidden"></div>
 
     <div id="reschedule-body" class="hidden space-y-6">
-      <div class="rounded border p-4">
-        <h2 class="mb-2 text-xl font-semibold">Current Booking</h2>
+      <div class="info-card">
+        <h2>Current Booking</h2>
         <p><strong>Service:</strong> <span id="service-title"></span></p>
         <p><strong>Current time:</strong> <span id="current-time"></span></p>
-        <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">
+        <p class="tz-note">
           Times shown in your timezone: <span id="user-timezone" class="font-medium"></span>
         </p>
       </div>
 
       <div>
-        <h3 class="mb-3 text-lg font-semibold">Select New Date and Time</h3>
+        <h3 class="subsection-heading">Select New Date and Time</h3>
         <div id="availability-loading" class="py-8 text-center">
           <div class="animate-pulse">
-            <div class="mx-auto mb-3 h-8 w-8 rounded-full bg-slate-300 dark:bg-slate-600"></div>
-            <p class="text-slate-600 dark:text-slate-400">Loading available times...</p>
+            <div class="loading-spinner"></div>
+            <p class="loading-text">Loading available times...</p>
           </div>
         </div>
 
         <div id="calendar-container" class="hidden">
-          <div class="flex flex-col lg:flex-row lg:items-start lg:gap-8">
-            <div class="lg:max-w-sm lg:flex-1">
-              <div class="mb-6 flex items-center justify-between">
-                <button id="prev-month" class="rounded-lg p-2 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800" type="button">
+          <div class="calendar-layout">
+            <div class="calendar-col">
+              <div class="calendar-nav">
+                <button id="prev-month" class="calendar-nav-btn" type="button">
                   <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                   </svg>
                 </button>
-                <h3 id="calendar-month" class="text-xl font-semibold text-slate-900 dark:text-slate-100"></h3>
-                <button id="next-month" class="rounded-lg p-2 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800" type="button">
+                <h3 id="calendar-month" class="calendar-month-title"></h3>
+                <button id="next-month" class="calendar-nav-btn" type="button">
                   <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                   </svg>
                 </button>
               </div>
 
-              <div class="rounded-lg border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
-                <div class="mb-4 grid grid-cols-7 gap-2">
-                  <div class="py-2 text-center text-sm font-medium text-slate-600 dark:text-slate-400">Su</div>
-                  <div class="py-2 text-center text-sm font-medium text-slate-600 dark:text-slate-400">Mo</div>
-                  <div class="py-2 text-center text-sm font-medium text-slate-600 dark:text-slate-400">Tu</div>
-                  <div class="py-2 text-center text-sm font-medium text-slate-600 dark:text-slate-400">We</div>
-                  <div class="py-2 text-center text-sm font-medium text-slate-600 dark:text-slate-400">Th</div>
-                  <div class="py-2 text-center text-sm font-medium text-slate-600 dark:text-slate-400">Fr</div>
-                  <div class="py-2 text-center text-sm font-medium text-slate-600 dark:text-slate-400">Sa</div>
+              <div class="calendar-grid-wrap">
+                <div class="calendar-day-headers">
+                  {['Su','Mo','Tu','We','Th','Fr','Sa'].map(d => (
+                    <div class="cal-day-header">{d}</div>
+                  ))}
                 </div>
                 <div id="calendar-days" class="grid grid-cols-7 gap-2"></div>
               </div>
             </div>
 
-            <div class="mt-6 lg:mt-0 lg:max-w-sm lg:flex-1">
-              <div id="selected-date-info" class="mb-4 hidden rounded-lg border border-slate-200 bg-slate-50 p-3 text-center lg:text-left dark:border-slate-700 dark:bg-slate-900">
-                <p id="selected-date-label" class="text-sm font-medium text-slate-800 dark:text-slate-200"></p>
-                <p id="selected-time-label" class="mt-1 text-sm text-blue-700 dark:text-blue-400">No time selected yet.</p>
+            <div class="slots-col">
+              <div id="selected-date-info" class="selected-date-info hidden">
+                <p id="selected-date-label" class="selected-date-label"></p>
+                <p id="selected-time-label" class="selected-time-label">No time selected yet.</p>
               </div>
 
               <div id="time-slots-grid" class="hidden">
                 <div id="time-slots-container" class="mb-6"></div>
               </div>
 
-              <div id="no-times-message" class="hidden rounded-lg bg-slate-50 py-8 text-center dark:bg-slate-900">
-                <p class="text-slate-700 dark:text-slate-300">Please choose a highlighted date to see available times.</p>
-                <p class="mt-1 text-sm text-slate-500">No available times on this day.</p>
+              <div id="no-times-message" class="no-times-msg hidden">
+                <p>Please choose a highlighted date to see available times.</p>
+                <p class="no-times-sub">No available times on this day.</p>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <button id="confirm-reschedule" class="rounded bg-blue-600 px-4 py-3 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50" disabled>
+      <button id="confirm-reschedule" class="confirm-btn" disabled>
         Confirm reschedule
       </button>
     </div>
   </div>
 </Layout>
+
+<style>
+  .reschedule-root {
+    max-width: 56rem;
+    margin: 0 auto;
+    padding: 3rem 1.5rem;
+  }
+  .reschedule-root h1 {
+    font-size: 1.875rem;
+    font-family: var(--font-mono);
+    color: var(--color-heading);
+    margin-bottom: 1.5rem;
+  }
+  .info-card {
+    border: 1px solid var(--color-border);
+    border-radius: 0.75rem;
+    padding: 1rem 1.25rem;
+    background-color: var(--color-bg-alt);
+    color: var(--color-text);
+    line-height: 1.7;
+  }
+  .info-card h2 {
+    font-size: 1.125rem;
+    font-family: var(--font-mono);
+    color: var(--color-heading);
+    margin-bottom: 0.5rem;
+  }
+  .error-card {
+    border: 1px solid var(--solar-red);
+    border-radius: 0.75rem;
+    padding: 1rem 1.25rem;
+    background-color: color-mix(in srgb, var(--solar-red) 10%, transparent);
+    color: var(--solar-red);
+  }
+  .tz-note { font-size: 0.8rem; color: var(--color-secondary); margin-top: 0.5rem; }
+  .subsection-heading {
+    font-size: 1.125rem;
+    font-family: var(--font-mono);
+    color: var(--color-heading);
+    margin-bottom: 0.75rem;
+  }
+  .loading-spinner {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 9999px;
+    background-color: var(--color-border);
+    margin: 0 auto 0.75rem;
+  }
+  .loading-text { color: var(--color-secondary); font-size: 0.9rem; }
+  .calendar-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+  @media (min-width: 1024px) {
+    .calendar-layout { flex-direction: row; align-items: flex-start; }
+    .calendar-col { max-width: 24rem; flex: 1; }
+    .slots-col { max-width: 24rem; flex: 1; }
+  }
+  .calendar-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+  }
+  .calendar-nav-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    color: var(--color-text);
+    transition: background-color 0.2s ease;
+  }
+  .calendar-nav-btn:hover { background-color: var(--color-border); }
+  .calendar-nav-btn:disabled { opacity: 0.4; cursor: default; }
+  .calendar-month-title {
+    font-size: 1.125rem;
+    font-family: var(--font-mono);
+    color: var(--color-heading);
+    margin: 0;
+  }
+  .calendar-grid-wrap {
+    border: 1px solid var(--color-border);
+    border-radius: 0.75rem;
+    background-color: var(--color-bg);
+    padding: 1rem;
+  }
+  .calendar-day-headers {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  .cal-day-header {
+    text-align: center;
+    font-size: 0.8rem;
+    font-family: var(--font-mono);
+    color: var(--color-secondary);
+    padding: 0.5rem 0;
+  }
+  .selected-date-info {
+    border: 1px solid var(--color-border);
+    border-radius: 0.75rem;
+    background-color: var(--color-bg-alt);
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+  }
+  .selected-date-label {
+    font-size: 0.875rem;
+    font-family: var(--font-mono);
+    color: var(--color-heading);
+    margin-bottom: 0.25rem;
+  }
+  .selected-time-label {
+    font-size: 0.875rem;
+    color: var(--solar-blue);
+    margin-bottom: 0;
+  }
+  .no-times-msg {
+    border-radius: 0.75rem;
+    background-color: var(--color-bg-alt);
+    padding: 2rem;
+    text-align: center;
+    color: var(--color-text);
+  }
+  .no-times-sub { font-size: 0.8rem; color: var(--color-secondary); margin-top: 0.25rem; }
+  .confirm-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 3rem;
+    padding: 0 1.5rem;
+    background-color: var(--solar-blue);
+    color: var(--solar-base3);
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    border-radius: 0.5rem;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+  }
+  .confirm-btn:hover:not(:disabled) { opacity: 0.85; }
+  .confirm-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+</style>
 
 <script>
   // @ts-nocheck - inline-style script with DOM refs; types from lib are used at runtime

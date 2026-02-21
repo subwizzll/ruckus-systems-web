@@ -8,25 +8,76 @@ if (!token) {
 ---
 
 <Layout title="Cancel Appointment | Ruckus Systems" noindex>
-  <div class="mx-auto max-w-2xl px-6 py-12">
-    <h1 class="mb-6 text-3xl font-bold">Cancel Appointment</h1>
+  <div class="cancel-root">
+    <h1>Cancel Appointment</h1>
 
-    <div id="cancel-loading" class="rounded border p-4">Loading booking details...</div>
-    <div id="cancel-error" class="hidden rounded border border-red-200 bg-red-50 p-4 text-red-700"></div>
+    <div id="cancel-loading" class="info-card">Loading booking details...</div>
+    <div id="cancel-error" class="error-card hidden"></div>
 
     <div id="cancel-body" class="hidden space-y-4">
-      <div class="rounded border p-4">
-        <h2 class="mb-2 text-xl font-semibold">Booking details</h2>
+      <div class="info-card">
+        <h2>Booking details</h2>
         <p><strong>Service:</strong> <span id="service-title"></span></p>
         <p><strong>Time:</strong> <span id="start-time"></span></p>
         <p><strong>Refund policy:</strong> <span id="refund-policy"></span></p>
       </div>
-      <button id="confirm-cancel" class="rounded bg-red-600 px-4 py-3 font-semibold text-white">
+      <button id="confirm-cancel" class="danger-btn">
         Confirm cancellation
       </button>
     </div>
   </div>
 </Layout>
+
+<style>
+  .cancel-root {
+    max-width: 32rem;
+    margin: 0 auto;
+    padding: 3rem 1.5rem;
+  }
+  .cancel-root h1 {
+    font-size: 1.875rem;
+    font-family: var(--font-mono);
+    color: var(--color-heading);
+    margin-bottom: 1.5rem;
+  }
+  .info-card {
+    border: 1px solid var(--color-border);
+    border-radius: 0.75rem;
+    padding: 1rem 1.25rem;
+    background-color: var(--color-bg-alt);
+    color: var(--color-text);
+    line-height: 1.7;
+  }
+  .info-card h2 {
+    font-size: 1.125rem;
+    font-family: var(--font-mono);
+    color: var(--color-heading);
+    margin-bottom: 0.5rem;
+  }
+  .error-card {
+    border: 1px solid var(--solar-red);
+    border-radius: 0.75rem;
+    padding: 1rem 1.25rem;
+    background-color: color-mix(in srgb, var(--solar-red) 10%, transparent);
+    color: var(--solar-red);
+  }
+  .danger-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 3rem;
+    padding: 0 1.5rem;
+    background-color: var(--solar-red);
+    color: var(--solar-base3);
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    border-radius: 0.5rem;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+  }
+  .danger-btn:hover { opacity: 0.85; }
+</style>
 
 <script is:inline define:vars={{ token }}>
   async function init() {

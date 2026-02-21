@@ -5,32 +5,28 @@ const navItems = [
 ]
 ---
 
-<header class="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/80 backdrop-blur supports-backdrop-filter:bg-white/60 dark:border-slate-800 dark:bg-slate-950/80">
-  <nav class="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
-    <a href="/" class="flex items-center gap-2 text-xl font-bold tracking-tight">
+<header class="navbar-header">
+  <nav class="navbar-inner">
+    <a href="/" class="navbar-brand">
       <img src="/logo.png" alt="Ruckus Systems" class="h-8 w-8 rounded-lg" loading="eager" />
       <span>Ruckus Systems</span>
     </a>
 
     <!-- Desktop nav -->
-    <div class="hidden items-center gap-6 md:flex">
+    <div class="navbar-links">
       {navItems.map((item) => (
-        <a
-          href={item.href}
-          class="text-sm font-medium text-slate-600 transition-colors hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
-        >
-          {item.label}
+        <a href={item.href} class="nav-link">
+          <span class="bracket">[</span>
+          <span class="link-text">{item.label}</span>
+          <span class="bracket">]</span>
         </a>
       ))}
-      <a
-        href="/#book-now"
-        class="ml-2 inline-flex items-center rounded-full bg-[var(--brand-blue)] px-4 py-2 text-sm font-semibold text-white! transition-colors hover:opacity-90"
-      >
+      <a href="/#book-now" class="nav-cta">
         Book Call
       </a>
       <button
         type="button"
-        class="coffee-tip-trigger ml-1 rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-amber-50 hover:text-amber-500 dark:text-slate-500 dark:hover:bg-amber-950/30 dark:hover:text-amber-400"
+        class="coffee-tip-trigger coffee-btn"
         aria-label="Buy me a coffee"
         title="Buy me a coffee"
       >
@@ -39,36 +35,32 @@ const navItems = [
     </div>
 
     <!-- Hamburger -->
-    <button id="mobile-menu-btn" class="p-2 md:hidden" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">
-      <span class="hamburger-bar mb-1 block h-0.5 w-6 bg-slate-900 transition-transform dark:bg-white"></span>
-      <span class="hamburger-bar mb-1 block h-0.5 w-6 bg-slate-900 transition-opacity dark:bg-white"></span>
-      <span class="hamburger-bar block h-0.5 w-6 bg-slate-900 transition-transform dark:bg-white"></span>
+    <button id="mobile-menu-btn" class="mobile-hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">
+      <span class="hamburger-bar"></span>
+      <span class="hamburger-bar"></span>
+      <span class="hamburger-bar"></span>
     </button>
   </nav>
 
   <!-- Mobile menu panel -->
   <div
     id="mobile-menu"
-    class="hidden border-t border-slate-200 bg-white px-4 pb-4 dark:border-slate-800 dark:bg-slate-950 md:hidden"
+    class="mobile-panel hidden"
   >
-    <div class="flex flex-col gap-1 pt-2">
+    <div class="mobile-panel-inner">
       {navItems.map((item) => (
-        <a
-          href={item.href}
-          class="mobile-nav-link rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white"
-        >
-          {item.label}
+        <a href={item.href} class="mobile-nav-link nav-link">
+          <span class="bracket">[</span>
+          <span class="link-text">{item.label}</span>
+          <span class="bracket">]</span>
         </a>
       ))}
-      <a
-        href="/#book-now"
-        class="mobile-nav-link mt-2 inline-flex items-center justify-center rounded-full bg-[var(--brand-blue)] px-4 py-2 text-sm font-semibold text-white! transition-colors hover:opacity-90"
-      >
+      <a href="/#book-now" class="mobile-nav-link nav-cta mt-2">
         Book Call
       </a>
       <button
         type="button"
-        class="coffee-tip-trigger mobile-nav-link mt-1 flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-500 transition-colors hover:bg-amber-50 hover:text-amber-600 dark:text-slate-400 dark:hover:bg-amber-950/30 dark:hover:text-amber-400"
+        class="coffee-tip-trigger mobile-nav-link coffee-btn-mobile"
         aria-label="Buy me a coffee"
         title="Buy me a coffee"
       >
@@ -79,6 +71,179 @@ const navItems = [
   </div>
 </header>
 
+<style>
+  .navbar-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    width: 100%;
+    background-color: var(--color-bg);
+    border-bottom: 1px solid var(--color-border);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  .navbar-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 4rem;
+    padding: 0 1rem;
+  }
+
+  @media (min-width: 768px) {
+    .navbar-inner { padding: 0 2rem; }
+  }
+
+  .navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 1.1rem;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    color: var(--color-heading);
+    text-decoration: none;
+  }
+  .navbar-brand:hover { color: var(--solar-blue); }
+
+  .navbar-links {
+    display: none;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  @media (min-width: 768px) {
+    .navbar-links { display: flex; }
+  }
+
+  /* Bracket-style nav links */
+  .nav-link {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: var(--color-secondary);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    transition: color 0.2s ease;
+  }
+  .nav-link .bracket {
+    transition: color 0.2s ease;
+    color: var(--color-border-highlight);
+  }
+  .nav-link .link-text {
+    transition: color 0.2s ease;
+  }
+  .nav-link:hover .link-text {
+    color: var(--solar-blue);
+  }
+  .nav-link:hover .bracket {
+    color: var(--solar-blue);
+  }
+  .nav-link.active .link-text {
+    color: var(--color-heading);
+  }
+  .nav-link.active .bracket {
+    color: var(--solar-yellow);
+  }
+
+  .nav-cta {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    background-color: var(--solar-blue);
+    color: #fdf6e3 !important;
+    padding: 0.4rem 1rem;
+    border-radius: 9999px;
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+  }
+  .nav-cta:hover { opacity: 0.85; }
+
+  .coffee-btn {
+    background-color: color-mix(in srgb, var(--color-border) 40%, transparent);
+    border: 1px solid var(--color-border-highlight);
+    padding: 0.375rem 0.5rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    color: var(--color-heading);
+    font-size: 1.125rem;
+    line-height: 1;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  }
+  .coffee-btn:hover {
+    background-color: color-mix(in srgb, var(--solar-yellow) 18%, transparent);
+    color: var(--solar-orange);
+    border-color: var(--solar-orange);
+  }
+
+  /* Hamburger — hidden on desktop, flex on mobile */
+  .mobile-hamburger {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  @media (min-width: 768px) {
+    .mobile-hamburger { display: none; }
+  }
+  .hamburger-bar {
+    display: block;
+    width: 1.5rem;
+    height: 2px;
+    background-color: var(--color-heading);
+    transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+
+  /* Mobile panel */
+  .mobile-panel {
+    border-top: 1px solid var(--color-border);
+    background-color: var(--color-bg);
+  }
+  .mobile-panel-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.75rem 1rem 1rem;
+  }
+
+  .mobile-nav-link {
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+  }
+  .mobile-nav-link:hover {
+    background-color: color-mix(in srgb, var(--solar-blue) 10%, transparent);
+  }
+
+  .coffee-btn-mobile {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: color-mix(in srgb, var(--color-border) 40%, transparent);
+    border: 1px solid var(--color-border-highlight);
+    border-radius: 0.5rem;
+    cursor: pointer;
+    color: var(--color-heading);
+    font-size: 1rem;
+    padding: 0.5rem 0.75rem;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  }
+  .coffee-btn-mobile:hover {
+    background-color: color-mix(in srgb, var(--solar-yellow) 18%, transparent);
+    color: var(--solar-orange);
+    border-color: var(--solar-orange);
+  }
+</style>
+
 <script>
   const btn = document.getElementById('mobile-menu-btn') as HTMLButtonElement;
   const menu = document.getElementById('mobile-menu') as HTMLDivElement;
@@ -88,7 +253,6 @@ const navItems = [
     menu.classList.remove('hidden');
     btn.setAttribute('aria-expanded', 'true');
     btn.setAttribute('aria-label', 'Close menu');
-    // Animate to X
     bars?.[0]?.style.setProperty('transform', 'translateY(7px) rotate(45deg)');
     bars?.[1]?.style.setProperty('opacity', '0');
     bars?.[2]?.style.setProperty('transform', 'translateY(-7px) rotate(-45deg)');
@@ -107,8 +271,16 @@ const navItems = [
     btn.getAttribute('aria-expanded') === 'true' ? closeMenu() : openMenu();
   });
 
-  // Close when a nav link is clicked
   menu?.querySelectorAll('.mobile-nav-link').forEach(link => {
     link.addEventListener('click', closeMenu);
+  });
+
+  // Mark active nav link
+  const currentPath = window.location.pathname;
+  document.querySelectorAll<HTMLAnchorElement>('.nav-link').forEach(link => {
+    const href = link.getAttribute('href') ?? '';
+    if (href && currentPath !== '/' && href.startsWith(currentPath)) {
+      link.classList.add('active');
+    }
   });
 </script>

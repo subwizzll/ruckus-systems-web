@@ -29,7 +29,8 @@ const ogImageURL = new URL(image, Astro.site).href;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
     <meta name="author" content="Jared Russell" />
-    <meta name="theme-color" content="#1E40AF" />
+    <meta name="theme-color" content="#fdf6e3" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#002b36" media="(prefers-color-scheme: dark)" />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
     <title>{title}</title>
     <link rel="canonical" href={canonicalURL} />
@@ -95,7 +96,7 @@ const ogImageURL = new URL(image, Astro.site).href;
       }
     </script>
   </head>
-  <body class="min-h-screen flex flex-col bg-white text-gray-900">
+  <body class="min-h-screen flex flex-col" style="background-color:var(--color-bg);color:var(--color-text)">
     <Header />
     <slot />
     <Footer />

@@ -31,7 +31,7 @@
   },
   {
     "id": "data-pipeline",
-    "title": "Enterprise Data Infrastructure Plan",
+    "title": "Data Pipeline Plan",
     "description": "Automation fails without good data. We design a reliable data pipeline plan that keeps your AI and analytics running smoothly and dependably.",
     "duration": 75,
     "amount": 39900,
