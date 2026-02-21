@@ -9,6 +9,9 @@ const StripeConfigSchema = z.object({
 
 const CreateCheckoutSessionSchema = z.object({
   serviceId: z.string().min(1),
+  amount: z.number().int().min(1),
+  serviceName: z.string().min(1),
+  serviceDescription: z.string().optional(),
   customerInfo: z.object({
     name: z.string().min(1),
     email: z.string().email(),
@@ -23,24 +26,6 @@ const CreateCheckoutSessionSchema = z.object({
 
 export type CreateCheckoutSessionInput = z.infer<typeof CreateCheckoutSessionSchema>;
 
-const SERVICE_PRICING: Record<string, { amount: number; name: string; description: string }> = {
-  "strategy-call": {
-    amount: 25000,
-    name: "Strategy Call",
-    description: "60-minute strategy and technical advisory session",
-  },
-  "workflow-audit": {
-    amount: 90000,
-    name: "Workflow Audit",
-    description: "Deep-dive workflow audit and automation blueprint",
-  },
-  default: {
-    amount: 25000,
-    name: "Strategy Call",
-    description: "Consulting session",
-  },
-};
-
 export class StripeService {
   private stripe: Stripe;
 
@@ -54,18 +39,17 @@ export class StripeService {
 
   async createCheckoutSession(data: CreateCheckoutSessionInput) {
     const validatedData = CreateCheckoutSessionSchema.parse(data);
-    const service = SERVICE_PRICING[validatedData.serviceId] ?? SERVICE_PRICING.default!;
 
     try {
       const paymentIntent = await this.stripe.paymentIntents.create({
-        amount: service.amount,
+        amount: validatedData.amount,
         currency: "usd",
         automatic_payment_methods: { enabled: true },
         receipt_email: validatedData.customerInfo.email,
-        description: `${service.name} - ${validatedData.customerInfo.name}`,
+        description: `${validatedData.serviceName} - ${validatedData.customerInfo.name}`,
         metadata: {
           service_id: validatedData.serviceId,
-          service_name: service.name,
+          service_name: validatedData.serviceName,
           customer_name: validatedData.customerInfo.name,
           customer_email: validatedData.customerInfo.email,
           customer_phone: validatedData.customerInfo.phone || "",
@@ -81,7 +65,7 @@ export class StripeService {
         data: {
           clientSecret: paymentIntent.client_secret,
           paymentIntentId: paymentIntent.id,
-          amount: service.amount,
+          amount: validatedData.amount,
           currency: "usd",
         },
       };

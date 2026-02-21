@@ -1,6 +1,41 @@
 ---
 import Layout from '../layouts/Layout.astro'
 
+const personJsonLd = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: 'Jared Russell',
+  jobTitle: 'Data Engineer & AI Concierge',
+  url: 'https://ruckussystems.dev/resume',
+  image: 'https://ruckussystems.dev/headshot.jpeg',
+  telephone: '828-357-7556',
+  email: 'jared@ruckussystems.dev',
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Asheville',
+    addressRegion: 'NC',
+    addressCountry: 'US',
+  },
+  worksFor: {
+    '@type': 'Organization',
+    name: 'Ruckus Systems',
+    url: 'https://ruckussystems.dev',
+  },
+  sameAs: [
+    'https://linkedin.com/in/ruckussystems',
+    'https://github.com/subwizzll',
+  ],
+  knowsAbout: [
+    'Data Engineering',
+    'AI Automation',
+    'Data Pipelines',
+    'Python',
+    'TypeScript',
+    'PostgreSQL',
+    'AWS',
+  ],
+})
+
 const contactItems = [
   { text: '828-357-7556', href: 'tel:828-357-7556' },
   { text: 'jared@ruckussystems.dev', href: 'mailto:jared@ruckussystems.dev' },
@@ -146,5 +181,6 @@ const experiences = [
     <div class="mt-12 text-center text-sm text-slate-400 print:hidden">
       <p>References available upon request.</p>
     </div>
+    <script is:inline type="application/ld+json" set:html={personJsonLd} />
   </div>
 </Layout>

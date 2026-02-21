@@ -136,6 +136,18 @@ export const bookings = {
     `;
     return result.length > 0 ? (result[0] as Booking) : null;
   },
+
+  async findFreeByEmail(email: string, serviceId: string): Promise<Booking | null> {
+    const result = await sql`
+      SELECT * FROM bookings
+      WHERE client_email = ${email}
+        AND service_id = ${serviceId}
+        AND amount = 0
+        AND status != 'cancelled'
+      LIMIT 1
+    `;
+    return result.length > 0 ? (result[0] as Booking) : null;
+  },
 };
 
 export const saveBooking = bookings.save;
@@ -143,3 +155,4 @@ export const getBookingById = bookings.findById;
 export const updateBookingStatus = bookings.updateStatus;
 export const updateBookingTime = bookings.updateTime;
 export const getBookingByPaymentIntent = bookings.findByPaymentIntent;
+export const getFreeBookingByEmail = bookings.findFreeByEmail;

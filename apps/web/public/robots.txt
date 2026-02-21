@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /cancel
+Disallow: /reschedule
+
+Sitemap: https://ruckussystems.dev/sitemap-index.xml

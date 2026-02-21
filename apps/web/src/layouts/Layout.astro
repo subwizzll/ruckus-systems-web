@@ -2,19 +2,25 @@
 import Analytics from '@vercel/analytics/astro'
 import Header from '../components/Header.astro'
 import Footer from '../components/Footer.astro'
+import CoffeeTip from '../components/CoffeeTip.astro'
 import '../styles/global.css'
 
 interface Props {
   title?: string
   description?: string
+  image?: string
+  noindex?: boolean
 }
 
 const {
   title = 'Asheville AI & Data Engineering | Ruckus Systems',
   description = 'Expert Data Engineering and AI Concierge services in Asheville, NC. Automate workflows, build robust data pipelines, and leverage practical AI for your business.',
+  image = '/og-image.png',
+  noindex = false,
 } = Astro.props
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const ogImageURL = new URL(image, Astro.site).href;
 ---
 
 <html lang="en">
@@ -22,9 +28,23 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
+    <meta name="author" content="Jared Russell" />
     <meta name="theme-color" content="#1E40AF" />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
     <title>{title}</title>
     <link rel="canonical" href={canonicalURL} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImageURL} />
+    <meta property="og:site_name" content="Ruckus Systems" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageURL} />
     <!-- 48x48 for Google search results (must be multiple of 48px) -->
     <link rel="icon" href="/favicon-48x48.png" type="image/png" sizes="48x48" />
     <link rel="icon" href="/favicon-16x16.png" type="image/png" sizes="16x16" />
@@ -77,9 +97,8 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
   </head>
   <body class="min-h-screen flex flex-col bg-white text-gray-900">
     <Header />
-    <main class="flex-1">
-      <slot />
-    </main>
+    <slot />
     <Footer />
+    <CoffeeTip />
   </body>
 </html>

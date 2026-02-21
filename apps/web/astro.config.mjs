@@ -1,6 +1,7 @@
 import { defineConfig } from 'astro/config'
 import { loadEnv } from 'vite'
 import vercel from '@astrojs/vercel'
+import sitemap from '@astrojs/sitemap'
 import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
 import { fileURLToPath } from 'url'
@@ -17,6 +18,14 @@ export default defineConfig({
   site: 'https://ruckussystems.dev',
   output: 'server',
   adapter: vercel(),
+  integrations: [
+    sitemap({
+      filter: (page) =>
+        !page.includes('/api/') &&
+        !page.includes('/cancel') &&
+        !page.includes('/reschedule'),
+    }),
+  ],
   vite: {
     plugins: [tailwindcss()],
     envDir: monorepoRoot,

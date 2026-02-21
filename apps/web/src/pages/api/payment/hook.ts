@@ -50,7 +50,7 @@ export const POST: APIRoute = async ({ request }) => {
           id: metadata.service_id || "strategy-call",
           title: metadata.service_name || "Strategy Call",
           duration: metadata.service_duration || "60 minutes",
-          price: metadata.service_price || "$250",
+          price: metadata.service_price || "$0",
         },
         appointment: {
           startTime: metadata.start_time || "",

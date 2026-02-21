@@ -1,5 +1,10 @@
 import type { APIRoute } from "astro";
 import { createStripeService, type CreateCheckoutSessionInput } from "@workspace/backend/payment";
+import { getCollection } from 'astro:content'
+
+import type { CollectionEntry } from 'astro:content'
+
+const services: CollectionEntry<'services'>[] = await getCollection('services')
 
 export const POST: APIRoute = async ({ request }) => {
   try {
@@ -15,6 +20,22 @@ export const POST: APIRoute = async ({ request }) => {
       throw new Error("Stripe configuration missing");
     }
 
+    const serviceId = bookingData.serviceId || null;
+    const service = services.find((s: CollectionEntry<'services'>) => s.data.id === serviceId).data;
+    if (!service) {
+      return new Response(
+        JSON.stringify({ success: false, error: `Unknown service: ${serviceId}` }),
+        { status: 400, headers: { "Content-Type": "application/json" } },
+      );
+    }
+
+    if (service.amount === 0) {
+      return new Response(
+        JSON.stringify({ success: false, error: "Free services do not require payment" }),
+        { status: 400, headers: { "Content-Type": "application/json" } },
+      );
+    }
+
     const stripeService = createStripeService({
       secretKey: import.meta.env.STRIPE_SECRET_KEY,
       publishableKey: import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY,
@@ -22,7 +43,10 @@ export const POST: APIRoute = async ({ request }) => {
     });
 
     const checkoutData: CreateCheckoutSessionInput = {
-      serviceId: bookingData.serviceId || "strategy-call",
+      serviceId: service.id,
+      amount: service.amount,
+      serviceName: service.title,
+      serviceDescription: service.description,
       customerInfo: {
         name:
           bookingData.customerInfo?.name ||

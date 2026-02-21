@@ -4,7 +4,37 @@ import BookingModal from '../components/BookingModal.astro'
 import { getCollection } from 'astro:content'
 import type { CollectionEntry } from 'astro:content'
 
+function formatPrice(amount: number): string {
+  return amount <= 0 ? 'FREE' : '$' + Math.floor(amount / 100)
+}
+
 const services = await getCollection('services')
+
+const serviceSchemas = services.map((s: CollectionEntry<'services'>) => ({
+  '@type': 'Service',
+  name: s.data.title,
+  description: s.data.description,
+  provider: {
+    '@type': 'ProfessionalService',
+    name: 'Ruckus Systems',
+    url: 'https://ruckussystems.dev',
+  },
+  offers: {
+    '@type': 'Offer',
+    price: s.data.amount / 100,
+    priceCurrency: 'USD',
+  },
+  areaServed: {
+    '@type': 'City',
+    name: 'Asheville',
+    containedInPlace: { '@type': 'State', name: 'North Carolina' },
+  },
+}))
+
+const serviceJsonLd = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@graph': serviceSchemas,
+})
 
 const serviceButtonToneClasses = [
   'service-cta-primary',
@@ -16,7 +46,10 @@ const serviceButtonToneClasses = [
 ] as const
 ---
 
-<Layout title="Data Engineer & AI Concierge in Asheville | Ruckus Systems">
+<Layout
+  title="Data Engineer & AI Concierge in Asheville | Ruckus Systems"
+  description="Expert Data Engineering and AI Concierge services in Asheville, NC. Automate workflows, build robust data pipelines, and leverage practical AI for your business."
+>
   <main class="flex min-h-screen flex-col text-slate-900 dark:text-slate-100">
     <section class="relative flex flex-col items-center space-y-8 bg-linear-to-b from-slate-50 to-slate-100 px-6 py-20 text-center md:px-12 lg:px-24 dark:from-slate-900 dark:to-slate-800">
       <h1 class="text-4xl font-extrabold tracking-tight text-slate-900 md:text-6xl dark:text-white">
@@ -50,7 +83,12 @@ const serviceButtonToneClasses = [
                 <div class="mb-4 flex items-start justify-between gap-4">
                   <h3 class="text-2xl font-bold">{entry.data.title}</h3>
                   <div class="text-right">
-                    <p class="text-2xl font-bold text-slate-900 dark:text-white">{entry.data.price}</p>
+                    <p class="text-2xl font-bold text-slate-900 dark:text-white">
+                      {formatPrice(entry.data.amount)}
+                    </p>
+                    {entry.data.priceInfo && (
+                      <p class="text-xs text-slate-500 dark:text-slate-400">{entry.data.priceInfo}</p>
+                    )}
                     <p class="text-sm text-slate-600 dark:text-slate-400">{entry.data.duration} minutes</p>
                   </div>
                 </div>
@@ -161,6 +199,7 @@ const serviceButtonToneClasses = [
     </section>
 
     <BookingModal />
+    <script is:inline type="application/ld+json" set:html={serviceJsonLd} />
   </main>
   <style>
     .service-cta-primary {

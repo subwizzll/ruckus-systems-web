@@ -34,7 +34,7 @@ const ClientDataSchema = z.object({
 });
 
 const PaymentDataSchema = z.object({
-  intentId: z.string().min(1),
+  intentId: z.string().optional(),
   amount: z.number().min(0),
   currency: z.string().default("usd"),
 });
@@ -43,7 +43,7 @@ const CreateBookingSchema = z.object({
   service: ServiceDataSchema,
   appointment: AppointmentDataSchema,
   client: ClientDataSchema,
-  payment: PaymentDataSchema,
+  payment: PaymentDataSchema.optional(),
 });
 
 export type CreateBookingInput = z.infer<typeof CreateBookingSchema>;
@@ -59,21 +59,23 @@ function parseDurationToMinutes(duration?: string | number): number {
 
 export async function createBooking(baseUrl: string, data: CreateBookingInput) {
   const validatedData = CreateBookingSchema.parse(data);
+  const isFree = !validatedData.payment || validatedData.payment.amount === 0;
 
-  // Idempotency guard: if this payment intent already created a booking, return it.
-  const existing = await getBookingByPaymentIntent(validatedData.payment.intentId);
-  if (existing) {
-    return {
-      success: true,
-      data: {
-        bookingId: existing.id,
-        zoomMeetingId: existing.zoom_meeting_id,
-        calendarEventId: existing.calendar_event_id,
-        meetingUrl: "Already created",
-        status: "ACCEPTED",
-        startTime: existing.start_time,
-      },
-    };
+  if (!isFree && validatedData.payment?.intentId) {
+    const existing = await getBookingByPaymentIntent(validatedData.payment.intentId);
+    if (existing) {
+      return {
+        success: true,
+        data: {
+          bookingId: existing.id,
+          zoomMeetingId: existing.zoom_meeting_id,
+          calendarEventId: existing.calendar_event_id,
+          meetingUrl: "Already created",
+          status: "ACCEPTED",
+          startTime: existing.start_time,
+        },
+      };
+    }
   }
 
   let zoomMeetingId: string | undefined;
@@ -147,7 +149,8 @@ export async function createBooking(baseUrl: string, data: CreateBookingInput) {
         status: "ACCEPTED",
         startTime: validatedData.appointment.startTime,
         endTime: endTime.toISOString(),
-        paymentIntentId: validatedData.payment.intentId,
+        paymentIntentId: validatedData.payment?.intentId,
+        isFree,
         rescheduleUrl,
         cancelUrl,
       },

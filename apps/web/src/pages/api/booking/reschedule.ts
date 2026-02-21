@@ -1,8 +1,10 @@
 import type { APIRoute } from "astro";
 import { validateBookingToken, getBookingById, rescheduleBooking } from "@workspace/backend";
-import servicesJson from "../../../data/services.json";
+import { getCollection } from 'astro:content'
 
-const servicesConfig = servicesJson as Array<{ id: string; minDaysInAdvance: number; maxDaysInAdvance: number }>;
+import type { CollectionEntry } from 'astro:content'
+
+const services: CollectionEntry<'services'>[] = await getCollection('services')
 
 export const GET: APIRoute = async ({ url }) => {
   try {
@@ -51,9 +53,9 @@ export const GET: APIRoute = async ({ url }) => {
       );
     }
 
-    const serviceConfig = servicesConfig.find((s) => s.id === booking.service_id);
-    const minDaysInAdvance = serviceConfig?.minDaysInAdvance ?? 1;
-    const maxDaysInAdvance = serviceConfig?.maxDaysInAdvance ?? 30;
+    const service = services.find((s: CollectionEntry<'services'>) => s.data.id === booking.service_id).data;
+    const minDaysInAdvance = service?.minDaysInAdvance ?? 1;
+    const maxDaysInAdvance = service?.maxDaysInAdvance ?? 30;
 
     return new Response(
       JSON.stringify({
@@ -133,9 +135,9 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    const serviceConfig = servicesConfig.find((s) => s.id === booking.service_id);
-    const minDays = serviceConfig?.minDaysInAdvance ?? 1;
-    const maxDays = serviceConfig?.maxDaysInAdvance ?? 30;
+    const service = services.find((s: CollectionEntry<'services'>) => s.data.id === booking.service_id).data;
+    const minDays = service?.minDaysInAdvance ?? 1;
+    const maxDays = service?.maxDaysInAdvance ?? 30;
     const now = new Date();
     const todayUtc = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
     const minStart = new Date(todayUtc);

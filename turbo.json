@@ -2,13 +2,13 @@
   "$schema": "https://turbo.build/schema.json",
   "ui": "tui",
   "globalDependencies": [".env"],
+  "globalEnv": ["VERCEL_FORCE_NO_BUILD_CACHE", "VERCEL_ENV", "VERCEL_URL"],
   "envMode": "loose",
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": ["dist/**", ".vercel/**"],
-      "env": ["VERCEL_FORCE_NO_BUILD_CACHE", "VERCEL_ENV", "VERCEL_URL"]
+      "outputs": ["dist/**", ".vercel/**"]
     },
     "lint": {
       "dependsOn": ["^lint"]

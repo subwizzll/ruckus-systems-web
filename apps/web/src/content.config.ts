@@ -7,8 +7,8 @@ const servicesSchema = z
     title: z.string(),
     description: z.string(),
     duration: z.number().int().min(1),
-    price: z.string(),
     amount: z.number(),
+    priceInfo: z.string().nullable().optional(),
     minDaysInAdvance: z.number().int().min(0),
     maxDaysInAdvance: z.number().int().min(0),
   })

@@ -12,4 +12,5 @@ export {
   updateBookingStatus,
   updateBookingTime,
   getBookingByPaymentIntent,
+  getFreeBookingByEmail,
 } from "./bookings";

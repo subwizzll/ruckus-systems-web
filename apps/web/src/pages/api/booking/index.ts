@@ -6,21 +6,20 @@ import {
   generateRescheduleToken,
   generateCancelToken,
 } from "@workspace/backend";
+import { getFreeBookingByEmail } from "@workspace/database";
 
-import servicesJson from "../../../data/services.json";
+import { getCollection } from 'astro:content'
+import type { CollectionEntry } from 'astro:content'
+const services: CollectionEntry<'services'>[] = await getCollection('services')
 
-const servicesConfig = servicesJson as Array<{
-  id: string;
-  minDaysInAdvance: number;
-  maxDaysInAdvance: number;
-}>;
+
 
 function isBookingEnabled() {
   return process.env.BOOKING_ENABLED !== "false";
 }
 
 function getServiceBookingWindow(serviceId: string): { minDaysInAdvance: number; maxDaysInAdvance: number } {
-  const service = servicesConfig.find((s) => s.id === serviceId);
+  const service = services.find((s: CollectionEntry<'services'>) => s.data.id === serviceId).data;
   return {
     minDaysInAdvance: service?.minDaysInAdvance ?? 1,
     maxDaysInAdvance: service?.maxDaysInAdvance ?? 30,
@@ -61,12 +60,16 @@ export const POST: APIRoute = async ({ url, request }) => {
     }
 
     const bookingData = await request.json();
+    const serviceId = bookingData.service?.id || "strategy-call";
+    const service = services.find((s: CollectionEntry<'services'>) => s.data.id === serviceId).data;
+    const isFree = service ? service.amount === 0 : false;
+
     const createBookingData: CreateBookingInput = {
       service: {
-        id: bookingData.service?.id || "strategy-call",
+        id: serviceId,
         title: bookingData.service?.title || "Strategy Call",
         duration: bookingData.service?.duration ?? 60,
-        price: bookingData.service?.price || "$250",
+        price: service ? (service.amount <= 0 ? "FREE" : `$${Math.floor(service.amount / 100)}`) : "$0",
       },
       appointment: {
         startTime: bookingData.appointment?.startTime || "",
@@ -81,11 +84,15 @@ export const POST: APIRoute = async ({ url, request }) => {
         phone: bookingData.client?.phone || "",
         notes: bookingData.client?.notes || "",
       },
-      payment: {
-        intentId: bookingData.payment?.intentId || "missing-intent-id",
-        amount: bookingData.payment?.amount || 25000,
-        currency: bookingData.payment?.currency || "usd",
-      },
+      ...(isFree
+        ? {}
+        : {
+            payment: {
+              intentId: bookingData.payment?.intentId || "missing-intent-id",
+              amount: bookingData.payment?.amount || 25000,
+              currency: bookingData.payment?.currency || "usd",
+            },
+          }),
     };
 
     if (!createBookingData.appointment.startTime) throw new Error("Start time is required");
@@ -94,7 +101,23 @@ export const POST: APIRoute = async ({ url, request }) => {
       throw new Error("Client name is required");
     }
 
-    const { minDaysInAdvance, maxDaysInAdvance } = getServiceBookingWindow(createBookingData.service.id);
+    if (isFree) {
+      const existingFree = await getFreeBookingByEmail(
+        createBookingData.client.email.toLowerCase(),
+        serviceId,
+      );
+      if (existingFree) {
+        return new Response(
+          JSON.stringify({
+            success: false,
+            error: "You've already used your free strategy session. Please select a paid service.",
+          }),
+          { status: 409, headers: { "Content-Type": "application/json" } },
+        );
+      }
+    }
+
+    const { minDaysInAdvance, maxDaysInAdvance } = getServiceBookingWindow(serviceId);
     if (
       !isStartTimeWithinBookingWindow(
         createBookingData.appointment.startTime,
@@ -134,9 +157,9 @@ export const POST: APIRoute = async ({ url, request }) => {
       durationMinutes,
       timezone: createBookingData.appointment.timezone,
       format: createBookingData.appointment.format,
-      stripePaymentIntentId: createBookingData.payment.intentId,
-      amount: createBookingData.payment.amount,
-      currency: createBookingData.payment.currency,
+      stripePaymentIntentId: createBookingData.payment?.intentId,
+      amount: isFree ? 0 : (createBookingData.payment?.amount ?? 0),
+      currency: createBookingData.payment?.currency || "usd",
       status: "confirmed",
       notes: createBookingData.client.notes,
     });
