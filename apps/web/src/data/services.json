@@ -15,7 +15,7 @@
     "description": "We analyze your business operations to spot bottlenecks and areas where work can be automated, then deliver a practical plan to streamline tasks and connect your business tools—so you spend less time on manual busywork.",
     "duration": 75,
     "amount": 29900,
-    "priceInfo": "implementation quoted separately",
+    "priceInfo": "includes call, implementation quote, and planning",
     "minDaysInAdvance": 1,
     "maxDaysInAdvance": 30
   },
@@ -25,7 +25,7 @@
     "description": "Move beyond chat interfaces. We build a functional, custom AI agent that connects to your real data, demonstrating specific use cases and measurable improvements for your workflows.",
     "duration": 75,
     "amount": 39900,
-    "priceInfo": "implementation quoted separately",
+    "priceInfo": "includes call, implementation quote, and planning",
     "minDaysInAdvance": 5,
     "maxDaysInAdvance": 30
   },
@@ -35,7 +35,7 @@
     "description": "Automation fails without good data. We design a reliable data pipeline plan that keeps your AI and analytics running smoothly and dependably.",
     "duration": 75,
     "amount": 39900,
-    "priceInfo": "implementation quoted separately",
+    "priceInfo": "includes call, implementation quote, and planning",
     "minDaysInAdvance": 5,
     "maxDaysInAdvance": 30
   }
