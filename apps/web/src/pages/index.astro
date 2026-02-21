@@ -79,7 +79,7 @@ const serviceButtonToneClasses = [
         </p>
         <div class="grid gap-8 md:grid-cols-2">
           {services.map((entry: CollectionEntry<'services'>, i: number) => (
-              <article class="service-card-home rounded-2xl border border-[var(--surface-soft-border)] bg-[var(--surface-soft)] p-8 transition-all hover:border-[var(--accent-sage)] hover:shadow-xl dark:border-slate-800 dark:bg-slate-900">
+              <article class="service-card-home flex flex-col rounded-2xl border border-[var(--surface-soft-border)] bg-[var(--surface-soft)] p-8 transition-all hover:border-[var(--accent-sage)] hover:shadow-xl dark:border-slate-800 dark:bg-slate-900">
                 <div class="mb-4 flex items-start justify-between gap-4">
                   <h3 class="text-2xl font-bold">{entry.data.title}</h3>
                   <div class="text-right">
@@ -92,14 +92,14 @@ const serviceButtonToneClasses = [
                     <p class="text-sm text-slate-600 dark:text-slate-400">{entry.data.duration} minutes</p>
                   </div>
                 </div>
-                <p class="mb-6 leading-relaxed text-slate-600 dark:text-slate-400">
+                <p class="mb-6 flex-1 leading-relaxed text-slate-600 dark:text-slate-400">
                   {entry.data.description}
                 </p>
                 <a
                   href="#book-now"
                   data-booking-open
                   data-service={entry.id}
-                  class={`inline-flex h-11 items-center justify-center rounded-full border-none px-6 font-semibold transition-colors ${
+                  class={`mt-auto inline-flex h-11 shrink-0 items-center justify-center rounded-full border-none px-6 font-semibold transition-colors ${
                     serviceButtonToneClasses[i % serviceButtonToneClasses.length]
                   }`}
                 >
