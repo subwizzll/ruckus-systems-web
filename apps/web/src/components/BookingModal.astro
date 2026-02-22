@@ -1080,6 +1080,12 @@ const serviceMapJson = JSON.stringify(serviceMap);
       openModal(serviceKey);
     });
 
+    if (window.location.hash === "#book-now") {
+      const hashQuery = window.location.hash.indexOf("?") !== -1 ? window.location.hash.slice(window.location.hash.indexOf("?") + 1) : "";
+      const params = new URLSearchParams(hashQuery);
+      openModal(params.get("service") || "strategy-call");
+    }
+
     closeBtn?.addEventListener("click", closeModal);
     closeConfirmationBtn?.addEventListener("click", closeModal);
     modal?.addEventListener("click", (evt) => {
