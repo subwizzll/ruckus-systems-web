@@ -12,7 +12,7 @@ export {
 export * from "./src/booking/index";
 export * from "./src/zoom/meeting";
 export * from "./src/booking/slots";
-export { googleService, type GoogleService } from "./src/google/service";
+export { type GoogleService } from "./src/google/service";
 export type {
   CreateCalendarEventInput,
   CreateCalendarEventResponse,
