@@ -1,0 +1,218 @@
+<div id="chat-widget" class="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-2 sm:bottom-6 sm:right-6">
+  <!-- Chat Window -->
+  <div
+    id="chat-window"
+    class="flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-900"
+    style="height:0;width:350px;opacity:0;transform:translateY(10px);pointer-events:none;transition:height .3s ease,opacity .3s ease,transform .3s ease;"
+  >
+    <!-- Header -->
+    <div class="flex items-center justify-between px-4 py-3" style="background-color:var(--brand-blue);">
+      <div class="flex items-center gap-2">
+        <div class="relative flex h-2 w-2">
+          <span class="absolute inline-flex h-2 w-2 animate-ping rounded-full bg-green-400 opacity-75"></span>
+          <span class="relative inline-flex h-2 w-2 rounded-full bg-green-500"></span>
+        </div>
+        <h3 class="text-sm font-semibold text-white">Ruckus Assistant</h3>
+      </div>
+      <button
+        id="chat-minimize"
+        class="text-white/80 transition-colors hover:text-white"
+        aria-label="Minimize chat"
+      >
+        <!-- Minimize icon -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 14 10 14 10 20"></polyline><polyline points="20 10 14 10 14 4"></polyline><line x1="14" y1="10" x2="21" y2="3"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>
+      </button>
+    </div>
+
+    <!-- Messages -->
+    <div id="chat-messages" class="flex-1 space-y-3 overflow-y-auto p-4" style="background-color:var(--surface-soft);">
+      <div class="flex w-max max-w-[85%] rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-slate-100" style="background-color:var(--surface-soft-border);">
+        Hi! I'm the Ruckus Systems AI. Tell me about your business challenges, and I can recommend the right automation strategy for you.
+      </div>
+    </div>
+
+    <!-- Input -->
+    <form id="chat-form" class="flex gap-2 border-t border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-900">
+      <input
+        id="chat-input"
+        class="flex-1 rounded-md border border-slate-300 bg-transparent px-3 py-2 text-sm text-slate-900 outline-none focus:ring-1 dark:border-slate-600 dark:text-slate-100"
+        style="--tw-ring-color:var(--brand-blue);"
+        placeholder="Type your question..."
+        autocomplete="off"
+      />
+      <button
+        id="chat-send"
+        type="submit"
+        disabled
+        class="inline-flex items-center justify-center rounded-md p-2 text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+        style="background-color:var(--brand-blue);"
+        aria-label="Send message"
+      >
+        <!-- Send icon -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+      </button>
+    </form>
+  </div>
+
+  <!-- Toggle Button -->
+  <button
+    id="chat-toggle"
+    class="flex h-12 w-12 items-center justify-center rounded-full shadow-lg transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2"
+    style="background-color:var(--brand-blue);--tw-ring-color:var(--brand-blue);"
+    aria-label="Open chat"
+  >
+    <!-- MessageCircle icon (shown when closed) -->
+    <svg id="icon-open" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"></path></svg>
+    <!-- X icon (shown when open) -->
+    <svg id="icon-close" class="hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+  </button>
+</div>
+
+<script>
+  (function () {
+    const chatWindow = document.getElementById('chat-window') as HTMLDivElement
+    const chatMessages = document.getElementById('chat-messages') as HTMLDivElement
+    const chatForm = document.getElementById('chat-form') as HTMLFormElement
+    const chatInput = document.getElementById('chat-input') as HTMLInputElement
+    const chatSend = document.getElementById('chat-send') as HTMLButtonElement
+    const chatToggle = document.getElementById('chat-toggle') as HTMLButtonElement
+    const chatMinimize = document.getElementById('chat-minimize') as HTMLButtonElement
+    const iconOpen = document.getElementById('icon-open') as unknown as SVGElement
+    const iconClose = document.getElementById('icon-close') as unknown as SVGElement
+
+    type Message = { role: 'user' | 'assistant'; content: string }
+
+    const messages: Message[] = [
+      {
+        role: 'assistant',
+        content: 'Hi! I\'m the Ruckus Systems AI. Tell me about your business challenges, and I can recommend the right automation strategy for you.',
+      },
+    ]
+
+    let isOpen = false
+    let isLoading = false
+
+    function toggleChat() {
+      isOpen = !isOpen
+      if (isOpen) {
+        chatWindow.style.height = '500px'
+        chatWindow.style.opacity = '1'
+        chatWindow.style.transform = 'translateY(0)'
+        chatWindow.style.pointerEvents = 'auto'
+        iconOpen.classList.add('hidden')
+        iconClose.classList.remove('hidden')
+        chatToggle.style.backgroundColor = 'var(--surface-soft)'
+        chatToggle.setAttribute('aria-label', 'Close chat')
+        chatInput.focus()
+      } else {
+        chatWindow.style.height = '0'
+        chatWindow.style.opacity = '0'
+        chatWindow.style.transform = 'translateY(10px)'
+        chatWindow.style.pointerEvents = 'none'
+        iconOpen.classList.remove('hidden')
+        iconClose.classList.add('hidden')
+        chatToggle.style.backgroundColor = 'var(--brand-blue)'
+        chatToggle.setAttribute('aria-label', 'Open chat')
+      }
+    }
+
+    function scrollToBottom() {
+      chatMessages.scrollTop = chatMessages.scrollHeight
+    }
+
+    function createMessageEl(role: 'user' | 'assistant', content: string): HTMLDivElement {
+      const el = document.createElement('div')
+      el.className = role === 'user'
+        ? 'ml-auto flex w-max max-w-[85%] rounded-lg px-3 py-2 text-sm text-white'
+        : 'flex w-max max-w-[85%] rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-slate-100'
+
+      if (role === 'user') {
+        el.style.backgroundColor = 'var(--brand-blue)'
+      } else {
+        el.style.backgroundColor = 'var(--surface-soft-border)'
+      }
+
+      el.textContent = content
+      return el
+    }
+
+    function createLoadingEl(): HTMLDivElement {
+      const el = document.createElement('div')
+      el.id = 'chat-loading'
+      el.className = 'flex w-max max-w-[75%] items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-slate-100'
+      el.style.backgroundColor = 'var(--surface-soft-border)'
+      el.innerHTML = `
+        <svg class="h-3 w-3 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+        </svg>
+        Thinking…`
+      return el
+    }
+
+    function updateSendButton() {
+      chatSend.disabled = isLoading || !chatInput.value.trim()
+    }
+
+    async function handleSubmit(e: Event) {
+      e.preventDefault()
+      const text = chatInput.value.trim()
+      if (!text || isLoading) return
+
+      messages.push({ role: 'user', content: text })
+      chatMessages.appendChild(createMessageEl('user', text))
+      chatInput.value = ''
+      isLoading = true
+      updateSendButton()
+      scrollToBottom()
+
+      const loadingEl = createLoadingEl()
+      chatMessages.appendChild(loadingEl)
+      scrollToBottom()
+
+      try {
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ messages }),
+        })
+
+        if (!response.ok || !response.body) throw new Error('Stream failed')
+
+        loadingEl.remove()
+
+        const assistantEl = createMessageEl('assistant', '')
+        chatMessages.appendChild(assistantEl)
+
+        const reader = response.body.getReader()
+        const decoder = new TextDecoder()
+        let fullContent = ''
+
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+          const chunk = decoder.decode(value, { stream: true })
+          fullContent += chunk
+          assistantEl.textContent = fullContent
+          scrollToBottom()
+        }
+
+        messages.push({ role: 'assistant', content: fullContent })
+      } catch {
+        loadingEl.remove()
+        const errorMsg = 'Sorry, I\'m having trouble connecting right now. Please try again later.'
+        chatMessages.appendChild(createMessageEl('assistant', errorMsg))
+        messages.push({ role: 'assistant', content: errorMsg })
+      } finally {
+        isLoading = false
+        updateSendButton()
+        scrollToBottom()
+      }
+    }
+
+    chatToggle.addEventListener('click', toggleChat)
+    chatMinimize.addEventListener('click', toggleChat)
+    chatForm.addEventListener('submit', handleSubmit)
+    chatInput.addEventListener('input', updateSendButton)
+  })()
+</script>
