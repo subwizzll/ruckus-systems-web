@@ -288,6 +288,12 @@
       }
     });
 
+    // Auto-open when navigating from email signature via #coffee hash
+    if (window.location.hash === '#coffee') {
+      dialog?.showModal();
+      history.replaceState({}, '', window.location.pathname + window.location.search);
+    }
+
     // Thank-you toast when returning from Stripe tip success
     if (new URLSearchParams(window.location.search).get('tip') === 'thanks') {
       const toast = document.createElement('div');
