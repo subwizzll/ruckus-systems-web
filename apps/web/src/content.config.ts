@@ -1,6 +1,7 @@
-import { defineCollection, z } from "astro:content";
-import { file } from "astro/loaders";
+import { defineCollection, z, reference } from "astro:content";
+import { glob, file } from "astro/loaders";
 
+// ── Services (existing) ──
 const servicesSchema = z
   .object({
     id: z.string(),
@@ -22,4 +23,49 @@ const services = defineCollection({
   schema: servicesSchema,
 });
 
-export const collections = { services };
+// ── Blog Posts (MDX) ──
+const blog = defineCollection({
+  loader: glob({ pattern: "**/*.mdx", base: "./src/blog" }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    pubDate: z.coerce.date(),
+    updatedDate: z.coerce.date().optional(),
+    author: reference("authors"),
+    heroImage: z.string().optional(),
+    tags: z.array(z.string()).default([]),
+    draft: z.boolean().default(false),
+    readingTime: z.number().optional(),
+    // Microfrontend island metadata
+    islands: z
+      .array(
+        z.object({
+          id: z.string(),
+          name: z.string(),
+          framework: z.enum(["react", "vue", "svelte", "vanilla", "iframe"]),
+          src: z.string(),
+          loadStrategy: z
+            .enum(["load", "visible", "idle", "media"])
+            .default("visible"),
+        }),
+      )
+      .default([]),
+    // Commenting
+    commentsEnabled: z.boolean().default(true),
+    agentParticipation: z.boolean().default(true),
+  }),
+});
+
+// ── Authors ──
+const authors = defineCollection({
+  loader: glob({ pattern: "**/*.json", base: "./src/data/authors" }),
+  schema: z.object({
+    name: z.string(),
+    bio: z.string().optional(),
+    avatar: z.string().optional(),
+    url: z.string().url().optional(),
+    role: z.enum(["owner", "contributor", "guest"]).default("contributor"),
+  }),
+});
+
+export const collections = { services, blog, authors };

@@ -1,0 +1,33 @@
+---
+interface Props {
+  tag: string;
+}
+
+const { tag } = Astro.props;
+---
+
+<a href={`/blog/tags/${tag}`} class="tag-badge">
+  {tag}
+</a>
+
+<style>
+  .tag-badge {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    padding: 0.2em 0.7em;
+    border-radius: 4px;
+    background: var(--color-bg-alt);
+    color: var(--solar-cyan);
+    border: 1px solid var(--color-border);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    letter-spacing: 0.02em;
+  }
+
+  .tag-badge:hover {
+    background: var(--solar-cyan);
+    color: var(--color-bg);
+    border-color: var(--solar-cyan);
+  }
+</style>

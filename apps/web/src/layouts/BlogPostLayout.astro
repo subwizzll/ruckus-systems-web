@@ -1,0 +1,269 @@
+---
+import Layout from "./Layout.astro";
+import AuthorCard from "../components/blog/AuthorCard.astro";
+import ReadingTime from "../components/blog/ReadingTime.astro";
+import TagBadge from "../components/blog/TagBadge.astro";
+import ShareBar from "../components/blog/ShareBar.astro";
+import TableOfContents from "../components/blog/TableOfContents.astro";
+import CommentThread from "../components/comments/CommentThread.astro";
+import "../styles/prose.css";
+
+interface Props {
+  post: any;
+  author: any;
+  headings?: { depth: number; slug: string; text: string }[];
+}
+
+const { post, author, headings = [] } = Astro.props;
+const { title, description, pubDate, updatedDate, heroImage, tags } = post.data;
+
+const formattedDate = new Date(pubDate).toLocaleDateString("en-US", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
+
+const updatedFormatted = updatedDate
+  ? new Date(updatedDate).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    })
+  : null;
+
+const wordCount = post.body ? post.body.split(/\s+/).length : 0;
+const readingTime = Math.max(1, Math.ceil(wordCount / 250));
+---
+
+<Layout
+  title={`${title} | Ruckus Systems Blog`}
+  description={description}
+  image={heroImage}
+>
+  <article class="blog-post">
+    <!-- Hero -->
+    {
+      heroImage && (
+        <div class="hero-wrapper">
+          <img src={heroImage} alt={title} class="hero-image" loading="eager" />
+          <div class="hero-overlay" />
+        </div>
+      )
+    }
+
+    <!-- Header -->
+    <header class="post-header">
+      <div class="post-header-inner">
+        <a href="/blog" class="back-link">← Back to Blog</a>
+        <h1 class="post-title">{title}</h1>
+        <p class="post-subtitle">{description}</p>
+        <div class="post-meta">
+          <AuthorCard author={author?.data} />
+          <span class="meta-sep">·</span>
+          <ReadingTime minutes={readingTime} />
+          <span class="meta-sep">·</span>
+          <time datetime={pubDate.toISOString()}>{formattedDate}</time>
+          {
+            updatedFormatted && (
+              <span class="updated-badge">Updated {updatedFormatted}</span>
+            )
+          }
+        </div>
+      </div>
+    </header>
+
+    <!-- Table of Contents (if post has headings) -->
+    {
+      headings.length > 2 && (
+        <aside class="toc-sidebar">
+          <TableOfContents headings={headings} />
+        </aside>
+      )
+    }
+
+    <!-- Body -->
+    <div class="prose">
+      <slot />
+    </div>
+
+    <!-- Tags -->
+    {
+      tags.length > 0 && (
+        <footer class="post-footer">
+          <div class="post-tags">
+            {tags.map((tag: string) => (
+              <TagBadge tag={tag} />
+            ))}
+          </div>
+          <ShareBar title={title} url={Astro.url.href} />
+        </footer>
+      )
+    }
+
+    <!-- Comments -->
+    {
+      post.data.commentsEnabled && (
+        <CommentThread
+          postId={post.id}
+          agentParticipation={post.data.agentParticipation}
+        />
+      )
+    }
+  </article>
+</Layout>
+
+<style>
+  .blog-post {
+    padding-bottom: 4rem;
+  }
+
+  /* Hero */
+  .hero-wrapper {
+    position: relative;
+    width: 100%;
+    height: 480px;
+    overflow: hidden;
+    margin-bottom: -2rem;
+  }
+
+  .hero-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      to bottom,
+      transparent 40%,
+      var(--color-bg) 100%
+    );
+  }
+
+  /* Header */
+  .post-header {
+    position: relative;
+    z-index: 1;
+    padding: 2rem 1.5rem 0;
+  }
+
+  .post-header-inner {
+    max-width: 700px;
+    margin-inline: auto;
+  }
+
+  .back-link {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--color-secondary);
+    text-decoration: none;
+    margin-bottom: 1.5rem;
+    transition: color 0.2s;
+  }
+
+  .back-link:hover {
+    color: var(--solar-blue);
+  }
+
+  .post-title {
+    font-family: var(--font-mono);
+    font-size: 2.75rem;
+    font-weight: 400;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+    color: var(--color-heading);
+    margin-bottom: 0.5rem;
+  }
+
+  .post-subtitle {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.3rem;
+    color: var(--color-secondary);
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+  }
+
+  .post-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: var(--color-secondary);
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--color-border);
+    margin-bottom: 2.5rem;
+  }
+
+  .meta-sep {
+    color: var(--color-border-highlight);
+  }
+
+  .updated-badge {
+    font-size: 0.8rem;
+    background: var(--color-bg-alt);
+    padding: 0.15em 0.6em;
+    border-radius: 4px;
+    color: var(--solar-cyan);
+  }
+
+  /* Table of Contents sidebar */
+  .toc-sidebar {
+    display: none;
+  }
+
+  @media (min-width: 1200px) {
+    .toc-sidebar {
+      display: block;
+      position: fixed;
+      top: 6rem;
+      right: calc((100vw - 700px) / 2 - 300px);
+      width: 240px;
+      max-height: calc(100vh - 8rem);
+      overflow-y: auto;
+    }
+  }
+
+  /* Footer */
+  .post-footer {
+    max-width: 700px;
+    margin-inline: auto;
+    padding: 2.5rem 1.5rem 0;
+    border-top: 1px solid var(--color-border);
+    margin-top: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .post-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .post-title {
+      font-size: 2rem;
+    }
+
+    .post-subtitle {
+      font-size: 1.1rem;
+    }
+
+    .hero-wrapper {
+      height: 320px;
+    }
+  }
+</style>

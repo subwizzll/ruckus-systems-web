@@ -1,0 +1,232 @@
+/* ── prose.css ──────────────────────────────────────
+   Medium-aesthetic typography for blog post content.
+   Extends the Solarized design tokens from global.css.
+   ─────────────────────────────────────────────────── */
+
+/* Reading container */
+.prose {
+  max-width: 700px;
+  margin-inline: auto;
+  font-family: Georgia, "Times New Roman", "Noto Serif", serif;
+  font-size: 1.25rem;
+  line-height: 1.8;
+  color: var(--color-text);
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Headings — use the mono stack from the brand */
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4 {
+  font-family: var(--font-mono);
+  color: var(--color-heading);
+  margin-top: 2.5em;
+  margin-bottom: 0.6em;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+.prose h1 {
+  font-size: 2.5rem;
+  margin-top: 0;
+}
+
+.prose h2 {
+  font-size: 1.75rem;
+  padding-bottom: 0.3em;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.prose h3 {
+  font-size: 1.35rem;
+}
+
+.prose h4 {
+  font-size: 1.15rem;
+  color: var(--color-secondary);
+}
+
+/* Paragraphs */
+.prose p {
+  margin-bottom: 1.5em;
+}
+
+/* Links */
+.prose a {
+  color: var(--solar-blue);
+  text-decoration: underline;
+  text-decoration-color: rgba(38, 139, 210, 0.3);
+  text-underline-offset: 3px;
+  transition: text-decoration-color 0.2s ease;
+}
+
+.prose a:hover {
+  text-decoration-color: var(--solar-blue);
+}
+
+/* Lists */
+.prose ul,
+.prose ol {
+  padding-left: 1.5em;
+  margin-bottom: 1.5em;
+}
+
+.prose li {
+  margin-bottom: 0.4em;
+}
+
+.prose li::marker {
+  color: var(--color-secondary);
+}
+
+/* Blockquote — accent bar */
+.prose blockquote {
+  border-left: 3px solid var(--solar-yellow);
+  margin: 2em 0;
+  padding: 0.8em 1.2em;
+  background: var(--color-bg-alt);
+  border-radius: 0 6px 6px 0;
+  font-style: italic;
+  color: var(--color-secondary);
+}
+
+.prose blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+/* Code — inline */
+.prose code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  background: var(--color-bg-alt);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  color: var(--solar-cyan);
+}
+
+/* Code — block */
+.prose pre {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  background: var(--solar-base02);
+  color: var(--solar-base1);
+  padding: 1.25em 1.5em;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 2em -1.5em;
+  border: 1px solid var(--color-border);
+}
+
+.prose pre code {
+  background: none;
+  padding: 0;
+  border-radius: 0;
+  color: inherit;
+  font-size: inherit;
+}
+
+/* Images — full bleed */
+.prose img {
+  max-width: calc(100% + 3em);
+  margin-inline: -1.5em;
+  border-radius: 8px;
+  margin-top: 2em;
+  margin-bottom: 2em;
+}
+
+/* Horizontal rule */
+.prose hr {
+  border: none;
+  text-align: center;
+  margin: 3em 0;
+}
+
+.prose hr::before {
+  content: "· · ·";
+  color: var(--color-secondary);
+  font-size: 1.5rem;
+  letter-spacing: 0.5em;
+}
+
+/* Tables */
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 2em 0;
+  font-size: 0.95rem;
+  font-family: var(--font-body);
+}
+
+.prose th {
+  text-align: left;
+  font-weight: 600;
+  padding: 0.75em 1em;
+  border-bottom: 2px solid var(--color-border);
+  color: var(--color-heading);
+}
+
+.prose td {
+  padding: 0.75em 1em;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.prose tr:last-child td {
+  border-bottom: none;
+}
+
+/* Strong / emphasis */
+.prose strong {
+  color: var(--color-heading);
+  font-weight: 700;
+}
+
+.prose em {
+  font-style: italic;
+}
+
+/* Island breakout — full-width embed zones */
+.prose .island-embed {
+  max-width: calc(100% + 6em);
+  margin-inline: -3em;
+  margin-block: 2.5em;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+}
+
+@media (prefers-color-scheme: dark) {
+  .prose .island-embed {
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .prose {
+    font-size: 1.1rem;
+    line-height: 1.7;
+  }
+
+  .prose h1 {
+    font-size: 1.85rem;
+  }
+
+  .prose h2 {
+    font-size: 1.4rem;
+  }
+
+  .prose pre,
+  .prose img {
+    margin-inline: -1em;
+    border-radius: 0;
+  }
+
+  .prose .island-embed {
+    margin-inline: -1em;
+    border-radius: 0;
+  }
+}

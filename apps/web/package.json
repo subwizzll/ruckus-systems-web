@@ -13,12 +13,18 @@
   },
   "dependencies": {
     "@astrojs/check": "^0.9.4",
+    "@astrojs/mdx": "^4.3.13",
+    "@astrojs/react": "^4.4.2",
     "@astrojs/sitemap": "^3.7.0",
     "@astrojs/vercel": "^8.2.7",
     "@tailwindcss/vite": "^4.1.12",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
     "@vercel/analytics": "^1.6.1",
     "@workspace/backend": "workspace:*",
     "astro": "^5.13.5",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
     "tailwindcss": "^4.1.18",
     "typescript": "^5.9.2"
   },

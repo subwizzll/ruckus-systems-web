@@ -1,0 +1,54 @@
+---
+interface Props {
+  author: {
+    name: string;
+    avatar?: string;
+    role?: string;
+  };
+}
+
+const { author } = Astro.props;
+---
+
+<div class="author-card">
+  {author?.avatar ? (
+    <img src={author.avatar} alt={author.name} class="author-avatar" />
+  ) : (
+    <div class="author-avatar author-avatar-placeholder">
+      {author?.name?.charAt(0) || "?"}
+    </div>
+  )}
+  <span class="author-name">{author?.name || "Unknown"}</span>
+</div>
+
+<style>
+  .author-card {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .author-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .author-avatar-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-bg-alt);
+    color: var(--color-secondary);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .author-name {
+    font-weight: 500;
+    color: var(--color-heading);
+    font-size: 0.9rem;
+  }
+</style>

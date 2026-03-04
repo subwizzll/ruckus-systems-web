@@ -17,4 +17,7 @@ interface ImportMetaEnv {
   readonly ZOOM_ACCOUNT_ID?: string;
   readonly ZOOM_CLIENT_ID?: string;
   readonly ZOOM_CLIENT_SECRET?: string;
+  readonly MOLTBOOK_APP_KEY?: string;
+  readonly MOLTBOOK_API_URL?: string;
+  readonly MOLTBOOK_APP_ID?: string;
 }

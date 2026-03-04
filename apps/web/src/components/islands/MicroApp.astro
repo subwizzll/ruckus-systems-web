@@ -1,0 +1,146 @@
+---
+interface Props {
+  src: string;
+  title?: string;
+  height?: string;
+}
+
+const { src, title = "Interactive Demo", height = "500px" } = Astro.props;
+---
+
+<div class="island-embed">
+  <div class="island-toolbar">
+    <span class="island-title">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+        <line x1="8" y1="21" x2="16" y2="21" />
+        <line x1="12" y1="17" x2="12" y2="21" />
+      </svg>
+      {title}
+    </span>
+    <a href={src} target="_blank" rel="noopener noreferrer" class="island-open-link">
+      Open ↗
+    </a>
+  </div>
+  <div class="island-frame-wrapper" style={`height: ${height};`}>
+    <iframe
+      src={src}
+      title={title}
+      class="island-frame"
+      loading="lazy"
+      sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+    />
+    <div class="island-loading">
+      <div class="island-spinner" />
+      <span>Loading...</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLIFrameElement>('.island-frame').forEach(frame => {
+    frame.addEventListener('load', () => {
+      const loading = frame.parentElement?.querySelector('.island-loading') as HTMLElement;
+      if (loading) loading.style.display = 'none';
+    });
+  });
+</script>
+
+<style>
+  .island-embed {
+    max-width: calc(100% + 6em);
+    margin-inline: -3em;
+    margin-block: 2.5em;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+    background: var(--color-bg-alt);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .island-embed {
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+    }
+  }
+
+  .island-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.6rem 1rem;
+    background: var(--solar-base02);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .island-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--solar-base1);
+  }
+
+  .island-open-link {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--solar-blue);
+    text-decoration: none;
+    padding: 0.2em 0.6em;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+  }
+
+  .island-open-link:hover {
+    border-color: var(--solar-blue);
+  }
+
+  .island-frame-wrapper {
+    position: relative;
+    width: 100%;
+  }
+
+  .island-frame {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+    background: var(--color-bg);
+  }
+
+  .island-loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    background: var(--color-bg-alt);
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--color-secondary);
+  }
+
+  .island-spinner {
+    width: 24px;
+    height: 24px;
+    border: 2px solid var(--color-border);
+    border-top-color: var(--solar-blue);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  @media (max-width: 768px) {
+    .island-embed {
+      margin-inline: -1em;
+      border-radius: 0;
+    }
+  }
+</style>
