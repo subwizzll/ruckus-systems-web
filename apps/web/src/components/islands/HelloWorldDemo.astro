@@ -1,0 +1,138 @@
+---
+interface Props {
+  title?: string;
+}
+
+const { title = "Hello World" } = Astro.props;
+---
+
+<div class="hello-demo">
+  <div class="hello-glow" id="hello-glow" aria-hidden="true" />
+  <div class="hello-letters" id="hello-letters">
+    {title.split("").map((char, i) => (
+      <span
+        class="hello-char"
+        style={`--i: ${i}; --delay: ${i * 0.04}s`}
+        data-char={char === " " ? "\u00A0" : char}
+      >
+        {char === " " ? "\u00A0" : char}
+      </span>
+    ))}
+  </div>
+  <p class="hello-sub">👋 hover or touch to play</p>
+</div>
+
+<script>
+  const container = document.querySelector('.hello-demo');
+  const glow = document.getElementById('hello-glow');
+  const letters = document.getElementById('hello-letters');
+
+  if (container && glow && letters) {
+    const onMove = (x: number, y: number) => {
+      const rect = container.getBoundingClientRect();
+      glow.style.background = `radial-gradient(420px circle at ${x - rect.left}px ${y - rect.top}px, rgba(101, 171, 255, 0.22), transparent 60%)`;
+    };
+
+    const onLeave = () => {
+      glow.style.background = 'radial-gradient(420px circle at 50% 50%, rgba(101, 171, 255, 0.08), transparent 60%)';
+    };
+
+    container.addEventListener('mousemove', (e) => onMove((e as MouseEvent).clientX, (e as MouseEvent).clientY));
+    container.addEventListener('touchmove', (e) => {
+      const t = (e as TouchEvent).touches[0];
+      if (t) onMove(t.clientX, t.clientY);
+    }, { passive: true });
+    container.addEventListener('mouseleave', onLeave);
+  }
+
+  letters?.querySelectorAll('.hello-char').forEach((el) => {
+    el.addEventListener('mouseenter', () => el.classList.add('hello-char-bounce'));
+    el.addEventListener('animationend', () => el.classList.remove('hello-char-bounce'));
+  });
+</script>
+
+<style>
+  .hello-demo {
+    position: relative;
+    max-width: calc(100% + 6em);
+    margin-inline: -3em;
+    margin-block: 2.5em;
+    padding: 2.5rem 2rem;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+    background: var(--color-bg-alt);
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .hello-demo {
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+    }
+  }
+
+  .hello-glow {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(420px circle at 50% 50%, rgba(101, 171, 255, 0.08), transparent 60%);
+    transition: background 0.2s ease-out;
+  }
+
+  .hello-letters {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.15em;
+    font-family: var(--font-mono);
+    font-size: clamp(2rem, 6vw, 3.5rem);
+    font-weight: 700;
+    color: var(--color-text);
+    letter-spacing: 0.02em;
+  }
+
+  .hello-char {
+    display: inline-block;
+    animation: hello-float 3s ease-in-out infinite;
+    animation-delay: var(--delay);
+  }
+
+  .hello-char-bounce {
+    animation: hello-bounce 0.5s ease-out;
+  }
+
+  @keyframes hello-float {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-4px) scale(1.02); }
+  }
+
+  @keyframes hello-bounce {
+    0% { transform: translateY(0) scale(1); }
+    30% { transform: translateY(-12px) scale(1.15); }
+    50% { transform: translateY(2px) scale(0.98); }
+    70% { transform: translateY(-4px) scale(1.04); }
+    100% { transform: translateY(0) scale(1); }
+  }
+
+  .hello-sub {
+    position: relative;
+    margin: 1rem 0 0;
+    font-size: 0.8rem;
+    color: var(--color-secondary);
+    font-family: var(--font-mono);
+  }
+
+  @media (max-width: 768px) {
+    .hello-demo {
+      margin-inline: -1em;
+      border-radius: 0;
+      padding: 2rem 1rem;
+    }
+  }
+</style>
