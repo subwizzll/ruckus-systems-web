@@ -2,7 +2,7 @@ import type { APIRoute } from "astro";
 import { createStripeService } from "@workspace/backend/payment";
 import { createBooking, saveBooking } from "@workspace/backend";
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, url }) => {
   try {
     if (process.env.BOOKING_ENABLED === "false") {
       return new Response(JSON.stringify({ success: false, error: "Booking is currently disabled" }), {
@@ -43,9 +43,7 @@ export const POST: APIRoute = async ({ request }) => {
     if (event.type === "payment_intent.succeeded") {
       const paymentIntent = event.data.object as any;
       const metadata = paymentIntent.metadata || {};
-      const appUrl = import.meta.env.PUBLIC_APP_URL || "http://localhost:4321";
-
-      const bookingResult = await createBooking(appUrl, {
+      const bookingResult = await createBooking(url.origin, {
         service: {
           id: metadata.service_id || "strategy-call",
           title: metadata.service_name || "Strategy Call",

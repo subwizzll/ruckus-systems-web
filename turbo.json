@@ -1,6 +1,5 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "ui": "tui",
   "globalDependencies": [".env"],
   "globalEnv": ["VERCEL_FORCE_NO_BUILD_CACHE", "VERCEL_ENV", "VERCEL_URL"],
   "envMode": "loose",
