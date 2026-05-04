@@ -17,6 +17,7 @@
     "@astrojs/vercel": "^8.2.7",
     "@tailwindcss/vite": "^4.1.12",
     "@vercel/analytics": "^1.6.1",
+    "@vercel/speed-insights": "^2.0.0",
     "@workspace/backend": "workspace:*",
     "astro": "^5.13.5",
     "tailwindcss": "^4.1.18",
