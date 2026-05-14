@@ -10,6 +10,10 @@ import {
 import { createStripeService } from "../payment";
 import { generateRescheduleToken, generateCancelToken } from "../lib/jwt";
 import { sendEmail } from "../lib/resend";
+import {
+  BOOKING_CONFIRMATION_EMAIL_SUBJECT,
+  buildBookingConfirmationEmailHtml,
+} from "../emails/booking-confirmation";
 
 const ServiceDataSchema = z.object({
   id: z.string().min(1),
@@ -133,11 +137,28 @@ export async function createBooking(baseUrl: string, data: CreateBookingInput) {
     }
     calendarEventId = calendarResult.data.eventId;
 
-    await sendEmail(
+    const emailResult = await sendEmail(
       [validatedData.client.email],
-      "Booking Confirmation - Ruckus Systems",
-      `<p>Your booking is confirmed.</p><p>Reschedule: ${rescheduleUrl}<br/>Cancel: ${cancelUrl}</p>`,
+      BOOKING_CONFIRMATION_EMAIL_SUBJECT,
+      buildBookingConfirmationEmailHtml({
+        clientFirstName: validatedData.client.firstName,
+        serviceTitle: validatedData.service.title,
+        rescheduleUrl,
+        cancelUrl,
+      }),
     );
+
+    // Best-effort email: Zoom/calendar are already created. Do not throw — outer catch would roll them back.
+    let emailSent = true;
+    let emailError: string | undefined;
+    if (!emailResult.success) {
+      emailSent = false;
+      emailError =
+        typeof emailResult.error === "string"
+          ? emailResult.error
+          : JSON.stringify(emailResult.error ?? "unknown");
+      console.error("[createBooking] confirmation email failed:", emailError);
+    }
 
     return {
       success: true,
@@ -153,6 +174,8 @@ export async function createBooking(baseUrl: string, data: CreateBookingInput) {
         isFree,
         rescheduleUrl,
         cancelUrl,
+        emailSent,
+        ...(emailError !== undefined ? { emailError } : {}),
       },
     };
   } catch (error) {

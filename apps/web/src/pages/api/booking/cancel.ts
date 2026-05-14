@@ -1,5 +1,13 @@
 import type { APIRoute } from "astro";
-import { validateBookingToken, getBookingById, cancelBooking } from "@workspace/backend";
+import {
+  validateBookingToken,
+  getBookingById,
+  cancelBooking,
+  sendEmail,
+  CANCEL_CONFIRMATION_EMAIL_SUBJECT,
+  buildCancelConfirmationEmailHtml,
+} from "@workspace/backend";
+import { getPublicSiteOrigin } from "@/lib/public-site-origin";
 
 export const GET: APIRoute = async ({ url }) => {
   try {
@@ -80,7 +88,7 @@ export const GET: APIRoute = async ({ url }) => {
   }
 };
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, url }) => {
   try {
     if (process.env.BOOKING_ENABLED === "false") {
       return new Response(JSON.stringify({ success: false, error: "Booking is currently disabled" }), {
@@ -142,10 +150,50 @@ export const POST: APIRoute = async ({ request }) => {
     const result = await cancelBooking(validation.payload.bookingId);
     if (!result.success) throw new Error(result.error || "Failed to cancel booking");
 
-    return new Response(JSON.stringify(result), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
+    const siteOrigin = getPublicSiteOrigin(request, url);
+    const refunded = result.data?.refunded === true;
+    const refundAmountCents = result.data?.refundAmount;
+    const cancelHtml = buildCancelConfirmationEmailHtml({
+      clientFirstName: booking.client_first_name,
+      serviceTitle: booking.service_title,
+      previousStartTimeIso:
+        typeof booking.start_time === "string" ? booking.start_time : new Date(booking.start_time).toISOString(),
+      timezone: booking.timezone,
+      ...(refunded && refundAmountCents != null
+        ? { refunded: true as const, refundAmountCents }
+        : {}),
+      rebookUrl: `${siteOrigin}/#book-now`,
     });
+
+    const emailResult = await sendEmail(
+      [booking.client_email],
+      CANCEL_CONFIRMATION_EMAIL_SUBJECT,
+      cancelHtml,
+    );
+
+    // Best-effort email: cancellation is already persisted. Do not roll back or 500 here.
+    let emailSent = true;
+    let emailError: string | undefined;
+    if (!emailResult.success) {
+      emailSent = false;
+      emailError =
+        typeof emailResult.error === "string"
+          ? emailResult.error
+          : JSON.stringify(emailResult.error ?? "unknown");
+      console.error("[api/booking/cancel] confirmation email failed:", emailError);
+    }
+
+    return new Response(
+      JSON.stringify({
+        ...result,
+        emailSent,
+        ...(emailError !== undefined ? { emailError } : {}),
+      }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      },
+    );
   } catch (error) {
     return new Response(
       JSON.stringify({

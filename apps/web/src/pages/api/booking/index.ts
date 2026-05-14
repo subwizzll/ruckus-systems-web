@@ -7,6 +7,7 @@ import {
   generateCancelToken,
 } from "@workspace/backend";
 import { getFreeBookingByEmail } from "@workspace/database";
+import { getPublicSiteOrigin } from   "@/lib/public-site-origin";
 
 import { getCollection } from 'astro:content'
 import type { CollectionEntry } from 'astro:content'
@@ -19,7 +20,7 @@ function isBookingEnabled() {
 }
 
 function getServiceBookingWindow(serviceId: string): { minDaysInAdvance: number; maxDaysInAdvance: number } {
-  const service = services.find((s: CollectionEntry<'services'>) => s.data.id === serviceId).data;
+  const service = services.find((s: CollectionEntry<'services'>) => s.data.id === serviceId)?.data;
   return {
     minDaysInAdvance: service?.minDaysInAdvance ?? 1,
     maxDaysInAdvance: service?.maxDaysInAdvance ?? 30,
@@ -61,7 +62,7 @@ export const POST: APIRoute = async ({ url, request }) => {
 
     const bookingData = await request.json();
     const serviceId = bookingData.service?.id || "strategy-call";
-    const service = services.find((s: CollectionEntry<'services'>) => s.data.id === serviceId).data;
+    const service = services.find((s: CollectionEntry<'services'>) => s.data.id === serviceId)?.data;
     const isFree = service ? service.amount === 0 : false;
 
     const createBookingData: CreateBookingInput = {
@@ -134,7 +135,8 @@ export const POST: APIRoute = async ({ url, request }) => {
       );
     }
 
-    const result = await createBooking(url.origin, createBookingData);
+    const siteOrigin = getPublicSiteOrigin(request, url);
+    const result = await createBooking(siteOrigin, createBookingData);
     if (!result.success || !result.data) {
       throw new Error(result.error || "Failed to create booking");
     }
@@ -181,8 +183,8 @@ export const POST: APIRoute = async ({ url, request }) => {
         success: true,
         data: {
           ...result.data,
-          rescheduleUrl: `${url.origin}/reschedule?token=${rescheduleToken}`,
-          cancelUrl: `${url.origin}/cancel?token=${cancelToken}`,
+          rescheduleUrl: `${siteOrigin}/reschedule?token=${rescheduleToken}`,
+          cancelUrl: `${siteOrigin}/cancel?token=${cancelToken}`,
         },
       }),
       { status: 200, headers: { "Content-Type": "application/json" } },

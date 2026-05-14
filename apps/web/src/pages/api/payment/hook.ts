@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 import { createStripeService } from "@workspace/backend/payment";
 import { createBooking, saveBooking } from "@workspace/backend";
+import { getPublicSiteOrigin } from "@/lib/public-site-origin";
 
 export const POST: APIRoute = async ({ request, url }) => {
   try {
@@ -43,7 +44,8 @@ export const POST: APIRoute = async ({ request, url }) => {
     if (event.type === "payment_intent.succeeded") {
       const paymentIntent = event.data.object as any;
       const metadata = paymentIntent.metadata || {};
-      const bookingResult = await createBooking(url.origin, {
+      const siteOrigin = getPublicSiteOrigin(request, url);
+      const bookingResult = await createBooking(siteOrigin, {
         service: {
           id: metadata.service_id || "strategy-call",
           title: metadata.service_name || "Strategy Call",

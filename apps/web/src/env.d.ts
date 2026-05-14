@@ -11,6 +11,7 @@ interface ImportMetaEnv {
   readonly STRIPE_WEBHOOK_SECRET?: string;
   readonly STRIPE_API_VERSION?: string;
   readonly RESEND_API_KEY?: string;
+  readonly RESEND_FROM_EMAIL?: string;
   readonly GOOGLE_CLIENT_EMAIL?: string;
   readonly GOOGLE_PRIVATE_KEY?: string;
   readonly GOOGLE_SUBJECT_EMAIL?: string;

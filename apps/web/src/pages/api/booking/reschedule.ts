@@ -1,5 +1,15 @@
 import type { APIRoute } from "astro";
-import { validateBookingToken, getBookingById, rescheduleBooking } from "@workspace/backend";
+import {
+  validateBookingToken,
+  getBookingById,
+  rescheduleBooking,
+  generateRescheduleToken,
+  generateCancelToken,
+  RESCHEDULE_CONFIRMATION_EMAIL_SUBJECT,
+  buildRescheduleConfirmationEmailHtml,
+  sendEmail,
+} from "@workspace/backend";
+import { getPublicSiteOrigin } from "@/lib/public-site-origin";
 import { getCollection } from 'astro:content'
 
 import type { CollectionEntry } from 'astro:content'
@@ -53,7 +63,7 @@ export const GET: APIRoute = async ({ url }) => {
       );
     }
 
-    const service = services.find((s: CollectionEntry<'services'>) => s.data.id === booking.service_id).data;
+    const service = services.find((s: CollectionEntry<'services'>) => s.data.id === booking.service_id)?.data;
     const minDaysInAdvance = service?.minDaysInAdvance ?? 1;
     const maxDaysInAdvance = service?.maxDaysInAdvance ?? 30;
 
@@ -88,7 +98,7 @@ export const GET: APIRoute = async ({ url }) => {
   }
 };
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, url }) => {
   try {
     if (process.env.BOOKING_ENABLED === "false") {
       return new Response(JSON.stringify({ success: false, error: "Booking is currently disabled" }), {
@@ -135,7 +145,7 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    const service = services.find((s: CollectionEntry<'services'>) => s.data.id === booking.service_id).data;
+    const service = services.find((s: CollectionEntry<'services'>) => s.data.id === booking.service_id)?.data;
     const minDays = service?.minDaysInAdvance ?? 1;
     const maxDays = service?.maxDaysInAdvance ?? 30;
     const now = new Date();
@@ -159,10 +169,56 @@ export const POST: APIRoute = async ({ request }) => {
     const result = await rescheduleBooking(validation.payload.bookingId, new Date(newStartTime));
     if (!result.success) throw new Error(result.error || "Failed to reschedule booking");
 
-    return new Response(JSON.stringify(result), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
+    const newStartTimeIso = result.data?.newStartTime;
+    if (!newStartTimeIso) {
+      throw new Error("Reschedule succeeded but newStartTime was missing");
+    }
+
+    const siteOrigin = getPublicSiteOrigin(request, url);
+    const slotForTokens = new Date(newStartTimeIso);
+    const rescheduleToken = generateRescheduleToken(booking.id, booking.client_email, slotForTokens);
+    const cancelToken = generateCancelToken(booking.id, booking.client_email, slotForTokens);
+    const rescheduleUrl = `${siteOrigin}/reschedule?token=${rescheduleToken}`;
+    const cancelUrl = `${siteOrigin}/cancel?token=${cancelToken}`;
+
+    const html = buildRescheduleConfirmationEmailHtml({
+      clientFirstName: booking.client_first_name,
+      serviceTitle: booking.service_title,
+      newStartTimeIso,
+      timezone: booking.timezone,
+      rescheduleUrl,
+      cancelUrl,
     });
+
+    const emailResult = await sendEmail(
+      [booking.client_email],
+      RESCHEDULE_CONFIRMATION_EMAIL_SUBJECT,
+      html,
+    );
+
+    // Best-effort email: reschedule is already persisted (Zoom/Calendar/DB). Do not roll back or 500 here.
+    let emailSent = true;
+    let emailError: string | undefined;
+    if (!emailResult.success) {
+      emailSent = false;
+      emailError =
+        typeof emailResult.error === "string"
+          ? emailResult.error
+          : JSON.stringify(emailResult.error ?? "unknown");
+      console.error("[api/booking/reschedule] confirmation email failed:", emailError);
+    }
+
+    return new Response(
+      JSON.stringify({
+        ...result,
+        emailSent,
+        ...(emailError !== undefined ? { emailError } : {}),
+      }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      },
+    );
   } catch (error) {
     return new Response(
       JSON.stringify({
