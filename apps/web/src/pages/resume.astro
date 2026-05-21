@@ -27,9 +27,12 @@ const personJsonLd = JSON.stringify({
   ],
   knowsAbout: [
     'Data Engineering',
+    'CI/CD',
+    'Infrastructure as Code',
     'Agentic Development',
     'AI Automation',
     'Data Pipelines',
+    'FHIR',
     'Java',
     'Python',
     'TypeScript',
@@ -38,6 +41,9 @@ const personJsonLd = JSON.stringify({
     'React Native',
   ],
 })
+
+const summary =
+  'Data Engineer experienced in building, testing, and deploying robust data pipelines with Java, Python, TypeScript, React Native, PostgreSQL, and AWS. Strong focus on CI/CD and infrastructure as code, regularly using AWS CloudFormation to scaffold deployment pipelines, generate unit tests, and automate PR workflows.'
 
 const contactItems = [
   { text: '828-357-7556', href: 'tel:828-357-7556' },
@@ -53,11 +59,11 @@ const experiences = [
     location: 'Remote - Full-time',
     period: 'Oct. 2024 - Present',
     achievements: [
-      'Spearheaded end-to-end integration of the Surescripts network, architecting secure patient enrollment pipelines (SFTP/mTLS) and developing Java services for continuous medication history polling via FHIR R4',
+      'Built an Amazon Chime messaging data pipeline with Python and PostgreSQL for internal analytics on channel conversation initiators, participant roles, and participation—including engagement with agentic entities—to inform how clinical teams and automated agents collaborate in care workflows',
+      'Spearheaded end-to-end integration of the Surescripts network, architecting secure patient enrollment pipelines (SFTP/mTLS) and developing Java services for continuous medication history polling and transformation via FHIR R4',
       'Developed the "Surescripts CSV Agent" using a Claude Agent to infer and normalize varied patient Census CSV formats, drastically streamlining customer data onboarding',
-      'Leveraged AI-assisted development tools like Cursor and Claude Code to rapidly prototype pipelines, generate unit tests, identify edge cases, and scaffold deployments',
+      'Use Cursor and Claude Code to rapidly prototype pipelines, generate unit tests, identify edge cases, and scaffold deployments; automated PR drafting from stand-up transcripts and Jira docs',
       'Engineered a scalable metrics tracking platform using Astro and Drizzle ORM, delivering real-time OKR reporting to leadership',
-      'Automated PR drafting from stand-up transcripts and Jira docs, and managed CloudFormation resources via AWS CLI using autonomous workflows',
     ],
   },
   {
@@ -68,7 +74,7 @@ const experiences = [
     achievements: [
       'Served as sole triage specialist using Jira, DataDog, Sentry, and AWS CloudWatch to monitor the Technical Services board and resolve complex production issues',
       'Researched and implemented end-to-end testing frameworks for a React Native CI/CD pipeline using TypeScript to reduce QA overhead and enable more frequent releases',
-      'Developed comprehensive PDF health record reports utilizing Python, Django, PostgreSQL, and React Native to provide patients with consolidated medical data',
+      'Built comprehensive PDF patient health record reports in Python (Django, PostgreSQL) by aggregating and rendering FHIR clinical data for consolidated, patient-facing medical summaries; delivered end-to-end with React Native',
       'Implemented Sentry Replays and Crash Reports with custom TypeScript logging overrides to capture and investigate difficult-to-reproduce errors in the mobile app',
       'Built internal health record systems and mobile app integrations using Java, Spring Framework, and PostgreSQL to enable real-time health data synchronization',
     ],
@@ -157,6 +163,11 @@ const experiences = [
           ))}
         </div>
       </header>
+
+      <section class="resume-section resume-summary">
+        <h2 class="resume-section-title">Summary</h2>
+        <p class="resume-summary-text">{summary}</p>
+      </section>
 
       <section class="resume-section">
         <h2 class="resume-section-title">Professional Experience</h2>
@@ -258,9 +269,23 @@ const experiences = [
   }
 
   .resume-header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 0;
+    border-bottom: none;
+  }
+
+  .resume-summary {
     margin-bottom: 2rem;
     padding-bottom: 2rem;
     border-bottom: 1px solid var(--color-border);
+    break-inside: avoid;
+  }
+
+  .resume-summary-text {
+    font-size: 0.875rem;
+    line-height: 1.65;
+    color: var(--color-text);
+    margin: 0;
   }
 
   .resume-name {
