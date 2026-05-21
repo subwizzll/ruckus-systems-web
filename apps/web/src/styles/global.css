@@ -151,9 +151,12 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Print styles for resume export */
 @media print {
+  header.navbar-header,
   nav,
   footer,
-  .print-button,
+  .resume-actions,
+  .resume-footer,
+  .coffee-tip,
   a[href^='#'] {
     display: none !important;
   }

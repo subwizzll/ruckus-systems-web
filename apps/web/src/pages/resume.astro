@@ -27,12 +27,15 @@ const personJsonLd = JSON.stringify({
   ],
   knowsAbout: [
     'Data Engineering',
+    'Agentic Development',
     'AI Automation',
     'Data Pipelines',
+    'Java',
     'Python',
     'TypeScript',
     'PostgreSQL',
     'AWS',
+    'React Native',
   ],
 })
 
@@ -45,18 +48,39 @@ const contactItems = [
 
 const experiences = [
   {
-    title: 'Full Stack Engineer -> Data Engineer',
-    company: 'Healthbook+',
+    title: 'Data Engineer',
+    company: 'HealthBook+',
     location: 'Remote - Full-time',
-    period: 'Feb. 2024 - Present',
+    period: 'Oct. 2024 - Present',
     achievements: [
-      'Served as sole triage specialist using Jira, DataDog, Sentry, and AWS CloudWatch to identify and resolve production issues, achieving 99.5% uptime',
-      'Researched and implemented end-to-end testing frameworks for React Native CI/CD pipeline using TypeScript to reduce QA overhead by 60% and enable weekly releases',
-      'Developed comprehensive PDF health record reports using Python, Django, PostgreSQL, and React Native to provide patients with consolidated medical data',
-      'Implemented Sentry Replays and Crash Reports with custom TypeScript logging overrides to improve error tracking accuracy by 85%',
-      'Built mobile app integration with wearables using Java, Spring Framework, and PostgreSQL to enable real-time health data synchronization for 5,000+ active users',
-      'Developed internal health record systems with Docker, LocalStack, S3, SQS, and EKS to integrate with multiple vendor APIs, reducing data processing time by 40%',
-      'Integrated Zendesk into legacy backend systems using Java and Spring Framework to streamline support ticket management and improve customer service workflows',
+      'Spearheaded end-to-end integration of the Surescripts network, architecting secure patient enrollment pipelines (SFTP/mTLS) and developing Java services for continuous medication history polling via FHIR R4',
+      'Developed the "Surescripts CSV Agent" using a Claude Agent to infer and normalize varied patient Census CSV formats, drastically streamlining customer data onboarding',
+      'Leveraged AI-assisted development tools like Cursor and Claude Code to rapidly prototype pipelines, generate unit tests, identify edge cases, and scaffold deployments',
+      'Engineered a scalable metrics tracking platform using Astro and Drizzle ORM, delivering real-time OKR reporting to leadership',
+      'Automated PR drafting from stand-up transcripts and Jira docs, and managed CloudFormation resources via AWS CLI using autonomous workflows',
+    ],
+  },
+  {
+    title: 'Full Stack Engineer',
+    company: 'HealthBook+',
+    location: 'Remote - Full-time',
+    period: 'Feb. 2024 - Oct. 2024',
+    achievements: [
+      'Served as sole triage specialist using Jira, DataDog, Sentry, and AWS CloudWatch to monitor the Technical Services board and resolve complex production issues',
+      'Researched and implemented end-to-end testing frameworks for a React Native CI/CD pipeline using TypeScript to reduce QA overhead and enable more frequent releases',
+      'Developed comprehensive PDF health record reports utilizing Python, Django, PostgreSQL, and React Native to provide patients with consolidated medical data',
+      'Implemented Sentry Replays and Crash Reports with custom TypeScript logging overrides to capture and investigate difficult-to-reproduce errors in the mobile app',
+      'Built internal health record systems and mobile app integrations using Java, Spring Framework, and PostgreSQL to enable real-time health data synchronization',
+    ],
+  },
+  {
+    title: 'Founder & AI Engineer',
+    company: 'Ruckus Systems',
+    location: 'Remote',
+    period: 'Jan. 2023 - Present',
+    achievements: [
+      'Developed "Open Brain", a RAG memory system using PostgreSQL (pgvector) exposed via MCP to continuously build and optimize context between AI agent sessions',
+      'Utilize AI development tools to accelerate coding, refactoring, and system design across TypeScript, Java, Python, React Native, PostgreSQL, AWS, Astro.js, and Vercel',
     ],
   },
   {
@@ -107,15 +131,11 @@ const experiences = [
 
 <Layout title="Jared Russell - Data Engineer & AI Concierge | Resume" description="Resume of Jared Russell, a Data Engineer and AI Concierge based in Asheville, NC. Specializing in data pipelines, automation, and practical AI solutions.">
   <div class="resume-root">
-    <div class="resume-toolbar print:hidden">
+    <div class="resume-actions" role="toolbar" aria-label="Resume page actions">
       <a href="/" class="resume-back-link">
         ← Back to Home
       </a>
-      <button
-        type="button"
-        onclick="window.print()"
-        class="print-button resume-print-btn"
-      >
+      <button type="button" id="resume-print-btn" class="resume-print-btn">
         Download / Print PDF
       </button>
     </div>
@@ -171,10 +191,13 @@ const experiences = [
       </section>
     </main>
 
-    <div class="resume-footer print:hidden">
+    <div class="resume-footer">
       <p>References available upon request.</p>
     </div>
     <script is:inline type="application/ld+json" set:html={personJsonLd} />
+    <script is:inline>
+      document.getElementById('resume-print-btn')?.addEventListener('click', () => window.print())
+    </script>
   </div>
 </Layout>
 
@@ -187,12 +210,15 @@ const experiences = [
 
   @media print {
     .resume-root { max-width: none; padding: 0; }
+    .resume-actions,
+    .resume-footer { display: none !important; }
   }
 
-  .resume-toolbar {
+  .resume-actions {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    width: 100%;
     margin-bottom: 3rem;
   }
 
@@ -304,9 +330,6 @@ const experiences = [
     font-size: 0.75rem;
     font-family: var(--font-mono);
     color: var(--color-secondary);
-    background-color: var(--color-bg-alt);
-    padding: 0.2rem 0.5rem;
-    border-radius: 0.25rem;
     white-space: nowrap;
   }
 
