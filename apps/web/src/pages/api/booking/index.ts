@@ -2,11 +2,9 @@ import type { APIRoute } from "astro";
 import {
   createBooking,
   type CreateBookingInput,
-  saveBooking,
   generateRescheduleToken,
   generateCancelToken,
 } from "@workspace/backend";
-import { getFreeBookingByEmail } from "@workspace/database";
 import { getPublicSiteOrigin } from   "@/lib/public-site-origin";
 
 import { getCollection } from 'astro:content'
@@ -41,14 +39,6 @@ function isStartTimeWithinBookingWindow(
   maxEnd.setUTCHours(23, 59, 59, 999);
   const start = new Date(startTime);
   return start >= minStart && start <= maxEnd;
-}
-
-function parseDurationToMinutes(duration?: string): number {
-  if (!duration) return 60;
-  const match = duration.match(/(\d+)\s*(min|minute|hour|hr)/i);
-  if (!match) return 60;
-  const value = parseInt(match[1] || "60", 10);
-  return (match[2] || "").toLowerCase().startsWith("h") ? value * 60 : value;
 }
 
 export const POST: APIRoute = async ({ url, request }) => {
@@ -102,22 +92,6 @@ export const POST: APIRoute = async ({ url, request }) => {
       throw new Error("Client name is required");
     }
 
-    if (isFree) {
-      const existingFree = await getFreeBookingByEmail(
-        createBookingData.client.email.toLowerCase(),
-        serviceId,
-      );
-      if (existingFree) {
-        return new Response(
-          JSON.stringify({
-            success: false,
-            error: "You've already used your free strategy session. Please select a paid service.",
-          }),
-          { status: 409, headers: { "Content-Type": "application/json" } },
-        );
-      }
-    }
-
     const { minDaysInAdvance, maxDaysInAdvance } = getServiceBookingWindow(serviceId);
     if (
       !isStartTimeWithinBookingWindow(
@@ -138,42 +112,26 @@ export const POST: APIRoute = async ({ url, request }) => {
     const siteOrigin = getPublicSiteOrigin(request, url);
     const result = await createBooking(siteOrigin, createBookingData);
     if (!result.success || !result.data) {
-      throw new Error(result.error || "Failed to create booking");
+      const message = result.error || "Failed to create booking";
+      const isDuplicateFree =
+        isFree && message.includes("already used your free strategy session");
+      return new Response(
+        JSON.stringify({ success: false, error: message, message }),
+        {
+          status: isDuplicateFree ? 409 : 500,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
     }
-
-    const durationMinutes =
-      typeof createBookingData.service.duration === "number"
-        ? createBookingData.service.duration
-        : parseDurationToMinutes(createBookingData.service.duration);
-    const savedBooking = await saveBooking({
-      id: result.data.bookingId,
-      zoomMeetingId: result.data.zoomMeetingId,
-      calendarEventId: result.data.calendarEventId,
-      clientFirstName: createBookingData.client.firstName,
-      clientLastName: createBookingData.client.lastName,
-      clientEmail: createBookingData.client.email,
-      clientPhone: createBookingData.client.phone,
-      serviceId: createBookingData.service.id,
-      serviceTitle: createBookingData.service.title,
-      startTime: new Date(createBookingData.appointment.startTime),
-      durationMinutes,
-      timezone: createBookingData.appointment.timezone,
-      format: createBookingData.appointment.format,
-      stripePaymentIntentId: createBookingData.payment?.intentId,
-      amount: isFree ? 0 : (createBookingData.payment?.amount ?? 0),
-      currency: createBookingData.payment?.currency || "usd",
-      status: "confirmed",
-      notes: createBookingData.client.notes,
-    });
 
     const eventStartTime = new Date(createBookingData.appointment.startTime);
     const rescheduleToken = generateRescheduleToken(
-      savedBooking.id,
+      result.data.bookingId,
       createBookingData.client.email,
       eventStartTime,
     );
     const cancelToken = generateCancelToken(
-      savedBooking.id,
+      result.data.bookingId,
       createBookingData.client.email,
       eventStartTime,
     );

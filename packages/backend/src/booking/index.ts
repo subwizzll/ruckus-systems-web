@@ -4,8 +4,15 @@ import { getGoogleService } from "../google/service";
 import {
   getBookingById,
   getBookingByPaymentIntent,
+  getFreeBookingByEmail,
+  saveBooking,
+  confirmBooking,
+  updateProvisioning,
+  deletePendingBooking,
   updateBookingStatus,
   updateBookingTime,
+  isUniqueViolation,
+  type Booking,
 } from "@workspace/database";
 import { createStripeService } from "../payment";
 import { generateRescheduleToken, generateCancelToken } from "../lib/jwt";
@@ -61,40 +68,182 @@ function parseDurationToMinutes(duration?: string | number): number {
   return (match[2] || "").toLowerCase().startsWith("h") ? value * 60 : value;
 }
 
+function bookingToResponseData(
+  booking: Booking,
+  extras: {
+    meetingUrl: string;
+    endTime: string;
+    isFree: boolean;
+    rescheduleUrl: string;
+    cancelUrl: string;
+    emailSent?: boolean;
+    emailError?: string;
+  },
+) {
+  return {
+    bookingId: booking.id,
+    zoomMeetingId: booking.zoom_meeting_id,
+    calendarEventId: booking.calendar_event_id,
+    meetingUrl: extras.meetingUrl,
+    status: "ACCEPTED",
+    startTime: booking.start_time,
+    endTime: extras.endTime,
+    paymentIntentId: booking.stripe_payment_intent_id,
+    isFree: extras.isFree,
+    rescheduleUrl: extras.rescheduleUrl,
+    cancelUrl: extras.cancelUrl,
+    emailSent: extras.emailSent,
+    ...(extras.emailError !== undefined ? { emailError: extras.emailError } : {}),
+  };
+}
+
+function isProvisioningComplete(booking: Booking): boolean {
+  if (booking.status === "confirmed" && booking.calendar_event_id) return true;
+  if (booking.format === "in-person" && booking.status === "confirmed") return true;
+  return false;
+}
+
 export async function createBooking(baseUrl: string, data: CreateBookingInput) {
   const validatedData = CreateBookingSchema.parse(data);
   const isFree = !validatedData.payment || validatedData.payment.amount === 0;
+  const clientEmail = validatedData.client.email.toLowerCase();
+  const durationMinutes = parseDurationToMinutes(validatedData.service.duration);
+  const startTime = new Date(validatedData.appointment.startTime);
+  const endTime = validatedData.appointment.endTime
+    ? new Date(validatedData.appointment.endTime)
+    : new Date(startTime.getTime() + durationMinutes * 60 * 1000);
 
   if (!isFree && validatedData.payment?.intentId) {
     const existing = await getBookingByPaymentIntent(validatedData.payment.intentId);
-    if (existing) {
+    if (existing && isProvisioningComplete(existing)) {
+      const rescheduleUrl = `${baseUrl}/reschedule?token=${generateRescheduleToken(
+        existing.id,
+        validatedData.client.email,
+        new Date(existing.start_time),
+      )}`;
+      const cancelUrl = `${baseUrl}/cancel?token=${generateCancelToken(
+        existing.id,
+        validatedData.client.email,
+        new Date(existing.start_time),
+      )}`;
       return {
         success: true,
-        data: {
-          bookingId: existing.id,
-          zoomMeetingId: existing.zoom_meeting_id,
-          calendarEventId: existing.calendar_event_id,
+        data: bookingToResponseData(existing, {
           meetingUrl: "Already created",
-          status: "ACCEPTED",
-          startTime: existing.start_time,
-        },
+          endTime: endTime.toISOString(),
+          isFree,
+          rescheduleUrl,
+          cancelUrl,
+        }),
+      };
+    }
+  }
+
+  if (isFree) {
+    const existingFree = await getFreeBookingByEmail(clientEmail, validatedData.service.id);
+    if (existingFree && isProvisioningComplete(existingFree)) {
+      return {
+        success: false,
+        error: "You've already used your free strategy session. Please select a paid service.",
       };
     }
   }
 
   let zoomMeetingId: string | undefined;
   let calendarEventId: string | undefined;
+  let bookingId: string | undefined;
+  let createdPendingThisRun = false;
+  let createdZoomThisRun = false;
+  let createdCalendarThisRun = false;
 
   try {
-    const bookingId = crypto.randomUUID();
-    const durationMinutes = parseDurationToMinutes(validatedData.service.duration);
-    const startTime = new Date(validatedData.appointment.startTime);
-    const endTime = validatedData.appointment.endTime
-      ? new Date(validatedData.appointment.endTime)
-      : new Date(startTime.getTime() + durationMinutes * 60 * 1000);
+    if (!isFree && validatedData.payment?.intentId) {
+      const inFlight = await getBookingByPaymentIntent(validatedData.payment.intentId);
+      if (inFlight) {
+        bookingId = inFlight.id;
+        zoomMeetingId = inFlight.zoom_meeting_id;
+        calendarEventId = inFlight.calendar_event_id;
+      }
+    }
+
+    if (isFree && !bookingId) {
+      const inFlightFree = await getFreeBookingByEmail(clientEmail, validatedData.service.id);
+      if (inFlightFree) {
+        bookingId = inFlightFree.id;
+        zoomMeetingId = inFlightFree.zoom_meeting_id;
+        calendarEventId = inFlightFree.calendar_event_id;
+      }
+    }
+
+    if (!bookingId) {
+      bookingId = crypto.randomUUID();
+      try {
+        await saveBooking({
+          id: bookingId,
+          clientFirstName: validatedData.client.firstName,
+          clientLastName: validatedData.client.lastName,
+          clientEmail,
+          clientPhone: validatedData.client.phone,
+          serviceId: validatedData.service.id,
+          serviceTitle: validatedData.service.title,
+          startTime,
+          durationMinutes,
+          timezone: validatedData.appointment.timezone,
+          format: validatedData.appointment.format,
+          stripePaymentIntentId: validatedData.payment?.intentId,
+          amount: isFree ? 0 : (validatedData.payment?.amount ?? 0),
+          currency: validatedData.payment?.currency || "usd",
+          status: "pending",
+          notes: validatedData.client.notes,
+        });
+        createdPendingThisRun = true;
+      } catch (error) {
+        if (!isUniqueViolation(error)) throw error;
+
+        if (!isFree && validatedData.payment?.intentId) {
+          const existing = await getBookingByPaymentIntent(validatedData.payment.intentId);
+          if (!existing) throw error;
+          bookingId = existing.id;
+          zoomMeetingId = existing.zoom_meeting_id;
+          calendarEventId = existing.calendar_event_id;
+        } else if (isFree) {
+          const existing = await getFreeBookingByEmail(clientEmail, validatedData.service.id);
+          if (!existing) throw error;
+          bookingId = existing.id;
+          zoomMeetingId = existing.zoom_meeting_id;
+          calendarEventId = existing.calendar_event_id;
+        } else {
+          throw error;
+        }
+      }
+    }
+
+    const currentBooking = await getBookingById(bookingId);
+    if (currentBooking && isProvisioningComplete(currentBooking)) {
+      const rescheduleUrl = `${baseUrl}/reschedule?token=${generateRescheduleToken(
+        currentBooking.id,
+        validatedData.client.email,
+        new Date(currentBooking.start_time),
+      )}`;
+      const cancelUrl = `${baseUrl}/cancel?token=${generateCancelToken(
+        currentBooking.id,
+        validatedData.client.email,
+        new Date(currentBooking.start_time),
+      )}`;
+      return {
+        success: true,
+        data: bookingToResponseData(currentBooking, {
+          meetingUrl: "Already created",
+          endTime: endTime.toISOString(),
+          isFree,
+          rescheduleUrl,
+          cancelUrl,
+        }),
+      };
+    }
 
     let zoomMeetingUrl = "";
-    if (validatedData.appointment.format === "online") {
+    if (validatedData.appointment.format === "online" && !zoomMeetingId) {
       const zoomResult = await createZoomMeeting({
         topic: validatedData.service.title,
         type: "2",
@@ -108,6 +257,8 @@ export async function createBooking(baseUrl: string, data: CreateBookingInput) {
       }
       zoomMeetingId = zoomResult.data.meetingId;
       zoomMeetingUrl = zoomResult.data.joinUrl;
+      createdZoomThisRun = true;
+      await updateProvisioning(bookingId, { zoomMeetingId });
     }
 
     const rescheduleUrl = `${baseUrl}/reschedule?token=${generateRescheduleToken(
@@ -121,21 +272,29 @@ export async function createBooking(baseUrl: string, data: CreateBookingInput) {
       startTime,
     )}`;
 
-    const calendarResult = await getGoogleService().createCalendarEvent({
-      summary: validatedData.service.title,
-      description: `${validatedData.service.title}\n\nReschedule: ${rescheduleUrl}\nCancel: ${cancelUrl}`,
-      startTime,
-      endTime,
-      attendeeEmail: validatedData.client.email,
-      attendeeName: `${validatedData.client.firstName} ${validatedData.client.lastName}`,
-      timezone: validatedData.appointment.timezone,
-      zoomMeetingUrl,
-    });
-    if (!calendarResult.success || !calendarResult.data) {
-      if (zoomMeetingId) await deleteZoomMeeting(zoomMeetingId);
-      throw new Error(calendarResult.error || "Failed to create calendar event");
+    if (!calendarEventId) {
+      const calendarResult = await getGoogleService().createCalendarEvent({
+        summary: validatedData.service.title,
+        description: `${validatedData.service.title}\n\nReschedule: ${rescheduleUrl}\nCancel: ${cancelUrl}`,
+        startTime,
+        endTime,
+        attendeeEmail: validatedData.client.email,
+        attendeeName: `${validatedData.client.firstName} ${validatedData.client.lastName}`,
+        timezone: validatedData.appointment.timezone,
+        zoomMeetingUrl,
+      });
+      if (!calendarResult.success || !calendarResult.data) {
+        throw new Error(calendarResult.error || "Failed to create calendar event");
+      }
+      calendarEventId = calendarResult.data.eventId;
+      createdCalendarThisRun = true;
+      await updateProvisioning(bookingId, { calendarEventId });
     }
-    calendarEventId = calendarResult.data.eventId;
+
+    const confirmedBooking = await confirmBooking(bookingId, {
+      zoomMeetingId,
+      calendarEventId,
+    });
 
     const emailResult = await sendEmail(
       [validatedData.client.email],
@@ -148,7 +307,6 @@ export async function createBooking(baseUrl: string, data: CreateBookingInput) {
       }),
     );
 
-    // Best-effort email: Zoom/calendar are already created. Do not throw — outer catch would roll them back.
     let emailSent = true;
     let emailError: string | undefined;
     if (!emailResult.success) {
@@ -162,25 +320,22 @@ export async function createBooking(baseUrl: string, data: CreateBookingInput) {
 
     return {
       success: true,
-      data: {
-        bookingId,
-        zoomMeetingId,
-        calendarEventId,
+      data: bookingToResponseData(confirmedBooking, {
         meetingUrl: zoomMeetingUrl,
-        status: "ACCEPTED",
-        startTime: validatedData.appointment.startTime,
         endTime: endTime.toISOString(),
-        paymentIntentId: validatedData.payment?.intentId,
         isFree,
         rescheduleUrl,
         cancelUrl,
         emailSent,
         ...(emailError !== undefined ? { emailError } : {}),
-      },
+      }),
     };
   } catch (error) {
-    if (zoomMeetingId) await deleteZoomMeeting(zoomMeetingId);
-    if (calendarEventId) await getGoogleService().deleteCalendarEvent(calendarEventId);
+    if (createdZoomThisRun && zoomMeetingId) await deleteZoomMeeting(zoomMeetingId);
+    if (createdCalendarThisRun && calendarEventId) {
+      await getGoogleService().deleteCalendarEvent(calendarEventId);
+    }
+    if (createdPendingThisRun && bookingId) await deletePendingBooking(bookingId);
     return { success: false, error: error instanceof Error ? error.message : "Failed to create booking" };
   }
 }

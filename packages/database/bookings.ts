@@ -17,7 +17,7 @@ export interface Booking {
   stripe_payment_intent_id?: string;
   amount: number;
   currency: string;
-  status: "confirmed" | "rescheduled" | "cancelled";
+  status: "pending" | "confirmed" | "rescheduled" | "cancelled";
   notes?: string;
   created_at: Date;
   updated_at: Date;
@@ -40,8 +40,14 @@ export interface CreateBookingInput {
   stripePaymentIntentId?: string;
   amount: number;
   currency?: string;
-  status?: "confirmed" | "rescheduled" | "cancelled";
+  status?: "pending" | "confirmed" | "rescheduled" | "cancelled";
   notes?: string;
+}
+
+export function isUniqueViolation(error: unknown): boolean {
+  if (!error || typeof error !== "object") return false;
+  const code = (error as { code?: string }).code;
+  return code === "23505";
 }
 
 export const bookings = {
@@ -77,6 +83,56 @@ export const bookings = {
     return result[0] as Booking;
   },
 
+  async updateProvisioning(
+    id: string,
+    data: { zoomMeetingId?: string; calendarEventId?: string },
+  ): Promise<Booking> {
+    const result = await sql`
+      UPDATE bookings
+      SET
+        zoom_meeting_id = COALESCE(${data.zoomMeetingId ?? null}, zoom_meeting_id),
+        calendar_event_id = COALESCE(${data.calendarEventId ?? null}, calendar_event_id),
+        updated_at = NOW()
+      WHERE id = ${id}
+      RETURNING *
+    `;
+
+    if (result.length === 0) {
+      throw new Error("Booking not found");
+    }
+
+    return result[0] as Booking;
+  },
+
+  async confirmBooking(
+    id: string,
+    data: { zoomMeetingId?: string; calendarEventId?: string },
+  ): Promise<Booking> {
+    const result = await sql`
+      UPDATE bookings
+      SET
+        zoom_meeting_id = COALESCE(${data.zoomMeetingId ?? null}, zoom_meeting_id),
+        calendar_event_id = COALESCE(${data.calendarEventId ?? null}, calendar_event_id),
+        status = 'confirmed',
+        updated_at = NOW()
+      WHERE id = ${id}
+      RETURNING *
+    `;
+
+    if (result.length === 0) {
+      throw new Error("Booking not found");
+    }
+
+    return result[0] as Booking;
+  },
+
+  async deletePendingBooking(id: string): Promise<void> {
+    await sql`
+      DELETE FROM bookings
+      WHERE id = ${id} AND status = 'pending'
+    `;
+  },
+
   async findById(id: string): Promise<Booking | null> {
     const result = await sql`
       SELECT * FROM bookings WHERE id = ${id}
@@ -86,7 +142,7 @@ export const bookings = {
 
   async updateStatus(
     id: string,
-    status: "confirmed" | "rescheduled" | "cancelled",
+    status: "pending" | "confirmed" | "rescheduled" | "cancelled",
   ): Promise<Booking> {
     const result = await sql`
       UPDATE bookings
@@ -151,6 +207,9 @@ export const bookings = {
 };
 
 export const saveBooking = bookings.save;
+export const confirmBooking = bookings.confirmBooking;
+export const updateProvisioning = bookings.updateProvisioning;
+export const deletePendingBooking = bookings.deletePendingBooking;
 export const getBookingById = bookings.findById;
 export const updateBookingStatus = bookings.updateStatus;
 export const updateBookingTime = bookings.updateTime;
