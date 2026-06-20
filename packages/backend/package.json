@@ -34,7 +34,7 @@
     "@types/jsonwebtoken": "^9.0.5",
     "@types/luxon": "^3.7.1",
     "@types/minimatch": "^6.0.0",
-    "@workspace/typescript-config": "workspace:*",
+    "@ruckus/typescript-config": "workspace:*",
     "typescript": "^5.9.2"
   }
 }

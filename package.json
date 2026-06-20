@@ -7,10 +7,13 @@
     "dev": "turbo dev",
     "lint": "turbo lint",
     "check-types": "turbo check-types",
+    "test": "turbo test",
+    "test:scheduling": "turbo test --filter='@ruckus/scheduling-*'",
     "clean": "turbo clean && rm -rf node_modules .turbo bun.lock*",
     "rebuild": "bun clean && bun i && bun run build",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "db:migrate": "turbo run migrate --filter=@workspace/database",
+    "db:migrate:scheduling": "bun run --filter @ruckus/scheduling-database migrate",
     "db:migrate:down": "turbo run migrate:down --filter=@workspace/database",
     "db:migrate:create": "turbo run migrate:create --filter=@workspace/database",
     "db:migrate:redo": "turbo run migrate:redo --filter=@workspace/database",
@@ -19,11 +22,16 @@
   },
   "workspaces": [
     "apps/*",
-    "packages/*"
+    "packages/backend",
+    "packages/database",
+    "packages/eslint-config",
+    "packages/typescript-config",
+    "packages/ui",
+    "packages/ruckus-integrations/packages/*"
   ],
   "devDependencies": {
     "@workspace/eslint-config": "workspace:*",
-    "@workspace/typescript-config": "workspace:*",
+    "@ruckus/typescript-config": "workspace:*",
     "@types/bun": "^1.2.22",
     "prettier": "^3.2.5",
     "turbo": "^2.3.0",

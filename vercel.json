@@ -1,7 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "astro",
-  "installCommand": "bun install",
+  "installCommand": "git submodule update --init --recursive && bun install",
   "buildCommand": "bunx turbo build --filter=web",
   "outputDirectory": "apps/web/.vercel/output",
   "regions": ["iad1"],
