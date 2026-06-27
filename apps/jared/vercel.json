@@ -1,5 +1,8 @@
 {
-  "installCommand": "bash ../../scripts/vercel-install.sh",
+  "installCommand": "cd ../.. && bash scripts/vercel-install.sh",
   "buildCommand": "bunx turbo build --filter=jared",
-  "outputDirectory": "dist"
+  "outputDirectory": "dist",
+  "framework": "astro",
+  "cleanUrls": true,
+  "trailingSlash": false
 }
