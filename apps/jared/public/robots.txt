@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://jared.ruckussystems.dev/sitemap-index.xml

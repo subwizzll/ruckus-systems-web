@@ -1,0 +1,90 @@
+:root {
+  /* Solarized palette */
+  --solar-base03: #002b36;
+  --solar-base02: #073642;
+  --solar-base01: #586e75;
+  --solar-base00: #657b83;
+  --solar-base0: #839496;
+  --solar-base1: #93a1a1;
+  --solar-base2: #eee8d5;
+  --solar-base3: #fdf6e3;
+  --solar-yellow: #b58900;
+  --solar-orange: #cb4b16;
+  --solar-red: #dc322f;
+  --solar-magenta: #d33682;
+  --solar-violet: #6c71c4;
+  --solar-blue: #268bd2;
+  --solar-cyan: #2aa198;
+  --solar-green: #859900;
+
+  /* Semantic tokens (light / Solarized light) — contrast ratios vs #fdf6e3:
+     base02 (#073642) ≈ 13:1   heading/strong
+     base01 (#586e75) ≈ 5.1:1  body text — WCAG AA ✓
+     base00 (#657b83) ≈ 4.0:1  secondary / large text only
+  */
+  --color-bg: var(--solar-base3);
+  --color-bg-alt: var(--solar-base2);
+  --color-text: var(--solar-base01);
+  --color-heading: var(--solar-base02);
+  --color-secondary: var(--solar-base00);
+  --color-border: var(--solar-base2);
+  --color-border-highlight: var(--solar-base00);
+
+  /* Font stacks */
+  --font-body: 'Space Grotesk', Menlo, Monaco, Consolas, 'Andale Mono', sans-serif;
+  --font-mono: 'Share Tech Mono', Menlo, Monaco, Consolas, 'Andale Mono', monospace;
+
+  /* Spacing scale */
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 1rem;
+  --spacing-md: 2rem;
+  --spacing-lg: 4rem;
+  --spacing-xl: 8rem;
+
+  /* Legacy alias tokens (kept so Booking/CoffeeTip JS refs still resolve) */
+  --brand-blue: var(--solar-blue);
+  --page-bg: var(--color-bg);
+  --page-fg: var(--color-text);
+  --accent-sage: var(--solar-cyan);
+  --accent-sage-light: #d2eeec;
+  --accent-sage-text: var(--solar-cyan);
+  --accent-terracotta: var(--solar-orange);
+  --accent-gold: var(--solar-yellow);
+  --accent-teal: var(--solar-cyan);
+  --surface-soft: var(--color-bg-alt);
+  --surface-soft-border: var(--color-border);
+
+  /* Time selection calendar (blue = solar-blue) */
+  --ts-accent: var(--solar-blue);
+  --ts-accent-light: #d1eaf8;
+  --ts-accent-text: #1a6fa8;
+  --ts-accent-hover: #a8d4f0;
+  --ts-accent-shadow: rgba(38, 139, 210, 0.3);
+  --ts-surface: var(--color-bg);
+  --ts-border: var(--color-border);
+  --ts-fg: var(--color-text);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Dark-mode contrast vs #002b36:
+       base2  (#eee8d5) ≈ 12.8:1  heading  ✓✓
+       base1  (#93a1a1) ≈  5.7:1  body text ✓
+       base1  (#93a1a1) ≈  5.7:1  secondary ✓
+    */
+    --color-bg: var(--solar-base03);
+    --color-bg-alt: var(--solar-base02);
+    --color-text: var(--solar-base1);
+    --color-heading: var(--solar-base2);
+    --color-secondary: var(--solar-base1);
+    --color-border: var(--solar-base02);
+    --color-border-highlight: var(--solar-base01);
+    --accent-sage-light: #0d3b38;
+    --accent-sage-text: var(--solar-cyan);
+    --surface-soft: var(--color-bg-alt);
+    --surface-soft-border: var(--color-border);
+    --ts-accent-light: #0d2d3d;
+    --ts-accent-text: #6dbfef;
+    --ts-accent-hover: #1a4a63;
+  }
+}

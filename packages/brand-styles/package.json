@@ -1,0 +1,18 @@
+{
+  "name": "@ruckus/brand-styles",
+  "version": "0.0.0",
+  "private": true,
+  "license": "PROPRIETARY",
+  "exports": {
+    ".": "./src/ruckus.css",
+    "./fonts.css": "./src/fonts.css",
+    "./tokens.css": "./src/tokens.css",
+    "./base.css": "./src/base.css",
+    "./components.css": "./src/components.css",
+    "./layout.css": "./src/layout.css",
+    "./core.css": "./src/core.css"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  }
+}

@@ -1,0 +1,13 @@
+# Jared Russell
+
+> Data Engineer and AI Concierge at Ruckus Systems.
+
+## About
+Jared Russell builds robust data pipelines, automation systems, and practical AI solutions. Based in North Carolina, he works on healthcare data engineering at HealthBook+ and leads engineering at Ruckus Systems.
+
+## Links
+- **Resume:** https://jared.ruckussystems.dev/resume
+- **Company:** https://ruckussystems.dev
+- **LinkedIn:** https://linkedin.com/in/ruckussystems
+- **GitHub:** https://github.com/subwizzll
+- **Email:** jared@ruckussystems.dev

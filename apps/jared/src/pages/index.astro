@@ -1,0 +1,209 @@
+---
+import Layout from '../layouts/Layout.astro'
+
+const personJsonLd = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: 'Jared Russell',
+  jobTitle: 'Data Engineer & AI Concierge',
+  url: 'https://jared.ruckussystems.dev',
+  image: 'https://jared.ruckussystems.dev/headshot.jpeg',
+  telephone: '828-357-7556',
+  email: 'jared@ruckussystems.dev',
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'North Carolina',
+    addressRegion: 'NC',
+    addressCountry: 'US',
+  },
+  worksFor: {
+    '@type': 'Organization',
+    name: 'Ruckus Systems',
+    url: 'https://ruckussystems.dev',
+  },
+  sameAs: [
+    'https://linkedin.com/in/ruckussystems',
+    'https://github.com/subwizzll',
+  ],
+})
+
+const contactLinks = [
+  { label: '828-357-7556', href: 'tel:828-357-7556' },
+  { label: 'jared@ruckussystems.dev', href: 'mailto:jared@ruckussystems.dev' },
+  { label: 'LinkedIn', href: 'https://linkedin.com/in/ruckussystems' },
+  { label: 'GitHub', href: 'https://github.com/subwizzll' },
+]
+---
+
+<Layout
+  title="Jared Russell | Data Engineer & AI Concierge"
+  description="Data Engineer and AI Concierge at Ruckus Systems. Building robust data pipelines, automation, and practical AI solutions in North Carolina."
+>
+  <div class="intro-root">
+    <section class="intro-hero">
+      <img
+        src="/headshot.jpeg"
+        alt="Jared Russell"
+        class="intro-headshot"
+        width="200"
+        height="200"
+        loading="eager"
+      />
+      <div class="intro-content">
+        <h1 class="intro-name">Jared Russell</h1>
+        <p class="intro-title">Data Engineer &amp; AI Concierge</p>
+        <p class="intro-bio">
+          I build robust data pipelines, CI/CD automation, and practical AI systems for growing
+          businesses. Based in North Carolina, I work with Java, Python, TypeScript, PostgreSQL, and
+          AWS — and I run <a href="https://ruckussystems.dev" target="_blank" rel="noopener noreferrer">Ruckus Systems</a>,
+          where we deliver engineering-grade AI and data automation.
+        </p>
+      </div>
+    </section>
+
+    <section class="intro-contact">
+      <h2 class="intro-section-title">Contact</h2>
+      <div class="intro-links">
+        {contactLinks.map((link) => (
+          <a
+            href={link.href}
+            target={link.href.startsWith('http') ? '_blank' : undefined}
+            rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+          >
+            {link.label}
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <section class="intro-cta">
+      <a href="/resume" class="intro-resume-btn">View Resume</a>
+      <a href="https://ruckussystems.dev" class="intro-company-link" target="_blank" rel="noopener noreferrer">
+        Visit Ruckus Systems ↗
+      </a>
+    </section>
+  </div>
+
+  <script is:inline type="application/ld+json" set:html={personJsonLd} />
+</Layout>
+
+<style>
+  .intro-root {
+    max-width: 56rem;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 4rem;
+  }
+
+  .intro-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    margin-bottom: 3rem;
+    text-align: center;
+  }
+
+  @media (min-width: 640px) {
+    .intro-hero {
+      flex-direction: row;
+      text-align: left;
+      align-items: flex-start;
+    }
+  }
+
+  .intro-headshot {
+    width: 10rem;
+    height: 10rem;
+    border-radius: 1rem;
+    object-fit: cover;
+    border: 1px solid var(--color-border);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    flex-shrink: 0;
+  }
+
+  .intro-name {
+    font-family: var(--font-mono);
+    font-size: 2rem;
+    font-weight: 400;
+    color: var(--color-heading);
+    margin-bottom: 0.25rem;
+  }
+
+  .intro-title {
+    font-size: 1.125rem;
+    color: var(--color-text);
+    margin-bottom: 1rem;
+  }
+
+  .intro-bio {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--color-text);
+    margin: 0;
+  }
+
+  .intro-bio a {
+    color: var(--solar-blue);
+    text-decoration: none;
+  }
+  .intro-bio a:hover { text-decoration: underline; }
+
+  .intro-contact {
+    margin-bottom: 2.5rem;
+    padding-bottom: 2.5rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .intro-section-title {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: var(--color-heading);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 1rem;
+  }
+
+  .intro-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.5rem;
+  }
+
+  .intro-links a {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--color-secondary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+  .intro-links a:hover { color: var(--solar-blue); }
+
+  .intro-cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.5rem;
+  }
+
+  .intro-resume-btn {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    padding: 0.625rem 1.25rem;
+    border-radius: 9999px;
+    background-color: var(--solar-blue);
+    color: var(--color-bg);
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+  }
+  .intro-resume-btn:hover { opacity: 0.9; }
+
+  .intro-company-link {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--color-secondary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+  .intro-company-link:hover { color: var(--solar-blue); }
+</style>

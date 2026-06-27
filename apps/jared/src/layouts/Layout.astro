@@ -1,0 +1,145 @@
+---
+import Analytics from '@vercel/analytics/astro'
+import '../styles/global.css'
+
+interface Props {
+  title?: string
+  description?: string
+  image?: string
+  noindex?: boolean
+}
+
+const {
+  title = 'Jared Russell | Data Engineer & AI Concierge',
+  description = 'Data Engineer and AI Concierge at Ruckus Systems. Building robust data pipelines, intelligent automation, and practical AI solutions.',
+  image = '/headshot.jpeg',
+  noindex = false,
+} = Astro.props
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site)
+const ogImageURL = new URL(image, Astro.site).href
+const currentPath = Astro.url.pathname
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="author" content="Jared Russell" />
+    <meta name="theme-color" content="#fdf6e3" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#002b36" media="(prefers-color-scheme: dark)" />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <title>{title}</title>
+    <link rel="canonical" href={canonicalURL} />
+
+    <meta property="og:type" content="profile" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImageURL} />
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageURL} />
+
+    <link rel="icon" href="/favicon-48x48.png" type="image/png" sizes="48x48" />
+    <link rel="icon" href="/favicon-16x16.png" type="image/png" sizes="16x16" />
+    <link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32" />
+    <link rel="icon" href="/favicon-192x192.png" type="image/png" sizes="192x192" />
+    <link rel="icon" href="/favicon-512x512.png" type="image/png" sizes="512x512" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <Analytics />
+  </head>
+  <body class="min-h-screen flex flex-col" style="background-color:var(--color-bg);color:var(--color-text)">
+    <header class="site-header">
+      <nav class="site-nav">
+        <a href="/" class="site-brand">Jared Russell</a>
+        <div class="site-nav-links">
+          <a href="/" class:list={['nav-link', { active: currentPath === '/' }]}>Home</a>
+          <a href="/resume" class:list={['nav-link', { active: currentPath === '/resume' }]}>Resume</a>
+          <a href="https://ruckussystems.dev" class="nav-link nav-link-external" target="_blank" rel="noopener noreferrer">
+            Ruckus Systems
+          </a>
+        </div>
+      </nav>
+    </header>
+
+    <main class="flex-1">
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <p>&copy; {new Date().getFullYear()} Jared Russell</p>
+    </footer>
+  </body>
+</html>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    border-bottom: 1px solid var(--color-border);
+    background-color: var(--color-bg);
+  }
+
+  .site-nav {
+    max-width: 56rem;
+    margin: 0 auto;
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .site-brand {
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    color: var(--color-heading);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+  .site-brand:hover { color: var(--solar-blue); }
+
+  .site-nav-links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1.25rem;
+  }
+
+  .nav-link {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--color-secondary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+  .nav-link:hover,
+  .nav-link.active { color: var(--solar-blue); }
+
+  .nav-link-external::after {
+    content: ' ↗';
+    font-size: 0.7rem;
+  }
+
+  .site-footer {
+    border-top: 1px solid var(--color-border);
+    background-color: var(--color-bg-alt);
+    padding: 1.5rem 1rem;
+    text-align: center;
+  }
+
+  .site-footer p {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--color-secondary);
+    margin: 0;
+  }
+</style>

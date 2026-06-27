@@ -4,11 +4,17 @@
   "installCommand": "bun install",
   "buildCommand": "bunx turbo build --filter=web",
   "outputDirectory": "apps/web/.vercel/output",
-  "regions": ["iad1"],
+  "regions": [
+    "iad1"
+  ],
   "cleanUrls": true,
   "trailingSlash": false,
   "redirects": [
-    { "source": "/old-slug", "destination": "/new-slug", "permanent": true }
+    {
+      "source": "/resume",
+      "destination": "https://jared.ruckussystems.dev/resume",
+      "permanent": true
+    }
   ],
   "env": {
     "VERCEL_FORCE_NO_BUILD_CACHE": "1"
