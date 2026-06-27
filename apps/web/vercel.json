@@ -1,0 +1,9 @@
+{
+  "redirects": [
+    {
+      "source": "/resume",
+      "destination": "https://jared.ruckussystems.dev/resume",
+      "permanent": true
+    }
+  ]
+}
