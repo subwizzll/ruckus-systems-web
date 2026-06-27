@@ -146,22 +146,7 @@ const serviceButtonToneClasses = [
 
     <!-- About / Why Us -->
     <section id="about" class="content-section content-section--alt">
-      <div class="section-inner about-layout">
-        <div class="about-intro">
-          <div class="about-headshot-wrap">
-            <img
-              src="/headshot.jpeg"
-              alt="Jared Russell"
-              width="320"
-              height="320"
-              class="about-headshot"
-              loading="lazy"
-            />
-          </div>
-          <p class="about-intro-text">
-            Put a face to the name—you work with a real person who's accountable for your project and your results.
-          </p>
-        </div>
+      <div class="section-inner">
         <div class="about-content">
           <h2 class="section-title">Why Us</h2>
           <p class="section-sub">
@@ -420,63 +405,6 @@ const serviceButtonToneClasses = [
     }
 
     /* About / Why Us */
-    .about-layout {
-      display: flex;
-      flex-direction: column;
-      gap: 2.5rem;
-    }
-    @media (min-width: 768px) {
-      .about-layout {
-        flex-direction: row;
-        align-items: flex-start;
-        gap: 3rem;
-      }
-    }
-
-    .about-intro {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 1rem;
-      text-align: center;
-    }
-    @media (min-width: 768px) {
-      .about-intro {
-        align-items: flex-start;
-        text-align: left;
-        flex-shrink: 0;
-      }
-    }
-
-    .about-intro-text {
-      font-size: 0.95rem;
-      text-align: left !important;
-      line-height: 1.6;
-      color: var(--color-text);
-      max-width: 26ch;
-      margin: 0;
-    }
-    @media (min-width: 768px) {
-      .about-intro-text { max-width: 24ch; }
-    }
-
-    .about-headshot-wrap {
-      flex-shrink: 0;
-    }
-    .about-headshot {
-      width: 100%;
-      max-width: 200px;
-      height: auto;
-      aspect-ratio: 1;
-      object-fit: cover;
-      border-radius: 0.5rem;
-      border: 1px solid var(--color-border);
-    }
-    @media (min-width: 768px) {
-      .about-headshot { max-width: 280px; }
-    }
-
-    .about-content { min-width: 0; }
 
     .about-grid {
       display: grid;
