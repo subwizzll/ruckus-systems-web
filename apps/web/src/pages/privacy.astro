@@ -1,0 +1,291 @@
+---
+import Layout from '../layouts/Layout.astro'
+---
+
+<Layout
+  title="Privacy Policy | Ruckus Systems"
+  description="How Ruckus Systems collects, uses, and protects information on ruckussystems.dev, including analytics and booking."
+>
+  <div class="privacy-root">
+    <a href="/" class="privacy-back-link">← Back to Home</a>
+
+    <article class="privacy-main">
+      <h1 class="privacy-title">Privacy Policy</h1>
+      <p class="privacy-meta">
+        <strong>Ruckus Systems LLC</strong> · Effective June 26, 2026 ·
+        <a href="mailto:jared@ruckussystems.dev">jared@ruckussystems.dev</a>
+      </p>
+
+      <section class="privacy-section">
+        <h2>Who we are</h2>
+        <p>
+          Ruckus Systems LLC operates <a href="https://ruckussystems.dev">ruckussystems.dev</a>, a
+          marketing and services website for software development, data engineering, and AI
+          automation consulting based in Asheville, NC. This policy describes how we handle
+          information when you visit the site, book a session, or contact us.
+        </p>
+      </section>
+
+      <section class="privacy-section">
+        <h2>Information we collect</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Category</th>
+              <th>Examples</th>
+              <th>Source</th>
+              <th>Purpose</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Website usage</td>
+              <td>Pages viewed, referrer, device/browser type, approximate location</td>
+              <td>Analytics tools</td>
+              <td>Understand traffic, improve the site, measure marketing</td>
+            </tr>
+            <tr>
+              <td>Booking</td>
+              <td>Name, email, phone, appointment time, service selected</td>
+              <td>Online scheduling flow</td>
+              <td>Confirm and manage booked sessions</td>
+            </tr>
+            <tr>
+              <td>Payments</td>
+              <td>Payment amount, transaction metadata (not full card numbers)</td>
+              <td>Stripe checkout for tips or paid bookings</td>
+              <td>Process voluntary tips and paid session fees</td>
+            </tr>
+            <tr>
+              <td>Contact</td>
+              <td>Email address, message content</td>
+              <td>Email or other direct outreach you initiate</td>
+              <td>Respond to inquiries</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="privacy-section">
+        <h2>Analytics and advertising</h2>
+        <p>
+          We use third-party analytics and advertising technologies that may set cookies or
+          similar identifiers in your browser, including:
+        </p>
+        <ul>
+          <li><strong>Vercel Analytics</strong> — aggregated page-view and performance metrics</li>
+          <li><strong>Google tag (gtag.js)</strong> — conversion and campaign measurement</li>
+          <li><strong>LinkedIn Insight Tag</strong> — audience and campaign analytics for LinkedIn ads</li>
+        </ul>
+        <p>
+          These providers may collect usage data according to their own privacy policies. You can
+          limit tracking through your browser settings, ad-blockers, or the opt-out tools offered
+          by each provider.
+        </p>
+      </section>
+
+      <section class="privacy-section">
+        <h2>What we do not do</h2>
+        <ul>
+          <li>We do <strong>not</strong> sell personal information.</li>
+          <li>We do <strong>not</strong> use site analytics data to build unrelated advertising profiles.</li>
+          <li>We do <strong>not</strong> store full payment card numbers — Stripe handles card data.</li>
+        </ul>
+      </section>
+
+      <section class="privacy-section">
+        <h2>Third-party services</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Provider</th>
+              <th>Purpose</th>
+              <th>Data shared</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Vercel</td>
+              <td>Site hosting and analytics</td>
+              <td>Request metadata, aggregated usage</td>
+            </tr>
+            <tr>
+              <td>Google</td>
+              <td>Advertising and conversion measurement</td>
+              <td>Usage and campaign interaction data</td>
+            </tr>
+            <tr>
+              <td>LinkedIn</td>
+              <td>Marketing analytics</td>
+              <td>Usage and ad interaction data</td>
+            </tr>
+            <tr>
+              <td>Stripe</td>
+              <td>Payment processing</td>
+              <td>Payment and customer contact details for transactions</td>
+            </tr>
+            <tr>
+              <td>Ruckus booking platform</td>
+              <td>Scheduling and session management</td>
+              <td>Booking details you submit</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="privacy-section">
+        <h2>Retention</h2>
+        <ul>
+          <li>Analytics data is retained according to each provider's default periods.</li>
+          <li>Booking records are kept as needed to deliver services and meet business obligations.</li>
+          <li>Email correspondence is retained while relevant to an ongoing inquiry or relationship.</li>
+        </ul>
+      </section>
+
+      <section class="privacy-section">
+        <h2>Your rights</h2>
+        <p>
+          You may request access, correction, or deletion of personal information we hold by
+          contacting <a href="mailto:jared@ruckussystems.dev">jared@ruckussystems.dev</a>. We will
+          respond within a reasonable timeframe. Residents of certain jurisdictions may have
+          additional rights under applicable privacy laws.
+        </p>
+      </section>
+
+      <section class="privacy-section">
+        <h2>Contact</h2>
+        <p>
+          Privacy questions or requests:
+          <a href="mailto:jared@ruckussystems.dev">jared@ruckussystems.dev</a>
+        </p>
+      </section>
+
+      <p class="privacy-disclaimer">
+        This policy describes Ruckus Systems' practices for ruckussystems.dev. It does not
+        constitute legal advice and may be updated from time to time.
+      </p>
+    </article>
+  </div>
+</Layout>
+
+<style>
+  .privacy-root {
+    max-width: 56rem;
+    margin: 0 auto;
+    padding: 3rem 1.5rem;
+  }
+
+  .privacy-back-link {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: var(--color-secondary);
+    text-decoration: none;
+    margin-bottom: 2rem;
+    transition: color 0.2s ease;
+  }
+  .privacy-back-link:hover {
+    color: var(--solar-blue);
+  }
+
+  .privacy-main {
+    border: 1px solid var(--color-border);
+    border-radius: 1rem;
+    background-color: var(--color-bg);
+    padding: 2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  }
+  @media (min-width: 768px) {
+    .privacy-main {
+      padding: 3rem;
+    }
+  }
+
+  .privacy-title {
+    font-family: var(--font-mono);
+    font-size: 2rem;
+    font-weight: 400;
+    color: var(--color-heading);
+    margin-bottom: 0.5rem;
+  }
+
+  .privacy-meta {
+    color: var(--color-secondary);
+    font-size: 0.95rem;
+    margin-bottom: 2rem;
+  }
+  .privacy-meta a {
+    color: var(--color-secondary);
+    transition: color 0.2s ease;
+  }
+  .privacy-meta a:hover {
+    color: var(--solar-blue);
+  }
+
+  .privacy-section {
+    margin-bottom: 2rem;
+  }
+
+  .privacy-section h2 {
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.75rem;
+    color: var(--color-heading);
+  }
+
+  .privacy-section p,
+  .privacy-section li {
+    font-size: 0.9rem;
+    line-height: 1.65;
+    color: var(--color-text);
+  }
+
+  .privacy-section a {
+    color: var(--solar-blue);
+    text-decoration: none;
+  }
+  .privacy-section a:hover {
+    text-decoration: underline;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    margin: 0.75rem 0;
+  }
+
+  th,
+  td {
+    border: 1px solid var(--color-border);
+    padding: 0.5rem 0.65rem;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  th {
+    background: var(--color-bg-alt);
+    font-weight: 600;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+  }
+
+  ul {
+    padding-left: 1.25rem;
+  }
+
+  li {
+    margin-bottom: 0.35rem;
+  }
+
+  .privacy-disclaimer {
+    font-size: 0.85rem;
+    color: var(--color-secondary);
+    border-top: 1px solid var(--color-border);
+    padding-top: 1rem;
+    margin-top: 2rem;
+  }
+</style>
