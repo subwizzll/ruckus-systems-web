@@ -1,0 +1,216 @@
+---
+import Layout from '../layouts/Layout.astro'
+---
+
+<Layout
+  title="Terms of Service | Ruckus Systems"
+  description="Terms governing use of ruckussystems.dev, including website content, online booking, and third-party tools."
+>
+  <div class="privacy-root">
+    <a href="/" class="privacy-back-link">← Back to Home</a>
+
+    <article class="privacy-main">
+      <h1 class="privacy-title">Terms of Service</h1>
+      <p class="privacy-meta">
+        <strong>Ruckus Systems LLC</strong> · Effective June 2026 ·
+        <a href="mailto:jared@ruckussystems.dev">jared@ruckussystems.dev</a>
+      </p>
+      <p class="privacy-meta">
+        See also our <a href="/privacy">Privacy Policy</a>.
+      </p>
+
+      <section class="privacy-section">
+        <h2>Agreement</h2>
+        <p>
+          By accessing or using <a href="https://ruckussystems.dev">ruckussystems.dev</a>, you
+          agree to these Terms of Service. If you do not agree, please do not use the site.
+        </p>
+      </section>
+
+      <section class="privacy-section">
+        <h2>Website &amp; services</h2>
+        <p>
+          This site is the public marketing website for Ruckus Systems LLC, offering
+          information about software development, data engineering, and AI automation
+          consulting. The site may also provide optional online booking for consultations and
+          related services.
+        </p>
+      </section>
+
+      <section class="privacy-section">
+        <h2>Acceptable use</h2>
+        <p>You agree not to:</p>
+        <ul>
+          <li>Use the site for unlawful, harmful, or harassing purposes.</li>
+          <li>Attempt to disrupt, scrape, or gain unauthorized access to the site or its systems.</li>
+          <li>Introduce malware, automated abuse, or interference with other users.</li>
+          <li>Misrepresent your identity or affiliation when booking or contacting us.</li>
+        </ul>
+      </section>
+
+      <section class="privacy-section">
+        <h2>Booking</h2>
+        <p>
+          When you book a session, you agree to provide accurate contact information and to
+          follow cancellation, rescheduling, and attendance policies presented in the booking
+          flow. We may decline or cancel bookings that violate these terms or appear
+          fraudulent.
+        </p>
+      </section>
+
+      <section class="privacy-section">
+        <h2>Intellectual property</h2>
+        <p>
+          Site content, branding, design, and materials are owned by Ruckus Systems LLC or its
+          licensors and are protected by applicable intellectual property laws. You may not
+          copy, modify, or redistribute site content without prior written permission, except
+          for personal, non-commercial viewing.
+        </p>
+      </section>
+
+      <section class="privacy-section">
+        <h2>Third-party links &amp; tools</h2>
+        <p>
+          The site may link to third-party services or use tools such as analytics,
+          scheduling, and payment processors. Those services are governed by their own terms
+          and privacy policies. Ruckus Systems is not responsible for third-party content or
+          practices.
+        </p>
+      </section>
+
+      <section class="privacy-section">
+        <h2>Disclaimer</h2>
+        <p>
+          Site content is provided for general informational purposes. It does not constitute
+          professional, legal, financial, or technical advice. You rely on site information at
+          your own risk.
+        </p>
+      </section>
+
+      <section class="privacy-section">
+        <h2>Limitation of liability</h2>
+        <p>
+          The site and related services are provided <strong>as is</strong> and
+          <strong>as available</strong>, without warranties of any kind. To the fullest extent
+          permitted by law, Ruckus Systems LLC will not be liable for indirect, incidental,
+          special, consequential, or punitive damages arising from your use of the site,
+          including booking or payment interactions.
+        </p>
+      </section>
+
+      <section class="privacy-section">
+        <h2>Changes &amp; contact</h2>
+        <p>
+          We may update these terms by posting changes on this page. Continued use after
+          updates constitutes acceptance. Questions:
+          <a href="mailto:jared@ruckussystems.dev">jared@ruckussystems.dev</a>
+        </p>
+      </section>
+
+      <p class="privacy-disclaimer">
+        These terms govern use of ruckussystems.dev. They do not constitute legal advice and
+        may be updated from time to time.
+      </p>
+    </article>
+  </div>
+</Layout>
+
+<style>
+  .privacy-root {
+    max-width: 56rem;
+    margin: 0 auto;
+    padding: 3rem 1.5rem;
+  }
+
+  .privacy-back-link {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: var(--color-secondary);
+    text-decoration: none;
+    margin-bottom: 2rem;
+    transition: color 0.2s ease;
+  }
+  .privacy-back-link:hover {
+    color: var(--solar-blue);
+  }
+
+  .privacy-main {
+    border: 1px solid var(--color-border);
+    border-radius: 1rem;
+    background-color: var(--color-bg);
+    padding: 2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  }
+  @media (min-width: 768px) {
+    .privacy-main {
+      padding: 3rem;
+    }
+  }
+
+  .privacy-title {
+    font-family: var(--font-mono);
+    font-size: 2rem;
+    font-weight: 400;
+    color: var(--color-heading);
+    margin-bottom: 0.5rem;
+  }
+
+  .privacy-meta {
+    color: var(--color-secondary);
+    font-size: 0.95rem;
+    margin-bottom: 2rem;
+  }
+  .privacy-meta a {
+    color: var(--color-secondary);
+    transition: color 0.2s ease;
+  }
+  .privacy-meta a:hover {
+    color: var(--solar-blue);
+  }
+
+  .privacy-section {
+    margin-bottom: 2rem;
+  }
+
+  .privacy-section h2 {
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.75rem;
+    color: var(--color-heading);
+  }
+
+  .privacy-section p,
+  .privacy-section li {
+    font-size: 0.9rem;
+    line-height: 1.65;
+    color: var(--color-text);
+  }
+
+  .privacy-section a {
+    color: var(--solar-blue);
+    text-decoration: none;
+  }
+  .privacy-section a:hover {
+    text-decoration: underline;
+  }
+
+  ul {
+    padding-left: 1.25rem;
+  }
+
+  li {
+    margin-bottom: 0.35rem;
+  }
+
+  .privacy-disclaimer {
+    font-size: 0.85rem;
+    color: var(--color-secondary);
+    border-top: 1px solid var(--color-border);
+    padding-top: 1rem;
+    margin-top: 2rem;
+  }
+</style>
