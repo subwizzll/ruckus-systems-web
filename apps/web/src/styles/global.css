@@ -1,3 +1,4 @@
 @import '@ruckus/brand-styles/fonts.css';
 @import 'tailwindcss';
 @import '@ruckus/brand-styles/core.css';
+@import './time-slot-selection.css';

@@ -6,6 +6,8 @@ interface ImportMetaEnv {
   readonly CLIENT_SECRET?: string;
   readonly PUBLIC_APP_URL?: string;
   readonly PUBLIC_BOOKING_ENABLED?: string;
+  readonly PUBLIC_LINKEDIN_INSIGHT_ENABLED?: string;
+  readonly PUBLIC_LINKEDIN_PARTNER_ID?: string;
   readonly PUBLIC_STRIPE_PUBLISHABLE_KEY?: string;
   readonly STRIPE_SECRET_KEY?: string;
   readonly STRIPE_WEBHOOK_SECRET?: string;
