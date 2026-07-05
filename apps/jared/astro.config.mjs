@@ -30,7 +30,9 @@ export default defineConfig({
     port: 4322,
   },
   output: 'static',
-  adapter: vercel(),
+  adapter: vercel({
+    webAnalytics: { enabled: true },
+  }),
   integrations: [sitemap()],
   vite: {
     plugins: [tailwindcss()],
