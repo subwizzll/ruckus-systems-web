@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 import { createStripeService } from "@workspace/backend/payment";
-import { createBooking, saveBooking } from "@workspace/backend";
+import { createBooking } from "@workspace/backend";
 import { getPublicSiteOrigin } from "@/lib/public-site-origin";
 
 export const POST: APIRoute = async ({ request, url }) => {
@@ -45,7 +45,7 @@ export const POST: APIRoute = async ({ request, url }) => {
       const paymentIntent = event.data.object as any;
       const metadata = paymentIntent.metadata || {};
       const siteOrigin = getPublicSiteOrigin(request, url);
-      const bookingResult = await createBooking(siteOrigin, {
+      await createBooking(siteOrigin, {
         service: {
           id: metadata.service_id || "strategy-call",
           title: metadata.service_name || "Strategy Call",
@@ -70,33 +70,6 @@ export const POST: APIRoute = async ({ request, url }) => {
           currency: paymentIntent.currency || "usd",
         },
       });
-
-      if (bookingResult.success && bookingResult.data) {
-        const startTime = metadata.start_time ? new Date(metadata.start_time) : new Date();
-        const durationMinutes = parseInt(metadata.service_duration_minutes || "60", 10) || 60;
-        await saveBooking({
-          id: bookingResult.data.bookingId,
-          zoomMeetingId: bookingResult.data.zoomMeetingId,
-          calendarEventId: bookingResult.data.calendarEventId,
-          clientFirstName:
-            metadata.first_name || (metadata.customer_name || "Client").split(" ")[0],
-          clientLastName:
-            metadata.last_name || (metadata.customer_name || "").split(" ").slice(1).join(" "),
-          clientEmail: metadata.customer_email || "",
-          clientPhone: metadata.customer_phone || "",
-          serviceId: metadata.service_id || "strategy-call",
-          serviceTitle: metadata.service_name || "Strategy Call",
-          startTime,
-          durationMinutes,
-          timezone: metadata.timezone || "UTC",
-          format: metadata.format === "in-person" ? "in-person" : "online",
-          stripePaymentIntentId: paymentIntent.id,
-          amount: paymentIntent.amount || 0,
-          currency: paymentIntent.currency || "usd",
-          status: "confirmed",
-          notes: metadata.notes || "",
-        });
-      }
     }
 
     return new Response(

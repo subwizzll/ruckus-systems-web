@@ -8,9 +8,13 @@ export { authSessions } from "./public/auth_session";
 export {
   bookings,
   saveBooking,
+  confirmBooking,
+  updateProvisioning,
+  deletePendingBooking,
   getBookingById,
   updateBookingStatus,
   updateBookingTime,
   getBookingByPaymentIntent,
   getFreeBookingByEmail,
+  isUniqueViolation,
 } from "./bookings";
