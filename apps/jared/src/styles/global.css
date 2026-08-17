@@ -1,6 +1,9 @@
 @import '@ruckus/brand-styles/fonts.css';
 @import 'tailwindcss';
+@source "../../../../packages/ruckus-integrations/packages/astro/src/**/*.{astro,css,ts}";
+@source "../../../../node_modules/@ruckus-systems/scheduling-astro/src/**/*.{astro,css,ts}";
 @import '@ruckus/brand-styles/core.css';
+@import '@ruckus-systems/scheduling-astro/styles/time-slot-selection.css';
 
 /* Print styles for resume export */
 @media print {
