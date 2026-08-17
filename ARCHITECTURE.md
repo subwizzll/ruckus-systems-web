@@ -38,7 +38,7 @@ git submodule update --init --recursive packages/ruckus-integrations
 bun install
 ```
 
-Vercel Root Directory is `apps/web` / `apps/jared`. Each app's `vercel.json` cds to the monorepo root and runs `scripts/vercel-install.sh`, which clones the private submodule with `SUBMODULE_GITHUB_TOKEN` (falls back to `NPM_TOKEN`), then `bun install`. Do not use `GITHUB_TOKEN` (Vercel/GitHub reserve it). Grant the Vercel GitHub app access to `subwizzll/ruckus-integrations` to silence the checkout warning.
+Vercel Root Directory is `apps/web` / `apps/jared`. Each app's `vercel.json` cds to the monorepo root and runs `scripts/vercel-install.sh`, which clones the private submodule with `SUBMODULE_SSH_KEY` (read-only deploy key on `ruckus-integrations`) or `SUBMODULE_GITHUB_TOKEN` (a PAT with `repo` read). Do not use `NPM_TOKEN` or `GITHUB_TOKEN` for that clone: packages tokens and Vercel’s reserved GitHub token cannot read `subwizzll/ruckus-integrations` and return 403. Grant the Vercel GitHub app access to that repo to silence the checkout warning.
 
 ## Required env (booking)
 
