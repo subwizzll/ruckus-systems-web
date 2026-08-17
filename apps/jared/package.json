@@ -13,9 +13,9 @@
     "clean": "rm -rf node_modules .astro dist .turbo .vercel"
   },
   "dependencies": {
-    "@ruckus-systems/scheduling-astro": "^0.1.0",
-    "@ruckus-systems/scheduling-themes": "^0.1.0",
     "@ruckus/brand-styles": "workspace:*",
+    "@workspace/scheduling-astro": "workspace:*",
+    "@workspace/scheduling-themes": "workspace:*",
     "@astrojs/check": "^0.9.4",
     "@astrojs/sitemap": "^3.7.0",
     "@astrojs/vercel": "^8.2.7",

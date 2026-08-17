@@ -1,0 +1,496 @@
+---
+interface Props {
+  token: string;
+  pageTitle?: string;
+  redirectUrl?: string;
+  apiBaseUrl?: string;
+  apiKey?: string;
+}
+
+const {
+  token,
+  pageTitle = "Reschedule Appointment",
+  redirectUrl = "/",
+  apiBaseUrl = import.meta.env.PUBLIC_RUCKUS_BOOKING_API_URL || "",
+  apiKey = import.meta.env.PUBLIC_RUCKUS_API_KEY || "",
+} = Astro.props;
+
+const normalizedApiBase = apiBaseUrl.replace(/\/$/, "");
+---
+
+<div
+  id="reschedule-root"
+  class="reschedule-root"
+  data-token={token}
+  data-redirect-url={redirectUrl}
+  data-api-base-url={normalizedApiBase}
+  data-api-key={apiKey}
+>
+  <h1>{pageTitle}</h1>
+
+    <div id="reschedule-loading" class="info-card">Loading booking details...</div>
+    <div id="reschedule-error" class="error-card hidden"></div>
+
+    <div id="reschedule-body" class="hidden space-y-6">
+      <div class="info-card">
+        <h2>Current Booking</h2>
+        <p><strong>Service:</strong> <span id="service-title"></span></p>
+        <p><strong>Current time:</strong> <span id="current-time"></span></p>
+        <p class="tz-note">
+          Times shown in your timezone: <span id="user-timezone" class="font-medium"></span>
+        </p>
+      </div>
+
+      <div>
+        <h3 class="subsection-heading">Select New Date and Time</h3>
+        <div id="availability-loading" class="py-8 text-center">
+          <div class="animate-pulse">
+            <div class="loading-spinner"></div>
+            <p class="loading-text">Loading available times...</p>
+          </div>
+        </div>
+
+        <div id="calendar-container" class="hidden">
+          <div class="calendar-layout">
+            <div class="calendar-col">
+              <div class="calendar-nav">
+                <button id="prev-month" class="calendar-nav-btn" type="button">
+                  <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                  </svg>
+                </button>
+                <h3 id="calendar-month" class="calendar-month-title"></h3>
+                <button id="next-month" class="calendar-nav-btn" type="button">
+                  <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                  </svg>
+                </button>
+              </div>
+
+              <div class="calendar-grid-wrap">
+                <div class="calendar-day-headers">
+                  {['Su','Mo','Tu','We','Th','Fr','Sa'].map(d => (
+                    <div class="cal-day-header">{d}</div>
+                  ))}
+                </div>
+                <div id="calendar-days" class="grid grid-cols-7 gap-2"></div>
+              </div>
+            </div>
+
+            <div class="slots-col">
+              <div id="selected-date-info" class="selected-date-info hidden">
+                <p id="selected-date-label" class="selected-date-label"></p>
+                <p id="selected-time-label" class="selected-time-label">No time selected yet.</p>
+              </div>
+
+              <div id="time-slots-grid" class="hidden">
+                <div id="time-slots-container" class="mb-6"></div>
+              </div>
+
+              <div id="no-times-message" class="no-times-msg hidden">
+                <p>Please choose a highlighted date to see available times.</p>
+                <p class="no-times-sub">No available times on this day.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button id="confirm-reschedule" class="confirm-btn" disabled>
+        Confirm reschedule
+      </button>
+    </div>
+</div>
+
+<style>
+  .reschedule-root {
+    max-width: 56rem;
+    margin: 0 auto;
+    padding: 3rem 1.5rem;
+  }
+  .reschedule-root h1 {
+    font-size: 1.875rem;
+    font-family: var(--font-mono);
+    color: var(--color-heading);
+    margin-bottom: 1.5rem;
+  }
+  .info-card {
+    border: 1px solid var(--color-border);
+    border-radius: 0.75rem;
+    padding: 1rem 1.25rem;
+    background-color: var(--color-bg-alt);
+    color: var(--color-text);
+    line-height: 1.7;
+  }
+  .info-card h2 {
+    font-size: 1.125rem;
+    font-family: var(--font-mono);
+    color: var(--color-heading);
+    margin-bottom: 0.5rem;
+  }
+  .error-card {
+    border: 1px solid var(--solar-red);
+    border-radius: 0.75rem;
+    padding: 1rem 1.25rem;
+    background-color: color-mix(in srgb, var(--solar-red) 10%, transparent);
+    color: var(--solar-red);
+  }
+  .tz-note { font-size: 0.8rem; color: var(--color-secondary); margin-top: 0.5rem; }
+  .subsection-heading {
+    font-size: 1.125rem;
+    font-family: var(--font-mono);
+    color: var(--color-heading);
+    margin-bottom: 0.75rem;
+  }
+  .loading-spinner {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 9999px;
+    background-color: var(--color-border);
+    margin: 0 auto 0.75rem;
+  }
+  .loading-text { color: var(--color-secondary); font-size: 0.9rem; }
+  .calendar-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+  @media (min-width: 1024px) {
+    .calendar-layout { flex-direction: row; align-items: flex-start; }
+    .calendar-col { max-width: 24rem; flex: 1; }
+    .slots-col { max-width: 24rem; flex: 1; }
+  }
+  .calendar-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+  }
+  .calendar-nav-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    color: var(--color-text);
+    transition: background-color 0.2s ease;
+  }
+  .calendar-nav-btn:hover { background-color: var(--color-border); }
+  .calendar-nav-btn:disabled { opacity: 0.4; cursor: default; }
+  .calendar-month-title {
+    font-size: 1.125rem;
+    font-family: var(--font-mono);
+    color: var(--color-heading);
+    margin: 0;
+  }
+  .calendar-grid-wrap {
+    border: 1px solid var(--color-border);
+    border-radius: 0.75rem;
+    background-color: var(--color-bg);
+    padding: 1rem;
+  }
+  .calendar-day-headers {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  .cal-day-header {
+    text-align: center;
+    font-size: 0.8rem;
+    font-family: var(--font-mono);
+    color: var(--color-secondary);
+    padding: 0.5rem 0;
+  }
+  .selected-date-info {
+    border: 1px solid var(--color-border);
+    border-radius: 0.75rem;
+    background-color: var(--color-bg-alt);
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+  }
+  .selected-date-label {
+    font-size: 0.875rem;
+    font-family: var(--font-mono);
+    color: var(--color-heading);
+    margin-bottom: 0.25rem;
+  }
+  .selected-time-label {
+    font-size: 0.875rem;
+    color: var(--solar-blue);
+    margin-bottom: 0;
+  }
+  .no-times-msg {
+    border-radius: 0.75rem;
+    background-color: var(--color-bg-alt);
+    padding: 2rem;
+    text-align: center;
+    color: var(--color-text);
+  }
+  .no-times-sub { font-size: 0.8rem; color: var(--color-secondary); margin-top: 0.25rem; }
+  .confirm-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 3rem;
+    padding: 0 1.5rem;
+    background-color: var(--solar-blue);
+    color: var(--solar-base3);
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    border-radius: 0.5rem;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+  }
+  .confirm-btn:hover:not(:disabled) { opacity: 0.85; }
+  .confirm-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+</style>
+
+<script>
+  // @ts-nocheck - inline-style script with DOM refs; types from lib are used at runtime
+  import type { Slot } from "../lib/time-slot-selection";
+  import {
+    isSlotWithinBusinessHours,
+    isAtCurrentMonth,
+    groupSlotsByTimeOfDay,
+    buildTimeSlotsHTML,
+    buildCalendarDayModels,
+    formatSelectedDateLabel,
+  } from "../lib/time-slot-selection";
+
+  const root = document.getElementById("reschedule-root");
+  const token = root?.getAttribute("data-token") ?? "";
+  const redirectUrl = root?.getAttribute("data-redirect-url") ?? "/";
+  const apiBaseUrl = (root?.getAttribute("data-api-base-url") || "").replace(/\/$/, "");
+  const apiKey = root?.getAttribute("data-api-key") || "";
+
+  function bookingApiUrl(centralPath: string, legacyPath: string) {
+    return apiBaseUrl ? `${apiBaseUrl}${centralPath}` : legacyPath;
+  }
+
+  function bookingApiHeaders(extra: Record<string, string> = {}) {
+    const headers = { ...extra };
+    if (apiKey) headers.Authorization = `Bearer ${apiKey}`;
+    return headers;
+  }
+
+  let bookingData: Record<string, unknown> | null = null;
+  let availableSlots: Slot[] = [];
+  let selectedSlot: Slot | null = null;
+  let selectedDate: string | null = null;
+  let currentDate = new Date();
+
+  function updateMonthNavigationState() {
+    const prevBtn = document.getElementById("prev-month") as HTMLButtonElement | null;
+    if (!prevBtn) return;
+    const atCurrent = isAtCurrentMonth(currentDate);
+    prevBtn.disabled = atCurrent;
+    prevBtn.classList.toggle("is-disabled", atCurrent);
+    prevBtn.setAttribute("aria-disabled", atCurrent ? "true" : "false");
+  }
+
+  function setupMonthNavigation() {
+    const prevBtn = document.getElementById("prev-month");
+    const nextBtn = document.getElementById("next-month");
+    if (!prevBtn || !nextBtn) return;
+
+    (prevBtn as HTMLButtonElement).onclick = () => {
+      const now = new Date();
+      const targetDate = new Date(currentDate);
+      targetDate.setMonth(targetDate.getMonth() - 1);
+      if (
+        targetDate.getFullYear() < now.getFullYear() ||
+        (targetDate.getFullYear() === now.getFullYear() && targetDate.getMonth() < now.getMonth())
+      ) {
+        return;
+      }
+      currentDate = targetDate;
+      populateCalendar();
+    };
+
+    (nextBtn as HTMLButtonElement).onclick = () => {
+      currentDate.setMonth(currentDate.getMonth() + 1);
+      populateCalendar();
+    };
+
+    updateMonthNavigationState();
+  }
+
+  function showTimeSlots(slots: Slot[], dateStr: string) {
+    const timeSlotsGrid = document.getElementById("time-slots-grid");
+    const timeSlotsContainer = document.getElementById("time-slots-container");
+    const noTimesMessage = document.getElementById("no-times-message");
+    const selectedDateInfo = document.getElementById("selected-date-info");
+    const selectedDateLabel = document.getElementById("selected-date-label");
+    const selectedTimeLabel = document.getElementById("selected-time-label");
+    const validSlots = slots.filter((slot: Slot) => isSlotWithinBusinessHours(slot));
+
+    if (selectedDateLabel) selectedDateLabel.textContent = formatSelectedDateLabel(dateStr);
+
+    if (!validSlots.length) {
+      timeSlotsGrid?.classList.add("hidden");
+      noTimesMessage?.classList.remove("hidden");
+      selectedDateInfo?.classList.add("hidden");
+      if (selectedTimeLabel) selectedTimeLabel.textContent = "No time selected yet.";
+      return;
+    }
+
+    selectedDateInfo?.classList.remove("hidden");
+    timeSlotsGrid?.classList.remove("hidden");
+    noTimesMessage?.classList.add("hidden");
+
+    const { morning, afternoon, evening } = groupSlotsByTimeOfDay(validSlots);
+    if (timeSlotsContainer) {
+      timeSlotsContainer.innerHTML = buildTimeSlotsHTML(morning, afternoon, evening);
+      timeSlotsContainer.querySelectorAll(".time-slot-button").forEach((button) => {
+        button.addEventListener("click", () => selectTimeSlot(button as HTMLButtonElement));
+      });
+    }
+  }
+
+  function selectDate(dayEl: HTMLElement) {
+    selectedDate = dayEl.dataset.date ?? null;
+    selectedSlot = null;
+    const confirmBtn = document.getElementById("confirm-reschedule") as HTMLButtonElement | null;
+    if (confirmBtn) confirmBtn.disabled = true;
+    document.querySelectorAll(".calendar-day.selected").forEach((el) => el.classList.remove("selected"));
+    dayEl.classList.add("selected");
+    const selectedTimeLabel = document.getElementById("selected-time-label");
+    if (selectedTimeLabel) selectedTimeLabel.textContent = "No time selected yet.";
+
+    const slots = JSON.parse(dayEl.dataset.slots || "[]") as Slot[];
+    if (selectedDate) showTimeSlots(slots, selectedDate);
+  }
+
+  function selectTimeSlot(slotButton: HTMLButtonElement) {
+    document.querySelectorAll(".time-slot-button.selected").forEach((el) => el.classList.remove("selected"));
+    slotButton.classList.add("selected");
+    selectedSlot = JSON.parse(slotButton.dataset.slot || "{}") as Slot;
+    if (!isSlotWithinBusinessHours(selectedSlot)) {
+      selectedSlot = null;
+      slotButton.classList.remove("selected");
+      const confirmBtn = document.getElementById("confirm-reschedule") as HTMLButtonElement | null;
+      if (confirmBtn) confirmBtn.disabled = true;
+      alert("Please choose a Monday-Friday time between 9:00 AM and 5:00 PM.");
+      return;
+    }
+
+    const selectedTimeLabel = document.getElementById("selected-time-label");
+    if (selectedTimeLabel) {
+      selectedTimeLabel.textContent = `Selected time: ${slotButton.textContent?.trim() || ""}`;
+    }
+    const confirmBtn = document.getElementById("confirm-reschedule") as HTMLButtonElement | null;
+    if (confirmBtn) confirmBtn.disabled = false;
+  }
+
+  function populateCalendar() {
+    const calendarDays = document.getElementById("calendar-days");
+    const monthHeader = document.getElementById("calendar-month");
+    if (!calendarDays || !monthHeader) return;
+
+    monthHeader.textContent = currentDate.toLocaleString("default", {
+      month: "long",
+      year: "numeric",
+    });
+
+    const models = buildCalendarDayModels({
+      currentDate,
+      selectedDate,
+      availableSlots,
+    });
+    const html = models
+      .map(
+        (m) =>
+          `<button type="button" class="${m.classes}" data-date="${m.dateStr}" ${m.isAvailable ? `data-slots='${JSON.stringify(m.daySlots)}'` : "disabled"}>${m.dayNumber}</button>`
+      )
+      .join("");
+    calendarDays.innerHTML = html;
+    calendarDays.querySelectorAll(".calendar-day.available").forEach((el) => {
+      el.addEventListener("click", () => selectDate(el));
+    });
+    updateMonthNavigationState();
+  }
+
+  async function init() {
+    const loading = document.getElementById("reschedule-loading");
+    const error = document.getElementById("reschedule-error");
+    const body = document.getElementById("reschedule-body");
+
+    try {
+      const detailsRes = await fetch(
+        bookingApiUrl(`/v1/reschedule?token=${token}`, `/api/booking/reschedule?token=${token}`),
+        { headers: bookingApiHeaders() },
+      );
+      const details = await detailsRes.json();
+      if (!details.success) throw new Error(details.error || "Invalid link");
+
+      document.getElementById("service-title").textContent = details.data.serviceTitle;
+      document.getElementById("current-time").textContent = new Date(
+        details.data.currentStartTime,
+      ).toLocaleString();
+      document.getElementById("user-timezone").textContent = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      bookingData = details.data;
+
+      const minDays = details.data.minDaysInAdvance ?? 1;
+      const maxDays = details.data.maxDaysInAdvance ?? 30;
+      const slotsRes = await fetch(
+        bookingApiUrl(
+          `/v1/slots?eventTypeSlug=${encodeURIComponent(details.data.serviceId)}&minDaysInAdvance=${minDays}&maxDaysInAdvance=${maxDays}`,
+          `/api/booking/slots?eventTypeSlug=${encodeURIComponent(details.data.serviceId)}&minDaysInAdvance=${minDays}&maxDaysInAdvance=${maxDays}`,
+        ),
+        { headers: bookingApiHeaders() },
+      );
+      const slots = await slotsRes.json();
+      if (!slots.success) throw new Error(slots.error || "Failed to load slots");
+
+      availableSlots = (slots.data?.slots || []).filter((slot) => isSlotWithinBusinessHours(slot));
+      currentDate = new Date();
+      setupMonthNavigation();
+      populateCalendar();
+
+      loading.classList.add("hidden");
+      body.classList.remove("hidden");
+      document.getElementById("availability-loading").classList.add("hidden");
+      document.getElementById("calendar-container").classList.remove("hidden");
+    } catch (err) {
+      loading.classList.add("hidden");
+      error.textContent = err instanceof Error ? err.message : "Unable to load booking";
+      error.classList.remove("hidden");
+    }
+  }
+
+  document.getElementById("confirm-reschedule")?.addEventListener("click", async () => {
+    if (!bookingData || !selectedSlot?.start_time) {
+      alert("Please select a new time first.");
+      return;
+    }
+
+    if (!isSlotWithinBusinessHours(selectedSlot)) {
+      alert("Please choose a Monday-Friday time between 9:00 AM and 5:00 PM.");
+      return;
+    }
+
+    const button = document.getElementById("confirm-reschedule");
+    button.disabled = true;
+    const originalText = button.textContent;
+    button.textContent = "Rescheduling...";
+
+    const res = await fetch(bookingApiUrl("/v1/reschedule", "/api/booking/reschedule"), {
+      method: "POST",
+      headers: bookingApiHeaders({ "Content-Type": "application/json" }),
+      body: JSON.stringify({ token, newStartTime: selectedSlot.start_time }),
+    });
+    const data = await res.json();
+    if (!data.success) {
+      alert(data.error || "Failed to reschedule");
+      button.disabled = false;
+      button.textContent = originalText;
+      return;
+    }
+    alert("Booking rescheduled successfully.");
+    window.location.href = redirectUrl;
+  });
+
+  init();
+</script>

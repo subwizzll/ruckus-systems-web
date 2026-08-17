@@ -1,7 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro'
-import BookingModal from '@ruckus-systems/scheduling-astro/components/BookingModal.astro'
-import { ruckusDefaultTheme } from '@ruckus-systems/scheduling-themes'
+import BookingModal from '@workspace/scheduling-astro/components/BookingModal.astro'
+import { ruckusDefaultTheme } from '@workspace/scheduling-themes'
 import { catalogServicesToModalMap } from '../lib/catalog-services'
 
 export const prerender = true
@@ -111,7 +111,7 @@ const contactLinks = [
 </Layout>
 
 <style is:global>
-  @import '@ruckus-systems/scheduling-astro/styles/time-slot-selection.css';
+  @import '@workspace/scheduling-astro/styles/time-slot-selection.css';
 </style>
 
 <style>
