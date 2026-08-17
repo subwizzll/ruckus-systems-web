@@ -1,4 +1,10 @@
 {
+  "installCommand": "cd ../.. && bash scripts/vercel-install.sh",
+  "buildCommand": "cd ../.. && bunx turbo build --filter=web",
+  "outputDirectory": ".vercel/output",
+  "framework": "astro",
+  "cleanUrls": true,
+  "trailingSlash": false,
   "redirects": [
     {
       "source": "/resume",
