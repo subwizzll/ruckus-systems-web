@@ -19,7 +19,11 @@
   },
   "workspaces": [
     "apps/*",
-    "packages/*"
+    "packages/*",
+    "packages/ruckus-integrations/packages/astro",
+    "packages/ruckus-integrations/packages/themes",
+    "packages/ruckus-integrations/packages/core",
+    "packages/ruckus-integrations/typescript-config"
   ],
   "devDependencies": {
     "@workspace/eslint-config": "workspace:*",

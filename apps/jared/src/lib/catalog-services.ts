@@ -1,4 +1,4 @@
-import type { BookingModalService } from '@workspace/scheduling-astro'
+import type { BookingModalService } from '@ruckus-systems/scheduling-astro'
 import catalog from '../data/services.json'
 
 export function catalogServicesToModalMap(): Record<string, BookingModalService> {

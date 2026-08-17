@@ -14,8 +14,8 @@
   },
   "dependencies": {
     "@ruckus/brand-styles": "workspace:*",
-    "@workspace/scheduling-astro": "workspace:*",
-    "@workspace/scheduling-themes": "workspace:*",
+    "@ruckus-systems/scheduling-astro": "workspace:*",
+    "@ruckus-systems/scheduling-themes": "workspace:*",
     "@astrojs/check": "^0.9.4",
     "@astrojs/sitemap": "^3.7.0",
     "@astrojs/vercel": "^8.2.7",

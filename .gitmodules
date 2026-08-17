@@ -1,3 +1,3 @@
-[submodule "packages/shared-booking"]
-	path = packages/shared-booking
-	url = /Users/jared.russell/MyApps/radiant-heart-ayurveda/packages/shared-booking
+[submodule "packages/ruckus-integrations"]
+	path = packages/ruckus-integrations
+	url = https://github.com/subwizzll/ruckus-integrations.git
