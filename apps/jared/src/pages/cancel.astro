@@ -1,0 +1,20 @@
+---
+import Layout from '../layouts/Layout.astro'
+import CancelPage from '@ruckus-systems/scheduling-astro/components/CancelPage.astro'
+
+export const prerender = false
+
+const token = Astro.url.searchParams.get('token')
+if (!token) {
+  return Astro.redirect('/')
+}
+---
+
+<Layout title="Cancel Appointment | Jared Russell">
+  <CancelPage
+    token={token}
+    pageTitle="Cancel Appointment"
+    apiBaseUrl={import.meta.env.PUBLIC_RUCKUS_BOOKING_API_URL}
+    apiKey={import.meta.env.PUBLIC_RUCKUS_API_KEY}
+  />
+</Layout>

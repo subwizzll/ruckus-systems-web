@@ -29,9 +29,13 @@ export default defineConfig({
   server: {
     port: 4322,
   },
-  output: 'static',
+  output: 'server',
   adapter: vercel(),
-  integrations: [sitemap()],
+  integrations: [
+    sitemap({
+      filter: (page) => !page.includes('/cancel') && !page.includes('/reschedule'),
+    }),
+  ],
   vite: {
     plugins: [tailwindcss()],
     resolve: {

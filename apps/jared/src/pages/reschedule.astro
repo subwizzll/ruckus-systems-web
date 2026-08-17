@@ -1,0 +1,24 @@
+---
+import Layout from '../layouts/Layout.astro'
+import ReschedulePage from '@ruckus-systems/scheduling-astro/components/ReschedulePage.astro'
+
+export const prerender = false
+
+const token = Astro.url.searchParams.get('token')
+if (!token) {
+  return Astro.redirect('/')
+}
+---
+
+<Layout title="Reschedule Appointment | Jared Russell">
+  <ReschedulePage
+    token={token}
+    pageTitle="Reschedule Appointment"
+    apiBaseUrl={import.meta.env.PUBLIC_RUCKUS_BOOKING_API_URL}
+    apiKey={import.meta.env.PUBLIC_RUCKUS_API_KEY}
+  />
+</Layout>
+
+<style is:global>
+  @import '@ruckus-systems/scheduling-astro/styles/time-slot-selection.css';
+</style>

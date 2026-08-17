@@ -1,0 +1,12 @@
+[
+  {
+    "id": "conversation",
+    "title": "Conversation",
+    "description": "30-minute chat with Jared for recruiters, collaborators, or anyone who wants to talk. Choose Google Meet, Zoom, or a phone call.",
+    "duration": 30,
+    "amount": 0,
+    "minDaysInAdvance": 1,
+    "maxDaysInAdvance": 30,
+    "formats": ["google-meet", "zoom", "phone"]
+  }
+]

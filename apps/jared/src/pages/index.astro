@@ -1,5 +1,12 @@
 ---
 import Layout from '../layouts/Layout.astro'
+import BookingModal from '@ruckus-systems/scheduling-astro/components/BookingModal.astro'
+import { ruckusDefaultTheme } from '@ruckus-systems/scheduling-themes'
+import { catalogServicesToModalMap } from '../lib/catalog-services'
+
+export const prerender = true
+
+const serviceMap = catalogServicesToModalMap()
 
 const personJsonLd = JSON.stringify({
   '@context': 'https://schema.org',
@@ -55,7 +62,7 @@ const contactLinks = [
         <p class="intro-bio">
           I build robust data pipelines, CI/CD automation, and practical AI systems for growing
           businesses. Based in North Carolina, I work with Java, Python, TypeScript, PostgreSQL, and
-          AWS — and I run <a href="https://ruckussystems.dev" target="_blank" rel="noopener noreferrer">Ruckus Systems</a>,
+          AWS - and I run <a href="https://ruckussystems.dev" target="_blank" rel="noopener noreferrer">Ruckus Systems</a>,
           where we deliver engineering-grade AI and data automation.
         </p>
       </div>
@@ -74,18 +81,38 @@ const contactLinks = [
           </a>
         ))}
       </div>
+      <p class="intro-booking-note">
+        Recruiters and collaborators can book a free 30-minute conversation. Choose Google Meet, Zoom, or a phone call.
+      </p>
     </section>
 
     <section class="intro-cta">
-      <a href="/resume" class="intro-resume-btn">View Resume</a>
+      <button type="button" class="intro-resume-btn" data-booking-open data-service="conversation">
+        Book a conversation
+      </button>
+      <a href="/resume" class="intro-secondary-btn">View Resume</a>
       <a href="https://ruckussystems.dev" class="intro-company-link" target="_blank" rel="noopener noreferrer">
         Visit Ruckus Systems ↗
       </a>
     </section>
   </div>
 
+  <BookingModal
+    services={serviceMap}
+    theme={ruckusDefaultTheme}
+    defaultServiceKey="conversation"
+    modalTitle="Book a conversation"
+    apiBaseUrl={import.meta.env.PUBLIC_RUCKUS_BOOKING_API_URL}
+    apiKey={import.meta.env.PUBLIC_RUCKUS_API_KEY}
+    turnstileSiteKey={import.meta.env.PUBLIC_TURNSTILE_SITE_KEY}
+  />
+
   <script is:inline type="application/ld+json" set:html={personJsonLd} />
 </Layout>
+
+<style is:global>
+  @import '@ruckus-systems/scheduling-astro/styles/time-slot-selection.css';
+</style>
 
 <style>
   .intro-root {
@@ -179,6 +206,13 @@ const contactLinks = [
   }
   .intro-links a:hover { color: var(--solar-blue); }
 
+  .intro-booking-note {
+    margin: 1rem 0 0;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--color-text);
+  }
+
   .intro-cta {
     display: flex;
     flex-wrap: wrap;
@@ -190,13 +224,28 @@ const contactLinks = [
     font-family: var(--font-mono);
     font-size: 0.85rem;
     padding: 0.625rem 1.25rem;
+    border: none;
     border-radius: 9999px;
     background-color: var(--solar-blue);
     color: var(--color-bg);
     text-decoration: none;
+    cursor: pointer;
     transition: opacity 0.2s ease;
   }
   .intro-resume-btn:hover { opacity: 0.9; }
+
+  .intro-secondary-btn {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    padding: 0.625rem 1.25rem;
+    border-radius: 9999px;
+    border: 1px solid var(--color-border);
+    background-color: var(--color-bg-alt);
+    color: var(--color-text);
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+  }
+  .intro-secondary-btn:hover { background-color: var(--color-border); }
 
   .intro-company-link {
     font-family: var(--font-mono);
